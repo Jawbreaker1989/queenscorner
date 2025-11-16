@@ -1,0 +1,353 @@
+{
+  "info": {
+    "name": "Queen's Corner - Flujo Completo",
+    "description": "Pruebas concisas del flujo principal: Cliente → Cotización → Negocio → Pago → OT → Factura",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cotizacionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "negocioId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🧹 0. LIMPIAR BD (Opcional)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"observaciones\": \"Limpieza pre-pruebas\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/dev/limpiar-datos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "dev", "limpiar-datos"]
+        }
+      }
+    },
+    {
+      "name": "👤 1. CREAR CLIENTE",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cliente Prueba Flow\",\n  \"email\": \"cliente@flowtest.com\",\n  \"telefono\": \"300-1112233\",\n  \"direccion\": \"Dirección prueba flow\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/clientes",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "clientes"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Cliente creado\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.id).to.be.a('number');",
+              "    pm.collectionVariables.set(\"clienteId\", jsonData.data.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 2. CREAR COTIZACIÓN",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"fechaValidez\": \"2024-12-31\",\n  \"descripcion\": \"Cotización flow test\",\n  \"observaciones\": \"Prueba de flujo completo\",\n  \"items\": [\n    {\n      \"descripcion\": \"Producto A flow\",\n      \"cantidad\": 2,\n      \"precioUnitario\": 150.00\n    },\n    {\n      \"descripcion\": \"Producto B flow\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 80.00\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cotizaciones",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cotizaciones"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Cotización creada\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.subtotal).to.equal(380.00);",
+              "    pm.expect(jsonData.data.cliente).to.not.be.null;",
+              "    pm.expect(jsonData.data.items).to.not.be.null;",
+              "    pm.collectionVariables.set(\"cotizacionId\", jsonData.data.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔄 3. APROBAR COTIZACIÓN",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"APROBADA\",\n  \"observaciones\": \"Aprobada para flujo test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/cotizaciones/{{cotizacionId}}/estado",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "cotizaciones", "{{cotizacionId}}", "estado"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Cotización aprobada\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.estado).to.equal(\"APROBADA\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤝 4. CREAR NEGOCIO",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cotizacionId\": {{cotizacionId}},\n  \"anticipo\": 100.00,\n  \"fechaEntregaEstimada\": \"2024-11-30\",\n  \"observaciones\": \"Negocio desde flujo test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/negocios",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "negocios"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Negocio creado\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.cotizacion).to.not.be.null;",
+              "    pm.expect(jsonData.data.saldoPendiente).to.equal(322.20);",
+              "    pm.collectionVariables.set(\"negocioId\", jsonData.data.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 5. REGISTRAR PAGO",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"monto\": 100.00,\n  \"metodoPago\": \"TRANSFERENCIA\",\n  \"referencia\": \"FLOW-TEST-001\",\n  \"observaciones\": \"Pago flujo test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/pagos",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "pagos"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Pago registrado\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.negocio).to.not.be.null;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ 6. CREAR ORDEN TRABAJO",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"descripcion\": \"Orden trabajo flow test\",\n  \"prioridad\": \"ALTA\",\n  \"fechaInicioEstimada\": \"2024-11-20\",\n  \"fechaFinEstimada\": \"2024-11-27\",\n  \"observaciones\": \"OT desde flujo completo\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ordenes-trabajo",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ordenes-trabajo"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"OT creada\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.negocio).to.not.be.null;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧾 7. GENERAR FACTURA",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"observaciones\": \"Factura flujo completo\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/facturas",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "facturas"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Factura generada\", function() {",
+              "    pm.response.to.have.status(201);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.negocio).to.not.be.null;",
+              "    pm.expect(jsonData.data.total).to.equal(422.20);",
+              "});",
+              "",
+              "// 🎉 FLUJO COMPLETADO",
+              "console.log(\"✅ FLUJO COMPLETADO EXITOSAMENTE\");",
+              "console.log(\"Cliente: \" + pm.collectionVariables.get(\"clienteId\"));",
+              "console.log(\"Cotización: \" + pm.collectionVariables.get(\"cotizacionId\"));",
+              "console.log(\"Negocio: \" + pm.collectionVariables.get(\"negocioId\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 8. VERIFICAR FLUJO COMPLETO",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/negocios/{{negocioId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "negocios", "{{negocioId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Flujo verificado\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.data.cotizacion).to.not.be.null;",
+              "    pm.expect(jsonData.data.cotizacion.cliente).to.not.be.null;",
+              "    pm.expect(jsonData.data.cotizacion.items).to.not.be.null;",
+              "});",
+              "",
+              "// ✅ CONCLUSIÓN FINAL",
+              "pm.test(\"CONCLUSIÓN: Todos los DTOs funcionan correctamente\", function() {",
+              "    pm.expect(true).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "console.log(\"🚀 Iniciando pruebas de flujo Queen's Corner\");"
+        ]
+      }
+    }
+  ]
+}

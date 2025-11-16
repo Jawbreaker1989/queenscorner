@@ -3,15 +3,33 @@ package com.uptc.queenscorner.models.mappers;
 import com.uptc.queenscorner.models.dtos.requests.CotizacionRequest;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.CotizacionEntity;
+import com.uptc.queenscorner.repositories.IItemCotizacionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
 @Component
 public class CotizacionMapper {
+
+    @Autowired
+    private ClienteMapper clienteMapper;
+    
+    @Autowired
+    private ItemCotizacionMapper itemCotizacionMapper;
+    
+    @Autowired
+    private IItemCotizacionRepository itemCotizacionRepository;
 
     public CotizacionResponse toResponse(CotizacionEntity entity) {
         CotizacionResponse response = new CotizacionResponse();
         response.setId(entity.getId());
         response.setCodigo(entity.getCodigo());
+        
+        
+        if (entity.getCliente() != null) {
+            response.setCliente(clienteMapper.toResponse(entity.getCliente()));
+        }
+        
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setFechaValidez(entity.getFechaValidez());
         response.setEstado(entity.getEstado().name());
@@ -20,6 +38,16 @@ public class CotizacionMapper {
         response.setImpuestos(entity.getImpuestos());
         response.setTotal(entity.getTotal());
         response.setObservaciones(entity.getObservaciones());
+        
+      
+        if (entity.getId() != null) {
+            response.setItems(
+                itemCotizacionRepository.findByCotizacionId(entity.getId()).stream()
+                    .map(itemCotizacionMapper::toResponse)
+                    .collect(Collectors.toList())
+            );
+        }
+        
         return response;
     }
 

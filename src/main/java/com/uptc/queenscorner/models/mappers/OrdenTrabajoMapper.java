@@ -3,10 +3,14 @@ package com.uptc.queenscorner.models.mappers;
 import com.uptc.queenscorner.models.dtos.requests.OrdenTrabajoRequest;
 import com.uptc.queenscorner.models.dtos.responses.OrdenTrabajoResponse;
 import com.uptc.queenscorner.models.entities.OrdenTrabajoEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class OrdenTrabajoMapper {
+
+    @Autowired
+    private NegocioMapper negocioMapper;
 
     public OrdenTrabajoEntity toEntity(OrdenTrabajoRequest request) {
         OrdenTrabajoEntity entity = new OrdenTrabajoEntity();
@@ -30,14 +34,30 @@ public class OrdenTrabajoMapper {
         response.setFechaFinEstimada(entity.getFechaFinEstimada());
         response.setFechaEntregaReal(entity.getFechaEntregaReal());
         response.setObservaciones(entity.getObservaciones());
+        
+        // ✅ CARGAR NEGOCIO
+        if (entity.getNegocio() != null) {
+            response.setNegocio(negocioMapper.toResponse(entity.getNegocio()));
+        }
+        
         return response;
     }
 
     public void updateEntityFromRequest(OrdenTrabajoRequest request, OrdenTrabajoEntity entity) {
-        if (request.getDescripcion() != null) entity.setDescripcion(request.getDescripcion());
-        if (request.getPrioridad() != null) entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad()));
-        if (request.getFechaInicioEstimada() != null) entity.setFechaInicioEstimada(request.getFechaInicioEstimada());
-        if (request.getFechaFinEstimada() != null) entity.setFechaFinEstimada(request.getFechaFinEstimada());
-        if (request.getObservaciones() != null) entity.setObservaciones(request.getObservaciones());
+        if (request.getDescripcion() != null) {
+            entity.setDescripcion(request.getDescripcion());
+        }
+        if (request.getPrioridad() != null) {
+            entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad()));
+        }
+        if (request.getFechaInicioEstimada() != null) {
+            entity.setFechaInicioEstimada(request.getFechaInicioEstimada());
+        }
+        if (request.getFechaFinEstimada() != null) {
+            entity.setFechaFinEstimada(request.getFechaFinEstimada());
+        }
+        if (request.getObservaciones() != null) {
+            entity.setObservaciones(request.getObservaciones());
+        }
     }
 }

@@ -1,0 +1,563 @@
+{
+  "info": {
+    "name": "Queen's Corner Gallery API - Pruebas Completas",
+    "description": "Colección completa de pruebas para todos los servicios de Queen's Corner Gallery",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cotizacionId", 
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "negocioId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ordenTrabajoId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "facturaId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔄 FLUJO PRINCIPAL COMPLETO",
+      "item": [
+        {
+          "name": "1. Crear Cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Empresa Muebles Modernos SA\",\n  \"email\": \"ventas@mueblesmodernos.com\",\n  \"telefono\": \"601-2345678\",\n  \"direccion\": \"Carrera 45 #26-85, Bogotá\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Cliente creado exitosamente\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.id).to.be.a('number');",
+                  "    pm.collectionVariables.set(\"clienteId\", jsonData.data.id);",
+                  "    console.log(\"Cliente ID guardado: \" + jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Crear Cotización Completa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"fechaValidez\": \"2024-12-31\",\n  \"descripcion\": \"Pedido corporativo - 20 escritorios ejecutivos\",\n  \"observaciones\": \"Entrega fraccionada en 4 lotes de 5 unidades\",\n  \"items\": [\n    {\n      \"descripcion\": \"Escritorio ejecutivo roble 180cm\",\n      \"cantidad\": 10,\n      \"precioUnitario\": 450.00\n    },\n    {\n      \"descripcion\": \"Escritorio ejecutivo nogal 160cm\", \n      \"cantidad\": 10,\n      \"precioUnitario\": 420.00\n    },\n    {\n      \"descripcion\": \"Instalación y montaje\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 300.00\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Cotización creada exitosamente\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.codigo).to.include(\"COT-\");",
+                  "    pm.expect(jsonData.data.total).to.equal(10353.00);",
+                  "    pm.collectionVariables.set(\"cotizacionId\", jsonData.data.id);",
+                  "    console.log(\"Cotización ID guardada: \" + jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Aprobar Cotización",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"APROBADA\",\n  \"observaciones\": \"Cliente confirmó pedido por email\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones/{{cotizacionId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones", "{{cotizacionId}}", "estado"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Cotización aprobada\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.estado).to.equal(\"APROBADA\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Crear Negocio desde Cotización",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cotizacionId\": {{cotizacionId}},\n  \"anticipo\": 3000.00,\n  \"fechaEntregaEstimada\": \"2024-10-15\",\n  \"observaciones\": \"Producción en lote, iniciar con 5 unidades\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/negocios",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "negocios"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Negocio creado exitosamente\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.codigo).to.include(\"NEG-\");",
+                  "    pm.expect(jsonData.data.saldoPendiente).to.equal(7353.00);",
+                  "    pm.collectionVariables.set(\"negocioId\", jsonData.data.id);",
+                  "    console.log(\"Negocio ID guardado: \" + jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Registrar Pago de Anticipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"monto\": 3000.00,\n  \"metodoPago\": \"TRANSFERENCIA\",\n  \"referencia\": \"TRF-001-2024\",\n  \"observaciones\": \"Anticipo confirmado por contabilidad\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pagos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "pagos"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Pago registrado exitosamente\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Crear Orden de Trabajo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"descripcion\": \"Fabricación lote inicial - 5 escritorios roble 180cm\",\n  \"prioridad\": \"ALTA\",\n  \"fechaInicioEstimada\": \"2024-09-01\",\n  \"fechaFinEstimada\": \"2024-09-20\",\n  \"observaciones\": \"Usar madera de roble importado lote #B284\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordenes-trabajo",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ordenes-trabajo"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Orden de trabajo creada\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.codigo).to.include(\"OT-\");",
+                  "    pm.collectionVariables.set(\"ordenTrabajoId\", jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Generar Factura",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"negocioId\": {{negocioId}},\n  \"observaciones\": \"Factura por anticipo - pedido corporativo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/facturas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "facturas"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Factura generada exitosamente\", function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.codigo).to.include(\"FAC-\");",
+                  "    pm.collectionVariables.set(\"facturaId\", jsonData.data.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "📊 PRUEBAS INDIVIDUALES - CLIENTES",
+      "item": [
+        {
+          "name": "GET - Listar todos los clientes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Clientes obtenidos exitosamente\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST - Crear cliente sin email (opcional)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Carlos Rodríguez\",\n  \"telefono\": \"315-9876543\",\n  \"direccion\": \"Calle 72 #15-42\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes"]
+            }
+          }
+        },
+        {
+          "name": "GET - Obtener cliente por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes", "{{clienteId}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT - Actualizar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Empresa Muebles Modernos SAS\",\n  \"email\": \"corporativo@mueblesmodernos.com\",\n  \"telefono\": \"601-2345678\",\n  \"direccion\": \"Carrera 45 #26-85, Bogotá - Edificio Corporativo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes", "{{clienteId}}"]
+            }
+          }
+        },
+        {
+          "name": "DELETE - Desactivar cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes", "{{clienteId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 PRUEBAS INDIVIDUALES - COTIZACIONES",
+      "item": [
+        {
+          "name": "GET - Listar todas las cotizaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones"]
+            }
+          }
+        },
+        {
+          "name": "POST - Cotización con un solo item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"descripcion\": \"Reparación mesa de conferencias\",\n  \"items\": [\n    {\n      \"descripcion\": \"Reparación patas y refuerzo estructura\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 180.00\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones"]
+            }
+          }
+        },
+        {
+          "name": "PATCH - Cambiar estado a ENVIADA",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ENVIADA\",\n  \"observaciones\": \"Enviada al cliente por email\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones/{{cotizacionId}}/estado",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones", "{{cotizacionId}}", "estado"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🐛 PRUEBAS DE ERROR",
+      "item": [
+        {
+          "name": "ERROR - Cliente sin nombre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@test.com\",\n  \"telefono\": \"123456789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "clientes"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Error manejado correctamente\", function() {",
+                  "    pm.response.to.have.status(400);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ERROR - Cotización sin items",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": {{clienteId}},\n  \"descripcion\": \"Cotización sin items\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones"]
+            }
+          }
+        },
+        {
+          "name": "ERROR - Cliente inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": 99999,\n  \"items\": [\n    {\n      \"descripcion\": \"Test\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 100\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cotizaciones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cotizaciones"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "console.log(\"Iniciando pruebas para Queen's Corner Gallery API\");"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "console.log(\"Prueba completada: \" + pm.response.code);"
+        ]
+      }
+    }
+  ]
+}
