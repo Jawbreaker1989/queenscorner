@@ -1,17 +1,26 @@
 <div class="dashboard">
-  <header>
-    <h1>Queen's Corner - Panel de Control</h1>
+  <header class="dashboard-header">
+    <div class="header-brand">
+      <h1>Queen's Corner</h1>
+      <p class="subtitle">Panel de Control</p>
+    </div>
     <button (click)="logout()" class="logout-btn">Cerrar Sesión</button>
   </header>
-  
-  <nav class="menu">
-    <a routerLink="/clientes" routerLinkActive="active" class="menu-item">👥 Gestión de Clientes</a>
-  </nav>
-  
-  <div class="content">
-    <div class="welcome">
-      <h2>Bienvenido al Panel de Control</h2>
-      <p>Selecciona una opción del menú para comenzar</p>
+
+  <div class="dashboard-content">
+    <div class="welcome-card">
+      <h2>Bienvenido al Sistema</h2>
+      <p>Selecciona una opción para comenzar</p>
+    </div>
+
+    <div class="modules-grid">
+      <a routerLink="/clientes" class="module-card">
+        <div class="card-icon">👥</div>
+        <div class="card-content">
+          <h3>Gestión de Clientes</h3>
+          <p>Crear, editar y administrar clientes</p>
+        </div>
+      </a>
     </div>
   </div>
 </div>

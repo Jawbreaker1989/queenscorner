@@ -1,33 +1,68 @@
 <div class="clientes-container">
-  <header class="header">
-    <h2>Gestión de Clientes</h2>
-    <button (click)="volver()" class="back-btn">← Volver</button>
-  </header>
+  <div class="clientes-header">
+    <div class="header-content">
+      <h1>Gestión de Clientes</h1>
+      <p class="subtitle">Administra todos tus clientes</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="crear()" [disabled]="loading">
+        + Nuevo Cliente
+      </button>
+      <button class="btn btn-secondary" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
+  </div>
 
-  <div *ngIf="loading" class="loading">Cargando clientes...</div>
-  
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <div class="mensajes">
+    <div class="error" *ngIf="error">
+      <span class="icon">⚠️</span>
+      {{ error }}
+    </div>
+    <div class="exito" *ngIf="mensajeExito">
+      <span class="icon">✓</span>
+      {{ mensajeExito }}
+    </div>
+  </div>
 
-  <table *ngIf="clientes.length > 0 && !loading" class="clients-table">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Email</th>
-        <th>Teléfono</th>
-        <th>Dirección</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let cliente of clientes">
-        <td>{{ cliente.nombre }}</td>
-        <td>{{ cliente.email }}</td>
-        <td>{{ cliente.telefono }}</td>
-        <td>{{ cliente.direccion }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="contenido">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando clientes...</p>
+    </div>
 
-  <div *ngIf="clientes.length === 0 && !loading" class="empty">
-    No hay clientes registrados
+    <div *ngIf="!loading && clientes.length === 0" class="sin-datos">
+      <p>No hay clientes registrados</p>
+      <button class="btn btn-primary" (click)="crear()">Crear primer cliente</button>
+    </div>
+
+    <div *ngIf="!loading && clientes.length > 0" class="tabla-wrapper">
+      <table class="tabla-clientes">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Ciudad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes" class="fila-cliente">
+            <td class="id">{{ cliente.id }}</td>
+            <td class="nombre">{{ cliente.nombre }}</td>
+            <td class="email">{{ cliente.email }}</td>
+            <td class="telefono">{{ cliente.telefono }}</td>
+            <td class="ciudad">{{ cliente.ciudad }}</td>
+            <td class="acciones">
+              <button class="btn-icon btn-info" (click)="ver(cliente.id)" title="Ver">👁️</button>
+              <button class="btn-icon btn-warning" (click)="editar(cliente.id)" title="Editar">✏️</button>
+              <button class="btn-icon btn-danger" (click)="eliminar(cliente.id, cliente.nombre)" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

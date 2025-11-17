@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 public class QueenscornerApplication {
     public static void main(String[] args) {
-        // Inicializar directorios para PDFs
         FileUtils.inicializarDirectorios();
         
         SpringApplication.run(QueenscornerApplication.class, args);
