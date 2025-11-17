@@ -10,14 +10,10 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
     
-    /**
-     * Autentica usuario con credenciales hardcodeadas (simple)
-     */
     public String autenticar(String username, String password) {
-        // Usuario hardcodeado para prueba
         if ("admin".equals(username) && "admin123".equals(password)) {
             return jwtUtil.generarToken(username);
         }
-        return null; // Credenciales inválidas
+        return null;
     }
 }

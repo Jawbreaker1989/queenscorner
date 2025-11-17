@@ -5,7 +5,6 @@ public class LoginResponse {
     private String message;
     private String token;
     
-    // Constructores
     public LoginResponse() {}
     
     public LoginResponse(boolean success, String message, String token) {
@@ -14,7 +13,6 @@ public class LoginResponse {
         this.token = token;
     }
     
-    // Getters y Setters
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
     

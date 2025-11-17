@@ -18,30 +18,14 @@ public class AuthController {
             String token = authService.autenticar(loginRequest.getUsername(), loginRequest.getPassword());
             
             if (token != null) {
-                // Login exitoso
-                LoginResponse response = new LoginResponse(
-                    true, 
-                    "Login exitoso", 
-                    token
-                );
+                LoginResponse response = new LoginResponse(true, "Login exitoso", token);
                 return ResponseEntity.ok(response);
             } else {
-                // Credenciales incorrectas
-                LoginResponse response = new LoginResponse(
-                    false, 
-                    "Credenciales incorrectas", 
-                    null
-                );
+                LoginResponse response = new LoginResponse(false, "Credenciales incorrectas", null);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-            
         } catch (Exception e) {
-            // Error del servidor
-            LoginResponse response = new LoginResponse(
-                false, 
-                "Error en el servidor: " + e.getMessage(), 
-                null
-            );
+            LoginResponse response = new LoginResponse(false, "Error en el servidor", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
