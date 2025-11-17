@@ -1,11 +1,17 @@
 import { Component } from '@angular/core';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  styleUrls: ['./dashboard.css']
 })
-export class Dashboard {
+export class DashboardComponent {
+  
+  constructor(private auth: Auth) {}
 
+  logout() {
+    this.auth.logout();
+    window.location.reload();
+  }
 }
