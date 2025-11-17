@@ -1,19 +1,25 @@
 package com.uptc.queenscorner.security.auth;
 
 import com.uptc.queenscorner.security.jwt.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
-    
-    @Autowired
-    private JwtUtil jwtUtil;
-    
+
+    private final JwtUtil jwtUtil;
+
+    public AuthService(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     public String autenticar(String username, String password) {
-        if ("admin".equals(username) && "admin123".equals(password)) {
+        if (validarCredenciales(username, password)) {
             return jwtUtil.generarToken(username);
         }
-        return null;
+        throw new RuntimeException("Credenciales incorrectas");
+    }
+
+    private boolean validarCredenciales(String username, String password) {
+        return "admin".equals(username) && "admin123".equals(password);
     }
 }

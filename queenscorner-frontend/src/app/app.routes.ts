@@ -5,8 +5,9 @@ import { ListarClientesComponent } from './components/clientes/listar-clientes/l
 import { AuthGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
-  { path: '', component: LoginComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'clientes', component: ListarClientesComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: '' }
+  { path: '**', redirectTo: 'login' }
 ];

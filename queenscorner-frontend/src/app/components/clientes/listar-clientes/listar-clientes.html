@@ -1,11 +1,20 @@
 <div class="clientes-container">
-  <h2>Lista de Clientes</h2>
-  <table>
+  <header class="header">
+    <h2>Gestión de Clientes</h2>
+    <button (click)="volver()" class="back-btn">← Volver</button>
+  </header>
+
+  <div *ngIf="loading" class="loading">Cargando clientes...</div>
+  
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="clientes.length > 0 && !loading" class="clients-table">
     <thead>
       <tr>
         <th>Nombre</th>
         <th>Email</th>
         <th>Teléfono</th>
+        <th>Dirección</th>
       </tr>
     </thead>
     <tbody>
@@ -13,7 +22,12 @@
         <td>{{ cliente.nombre }}</td>
         <td>{{ cliente.email }}</td>
         <td>{{ cliente.telefono }}</td>
+        <td>{{ cliente.direccion }}</td>
       </tr>
     </tbody>
   </table>
+
+  <div *ngIf="clientes.length === 0 && !loading" class="empty">
+    No hay clientes registrados
+  </div>
 </div>

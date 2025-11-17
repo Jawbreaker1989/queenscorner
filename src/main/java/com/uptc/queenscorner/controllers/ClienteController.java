@@ -4,7 +4,6 @@ import com.uptc.queenscorner.models.dtos.requests.ClienteRequest;
 import com.uptc.queenscorner.models.dtos.responses.ApiResponse;
 import com.uptc.queenscorner.models.dtos.responses.ClienteResponse;
 import com.uptc.queenscorner.services.IClienteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/clientes")
+@CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000"})
 public class ClienteController {
 
-    @Autowired
-    private IClienteService clienteService;
+    private final IClienteService clienteService;
+
+    public ClienteController(IClienteService clienteService) {
+        this.clienteService = clienteService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ClienteResponse>>> getAll() {
