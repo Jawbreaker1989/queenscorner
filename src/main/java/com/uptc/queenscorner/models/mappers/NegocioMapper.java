@@ -19,6 +19,7 @@ public class NegocioMapper {
         response.setCodigo(entity.getCodigo());
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setEstado(entity.getEstado().name());
+        response.setDescripcion(entity.getDescripcion());
         response.setTotalNegocio(entity.getTotalNegocio());
         response.setAnticipo(entity.getAnticipo());
         response.setSaldoPendiente(entity.getSaldoPendiente());
@@ -33,6 +34,9 @@ public class NegocioMapper {
     }
 
     public void updateEntityFromRequest(NegocioRequest request, NegocioEntity entity) {
+        if (request.getDescripcion() != null) {
+            entity.setDescripcion(request.getDescripcion());
+        }
         if (request.getAnticipo() != null) {
             entity.setAnticipo(request.getAnticipo());
         }

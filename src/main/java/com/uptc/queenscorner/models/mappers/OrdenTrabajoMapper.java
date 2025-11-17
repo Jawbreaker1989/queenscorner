@@ -15,7 +15,17 @@ public class OrdenTrabajoMapper {
     public OrdenTrabajoEntity toEntity(OrdenTrabajoRequest request) {
         OrdenTrabajoEntity entity = new OrdenTrabajoEntity();
         entity.setDescripcion(request.getDescripcion());
-        entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad()));
+        
+        // Manejar prioridad null o vacía
+        if (request.getPrioridad() != null && !request.getPrioridad().isEmpty()) {
+            try {
+                entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                // Si la prioridad no es válida, usar MEDIA como default
+                entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.MEDIA);
+            }
+        }
+        
         entity.setFechaInicioEstimada(request.getFechaInicioEstimada());
         entity.setFechaFinEstimada(request.getFechaFinEstimada());
         entity.setObservaciones(request.getObservaciones());
@@ -34,6 +44,7 @@ public class OrdenTrabajoMapper {
         response.setFechaFinEstimada(entity.getFechaFinEstimada());
         response.setFechaEntregaReal(entity.getFechaEntregaReal());
         response.setObservaciones(entity.getObservaciones());
+        response.setRutaPdfNotificacion(entity.getRutaPdfNotificacion());
         
         // ✅ CARGAR NEGOCIO
         if (entity.getNegocio() != null) {

@@ -38,14 +38,14 @@ public class FacturaEntity {
 
     public FacturaEntity() {
         this.fechaEmision = LocalDateTime.now();
-        this.estado = EstadoFactura.GENERADA;
+        this.estado = EstadoFactura.PENDIENTE;
         this.subtotal = BigDecimal.ZERO;
         this.impuestos = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
     }
 
     public enum EstadoFactura {
-        GENERADA, ENVIADA, PAGADA, CANCELADA
+        PENDIENTE, PAGADA
     }
 
     public Long getId() { return id; }

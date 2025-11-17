@@ -40,14 +40,17 @@ public class OrdenTrabajoEntity {
 
     private String observaciones;
 
+    @Column(name = "ruta_pdf_notificacion")
+    private String rutaPdfNotificacion;
+
     public OrdenTrabajoEntity() {
         this.fechaCreacion = LocalDateTime.now();
-        this.estado = EstadoOrden.PENDIENTE;
+        this.estado = EstadoOrden.EN_PROCESO;
         this.prioridad = PrioridadOrden.MEDIA;
     }
 
     public enum EstadoOrden {
-        PENDIENTE, EN_PROCESO, PAUSADA, FINALIZADA, ENTREGADA
+        EN_PROCESO, FINALIZADA
     }
 
     public enum PrioridadOrden {
@@ -76,4 +79,6 @@ public class OrdenTrabajoEntity {
     public void setFechaEntregaReal(LocalDateTime fechaEntregaReal) { this.fechaEntregaReal = fechaEntregaReal; }
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+    public String getRutaPdfNotificacion() { return rutaPdfNotificacion; }
+    public void setRutaPdfNotificacion(String rutaPdfNotificacion) { this.rutaPdfNotificacion = rutaPdfNotificacion; }
 }

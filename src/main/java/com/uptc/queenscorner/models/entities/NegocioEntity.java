@@ -36,18 +36,20 @@ public class NegocioEntity {
     @Column(name = "fecha_entrega_estimada")
     private LocalDate fechaEntregaEstimada;
 
+    private String descripcion;
+
     private String observaciones;
 
     public NegocioEntity() {
         this.fechaCreacion = LocalDateTime.now();
-        this.estado = EstadoNegocio.PENDIENTE;
+        this.estado = EstadoNegocio.FINALIZADO;
         this.totalNegocio = BigDecimal.ZERO;
         this.anticipo = BigDecimal.ZERO;
         this.saldoPendiente = BigDecimal.ZERO;
     }
 
     public enum EstadoNegocio {
-        PENDIENTE, EN_PROCESO, FINALIZADO, CANCELADO
+        CANCELADO, FINALIZADO
     }
 
     public Long getId() { return id; }
@@ -68,6 +70,8 @@ public class NegocioEntity {
     public void setSaldoPendiente(BigDecimal saldoPendiente) { this.saldoPendiente = saldoPendiente; }
     public LocalDate getFechaEntregaEstimada() { return fechaEntregaEstimada; }
     public void setFechaEntregaEstimada(LocalDate fechaEntregaEstimada) { this.fechaEntregaEstimada = fechaEntregaEstimada; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 }

@@ -10,6 +10,7 @@ public class NegocioResponse {
     private CotizacionResponse cotizacion;
     private LocalDateTime fechaCreacion;
     private String estado;
+    private String descripcion;
     private BigDecimal totalNegocio;
     private BigDecimal anticipo;
     private BigDecimal saldoPendiente;
@@ -26,6 +27,8 @@ public class NegocioResponse {
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public BigDecimal getTotalNegocio() { return totalNegocio; }
     public void setTotalNegocio(BigDecimal totalNegocio) { this.totalNegocio = totalNegocio; }
     public BigDecimal getAnticipo() { return anticipo; }

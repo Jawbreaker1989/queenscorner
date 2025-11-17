@@ -8,6 +8,7 @@ import com.uptc.queenscorner.models.mappers.OrdenTrabajoMapper;
 import com.uptc.queenscorner.repositories.INegocioRepository;
 import com.uptc.queenscorner.repositories.IOrdenTrabajoRepository;
 import com.uptc.queenscorner.services.IOrdenTrabajoService;
+import com.uptc.queenscorner.services.async.NotificacionAsyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -26,6 +27,9 @@ public class OrdenTrabajoServiceImpl implements IOrdenTrabajoService {
 
     @Autowired
     private OrdenTrabajoMapper ordenTrabajoMapper;
+
+    @Autowired
+    private NotificacionAsyncService notificacionAsyncService;
 
     @Override
     @Cacheable(value = "ordenesTrabajo", key = "'all'")
@@ -87,10 +91,11 @@ public class OrdenTrabajoServiceImpl implements IOrdenTrabajoService {
 
         orden.setEstado(OrdenTrabajoEntity.EstadoOrden.valueOf(estado));
         
-        if (estado.equals("ENTREGADA")) {
-            orden.setFechaEntregaReal(java.time.LocalDateTime.now());
+        // Si la orden cambia a estado FINALIZADA, generar PDF de notificación
+        if ("FINALIZADA".equals(estado)) {
+            notificacionAsyncService.notificarOrdenLista(orden);
         }
-
+        
         OrdenTrabajoEntity updated = ordenTrabajoRepository.save(orden);
         return ordenTrabajoMapper.toResponse(updated);
     }

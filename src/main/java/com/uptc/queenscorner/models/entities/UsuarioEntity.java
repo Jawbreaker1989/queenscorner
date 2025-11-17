@@ -2,8 +2,6 @@ package com.uptc.queenscorner.models.entities;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "usuarios")
@@ -20,27 +18,24 @@ public class UsuarioEntity {
 
     private String email;
     private Boolean activo;
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "ENUM('ADMIN')")
+    private Rol rol;
 
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
     @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "usuario_roles",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "rol_id")
-    )
-    private Set<RolEntity> roles = new HashSet<>();
-
+    public enum Rol {
+        ADMIN
+    }
     public UsuarioEntity() {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaActualizacion = LocalDateTime.now();
         this.activo = true;
+        this.rol = Rol.ADMIN; 
     }
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -55,6 +50,6 @@ public class UsuarioEntity {
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
-    public Set<RolEntity> getRoles() { return roles; }
-    public void setRoles(Set<RolEntity> roles) { this.roles = roles; }
+    public Rol getRol() { return rol; }
+    public void setRol(Rol rol) { this.rol = rol; }
 }

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "cotizaciones")
@@ -34,12 +36,17 @@ public class CotizacionEntity {
     private BigDecimal total;
     private String observaciones;
 
+    // Relación con items de cotización
+    @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ItemCotizacionEntity> items;
+
     public CotizacionEntity() {
         this.fechaCreacion = LocalDateTime.now();
         this.estado = EstadoCotizacion.BORRADOR;
         this.subtotal = BigDecimal.ZERO;
         this.impuestos = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
+        this.items = new ArrayList<>();
     }
 
     public enum EstadoCotizacion {
@@ -68,4 +75,6 @@ public class CotizacionEntity {
     public void setTotal(BigDecimal total) { this.total = total; }
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+    public List<ItemCotizacionEntity> getItems() { return items; }
+    public void setItems(List<ItemCotizacionEntity> items) { this.items = items; }
 }

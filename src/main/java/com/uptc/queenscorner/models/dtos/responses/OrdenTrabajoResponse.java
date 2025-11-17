@@ -15,6 +15,7 @@ public class OrdenTrabajoResponse {
     private LocalDate fechaFinEstimada;
     private LocalDateTime fechaEntregaReal;
     private String observaciones;
+    private String rutaPdfNotificacion;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -38,4 +39,6 @@ public class OrdenTrabajoResponse {
     public void setFechaEntregaReal(LocalDateTime fechaEntregaReal) { this.fechaEntregaReal = fechaEntregaReal; }
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
+    public String getRutaPdfNotificacion() { return rutaPdfNotificacion; }
+    public void setRutaPdfNotificacion(String rutaPdfNotificacion) { this.rutaPdfNotificacion = rutaPdfNotificacion; }
 }
