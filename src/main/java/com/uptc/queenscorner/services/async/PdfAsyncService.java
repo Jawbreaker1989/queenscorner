@@ -112,50 +112,98 @@ public class PdfAsyncService {
             
             // Encabezado de la cotización
             document.add(new Paragraph("📄 COTIZACIÓN #" + cotizacion.getCodigo())
-                        .setBold().setFontSize(18));
-            document.add(new Paragraph("=".repeat(50)));
-            document.add(new Paragraph("CLIENTE: " + cotizacion.getCliente().getNombre()));
-            document.add(new Paragraph("FECHA: " + cotizacion.getFechaCreacion().format(formatoFecha)));
+                        .setBold().setFontSize(16));
+            document.add(new Paragraph("=".repeat(70)));
             
+            // Información básica
+            document.add(new Paragraph("CLIENTE: " + cotizacion.getCliente().getNombre()).setBold());
+            document.add(new Paragraph("EMAIL: " + cotizacion.getCliente().getEmail()));
+            document.add(new Paragraph("TELÉFONO: " + (cotizacion.getCliente().getTelefono() != null ? 
+                cotizacion.getCliente().getTelefono() : "N/A")));
+            document.add(new Paragraph("DIRECCIÓN: " + (cotizacion.getCliente().getDireccion() != null ? 
+                cotizacion.getCliente().getDireccion() : "N/A")));
+            
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("FECHA CREACIÓN: " + cotizacion.getFechaCreacion().format(formatoFecha)));
             if (cotizacion.getFechaValidez() != null) {
                 document.add(new Paragraph("VÁLIDA HASTA: " + cotizacion.getFechaValidez().format(formatoFecha)));
             }
+            if (cotizacion.getDescripcion() != null && !cotizacion.getDescripcion().isEmpty()) {
+                document.add(new Paragraph("DESCRIPCIÓN: " + cotizacion.getDescripcion()));
+            }
+            if (cotizacion.getObservaciones() != null && !cotizacion.getObservaciones().isEmpty()) {
+                document.add(new Paragraph("OBSERVACIONES: " + cotizacion.getObservaciones()));
+            }
             
+            // Items de la cotización
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("DETALLE DE PRODUCTOS/SERVICIOS:").setBold());
-            document.add(new Paragraph("-".repeat(40)));
+            document.add(new Paragraph("=".repeat(70)));
+            document.add(new Paragraph(String.format("%-5s %-25s %-10s %-12s %-15s", 
+                "Nº", "DESCRIPCIÓN", "CANTIDAD", "PRECIO UNI.", "SUBTOTAL")));
+            document.add(new Paragraph("-".repeat(70)));
             
             // Mostrar items de la cotización
             List<ItemCotizacionEntity> items = cotizacion.getItems();
+            
             if (items != null && !items.isEmpty()) {
+                int contador = 1;
                 for (ItemCotizacionEntity item : items) {
-                    document.add(new Paragraph("• " + item.getDescripcion() +
-                        " - " + item.getCantidad() + " unidades × $" + formatearMonto(item.getPrecioUnitario()) +
-                        " = $" + formatearMonto(item.getSubtotal())));
+                    if (item != null) {
+                        BigDecimal subtotal = item.getPrecioUnitario() != null ? 
+                            item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad() != null ? item.getCantidad() : 0)) :
+                            BigDecimal.ZERO;
+                        
+                        document.add(new Paragraph(String.format("%-5d %-25s %-10d $%-11s $%s",
+                            contador,
+                            truncarTexto(item.getDescripcion() != null ? item.getDescripcion() : "N/A", 25),
+                            item.getCantidad() != null ? item.getCantidad() : 0,
+                            formatearMonto(item.getPrecioUnitario() != null ? item.getPrecioUnitario() : BigDecimal.ZERO),
+                            formatearMonto(subtotal)
+                        )));
+                        contador++;
+                    }
                 }
             } else {
-                document.add(new Paragraph("• " + (cotizacion.getDescripcion() != null ? 
-                    cotizacion.getDescripcion() : "Servicios varios")));
+                // Si no hay items, mostrar la descripción general
+                document.add(new Paragraph(String.format("%-5d %-25s %-10d $%-11s $%s",
+                    1,
+                    truncarTexto(cotizacion.getDescripcion() != null ? cotizacion.getDescripcion() : "Servicios varios", 25),
+                    1,
+                    "0.00",
+                    "0.00"
+                )));
+                document.add(new Paragraph("⚠️ Nota: Items no cargados en esta cotización"));
             }
+            
+            document.add(new Paragraph("=".repeat(70)));
             
             // Resumen financiero
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("RESUMEN FINANCIERO:").setBold());
-            document.add(new Paragraph("-".repeat(20)));
-            document.add(new Paragraph("Subtotal: $" + formatearMonto(cotizacion.getSubtotal())));
-            document.add(new Paragraph("Impuestos (19%): $" + formatearMonto(cotizacion.getImpuestos())));
-            document.add(new Paragraph("TOTAL: $" + formatearMonto(cotizacion.getTotal())).setBold());
+            document.add(new Paragraph(String.format("%-45s %s", "Subtotal:", "$" + formatearMonto(cotizacion.getSubtotal()))));
+            document.add(new Paragraph(String.format("%-45s %s", "Impuestos (19%):", "$" + formatearMonto(cotizacion.getImpuestos()))));
+            document.add(new Paragraph(String.format("%-45s %s", "TOTAL A PAGAR:", "$" + formatearMonto(cotizacion.getTotal()))).setBold());
             
             // Condiciones
             document.add(new Paragraph("\n"));
-            document.add(new Paragraph("CONDICIONES:").setBold());
-            document.add(new Paragraph("- Precios válidos por 30 días"));
-            document.add(new Paragraph("- Tiempo de entrega: 15 días hábiles"));
-            document.add(new Paragraph("- Garantía: 1 año por defectos de fabricación"));
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("FIRMA CLIENTE: ___________________"));
+            document.add(new Paragraph("CONDICIONES Y TÉRMINOS:").setBold());
+            document.add(new Paragraph("• Precios válidos por 30 días"));
+            document.add(new Paragraph("• Tiempo de entrega: 15 días hábiles"));
+            document.add(new Paragraph("• Garantía: 1 año por defectos de fabricación"));
+            document.add(new Paragraph("• Pago: 50% anticipo, 50% contra entrega"));
+            document.add(new Paragraph("• Estado: " + cotizacion.getEstado()));
+            
+            document.add(new Paragraph("\n\n"));
+            document.add(new Paragraph("Autorizado por:     ___________________     Fecha: ___________________"));
+            document.add(new Paragraph("Cliente:            ___________________     Fecha: ___________________"));
+            
+            System.out.println("✓ PDF COTIZACIÓN generado exitosamente con " + 
+                (items != null ? items.size() : 0) + " items");
             
         } catch (Exception e) {
+            System.err.println("✗ Error generando PDF de cotización: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Error generando PDF de cotización", e);
         }
     }

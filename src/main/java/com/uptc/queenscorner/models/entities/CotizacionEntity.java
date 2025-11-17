@@ -37,7 +37,7 @@ public class CotizacionEntity {
     private String observaciones;
 
     // Relación con items de cotización
-    @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ItemCotizacionEntity> items;
 
     public CotizacionEntity() {
@@ -50,7 +50,7 @@ public class CotizacionEntity {
     }
 
     public enum EstadoCotizacion {
-        BORRADOR, ENVIADA, APROBADA, RECHAZADA, CONVERTIDA
+        BORRADOR, ENVIADA, APROBADA, RECHAZADA
     }
 
     public Long getId() { return id; }

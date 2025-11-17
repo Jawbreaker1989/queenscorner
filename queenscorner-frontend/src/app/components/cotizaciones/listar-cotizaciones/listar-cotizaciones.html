@@ -1,0 +1,71 @@
+<div class="cotizaciones-container">
+  <div class="cotizaciones-header">
+    <div class="header-content">
+      <h1>Gestión de Cotizaciones</h1>
+      <p class="subtitle">Crea y administra cotizaciones para tus clientes</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="crear()" [disabled]="loading">
+        + Nueva Cotización
+      </button>
+      <button class="btn btn-secondary" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
+  </div>
+
+  <div class="mensajes">
+    <div class="error" *ngIf="error">
+      <span class="icon">⚠️</span>
+      {{ error }}
+    </div>
+    <div class="exito" *ngIf="mensajeExito">
+      <span class="icon">✓</span>
+      {{ mensajeExito }}
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando cotizaciones...</p>
+    </div>
+
+    <div *ngIf="!loading && cotizaciones.length === 0" class="sin-datos">
+      <p>No hay cotizaciones registradas</p>
+      <button class="btn btn-primary" (click)="crear()">Crear primera cotización</button>
+    </div>
+
+    <div *ngIf="!loading && cotizaciones.length > 0" class="tabla-wrapper">
+      <table class="tabla-cotizaciones">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Validez</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cot of cotizaciones" class="fila-cotizacion">
+            <td class="codigo">{{ cot.codigo }}</td>
+            <td class="cliente">{{ cot.cliente.nombre }}</td>
+            <td class="total">${{ cot.total | number: '1.2-2' }}</td>
+            <td class="estado">
+              <span [ngClass]="getEstadoColor(cot.estado)" class="badge">{{ cot.estado }}</span>
+            </td>
+            <td class="validez">{{ cot.fechaValidez }}</td>
+            <td class="acciones">
+              <button class="btn-icon btn-info" (click)="ver(cot.id)" title="Ver">👁️</button>
+              <button class="btn-icon btn-warning" (click)="editar(cot.id)" title="Editar">✏️</button>
+              <button class="btn-icon btn-pdf" (click)="generarPdf(cot.id)" title="PDF">📄</button>
+              <button class="btn-icon btn-danger" (click)="eliminar(cot.id, cot.codigo)" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

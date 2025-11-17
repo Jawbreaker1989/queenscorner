@@ -1,0 +1,138 @@
+<div class="detalle-container">
+  <div class="detalle-header">
+    <div class="header-content">
+      <h1>Detalle de Cotización</h1>
+      <p class="subtitle">Ver y gestionar cotización</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-pdf" (click)="generarPdf()" [disabled]="loading">
+        📄 Generar PDF
+      </button>
+      <button class="btn btn-primary" (click)="editar()" [disabled]="loading">
+        ✏️ Editar
+      </button>
+      <button class="btn btn-secondary" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando cotización...</p>
+    </div>
+
+    <div *ngIf="error && !loading" class="error">
+      <span class="icon">⚠️</span>
+      {{ error }}
+    </div>
+
+    <div *ngIf="cotizacion && !loading" class="cotizacion-card">
+      <!-- Estado y Código -->
+      <div class="info-section destacado">
+        <div class="info-item">
+          <label>Código</label>
+          <p class="codigo">{{ cotizacion.codigo }}</p>
+        </div>
+        <div class="info-item">
+          <label>Estado</label>
+          <p>
+            <span [ngClass]="getEstadoColor(cotizacion.estado)" class="badge">
+              {{ cotizacion.estado }}
+            </span>
+          </p>
+        </div>
+        <div class="info-item">
+          <label>Cliente</label>
+          <p class="cliente">{{ cotizacion.cliente.nombre }}</p>
+        </div>
+      </div>
+
+      <!-- Información General -->
+      <div class="info-section">
+        <h2>Información General</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Descripción</label>
+            <p>{{ cotizacion.descripcion }}</p>
+          </div>
+          <div class="info-item">
+            <label>Fecha Creación</label>
+            <p>{{ cotizacion.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+          <div class="info-item">
+            <label>Fecha Validez</label>
+            <p>{{ cotizacion.fechaValidez }}</p>
+          </div>
+          <div class="info-item" *ngIf="cotizacion.observaciones">
+            <label>Observaciones</label>
+            <p>{{ cotizacion.observaciones }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="info-section">
+        <h2>Items de Cotización</h2>
+        <div class="items-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cotizacion.items">
+                <td>{{ item.descripcion }}</td>
+                <td class="center">{{ item.cantidad }}</td>
+                <td class="right">${{ item.precioUnitario | number: '1.2-2' }}</td>
+                <td class="right">${{ item.subtotal | number: '1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Totales -->
+      <div class="info-section totales">
+        <div class="total-item">
+          <label>Subtotal:</label>
+          <span>${{ cotizacion.subtotal | number: '1.2-2' }}</span>
+        </div>
+        <div class="total-item">
+          <label>Impuestos:</label>
+          <span>${{ cotizacion.impuestos | number: '1.2-2' }}</span>
+        </div>
+        <div class="total-item grande">
+          <label>Total:</label>
+          <span>${{ cotizacion.total | number: '1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Cambiar Estado -->
+      <div class="cambiar-estado" *ngIf="cotizacion.estado === 'BORRADOR'">
+        <h3>Cambiar Estado</h3>
+        <div class="estado-controls">
+          <select [(ngModel)]="nuevoEstado" [disabled]="cambiandoEstado">
+            <option [value]="null">Selecciona nuevo estado</option>
+            <option *ngFor="let estado of estados" [value]="estado">
+              {{ estado }}
+            </option>
+          </select>
+          <button class="btn btn-primary" (click)="cambiarEstado()" [disabled]="!nuevoEstado || cambiandoEstado">
+            {{ cambiandoEstado ? 'Actualizando...' : 'Actualizar Estado' }}
+          </button>
+        </div>
+        <div class="estado-info">
+          <p>📱 <strong>ENVIADA:</strong> Notifica al cliente por SMS/WhatsApp</p>
+          <p>✅ <strong>APROBADA:</strong> Genera PDF de aprobación</p>
+          <p>❌ <strong>RECHAZADA:</strong> Rechaza la cotización</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

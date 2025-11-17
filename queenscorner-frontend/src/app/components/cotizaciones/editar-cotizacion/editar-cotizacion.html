@@ -1,0 +1,160 @@
+<div class="form-container">
+  <div class="form-card">
+    <div *ngIf="cargando" class="loading-center">
+      <div class="spinner"></div>
+      <p>Cargando cotización...</p>
+    </div>
+
+    <div *ngIf="!cargando">
+      <h1>Editar Cotización</h1>
+      <p class="subtitle">Actualiza los datos de la cotización</p>
+
+      <form (ngSubmit)="guardar()" class="formulario">
+        <!-- Datos principales -->
+        <div class="seccion">
+          <h3>Información General</h3>
+
+          <div class="form-group">
+            <label for="cliente">Cliente *</label>
+            <select
+              id="cliente"
+              [(ngModel)]="cotizacion.clienteId"
+              name="clienteId"
+              [disabled]="loading || cargandoClientes"
+              required>
+              <option value="">Selecciona un cliente</option>
+              <option *ngFor="let cliente of clientes" [value]="cliente.id">
+                {{ cliente.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="descripcion">Descripción *</label>
+            <textarea
+              id="descripcion"
+              [(ngModel)]="cotizacion.descripcion"
+              name="descripcion"
+              placeholder="Descripción general de la cotización"
+              [disabled]="loading"
+              rows="2"
+              required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="fechaValidez">Fecha de Validez *</label>
+            <input
+              id="fechaValidez"
+              type="date"
+              [(ngModel)]="cotizacion.fechaValidez"
+              name="fechaValidez"
+              [disabled]="loading"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="observaciones">Observaciones</label>
+            <textarea
+              id="observaciones"
+              [(ngModel)]="cotizacion.observaciones"
+              name="observaciones"
+              placeholder="Notas adicionales (opcional)"
+              [disabled]="loading"
+              rows="2"></textarea>
+          </div>
+        </div>
+
+        <!-- Items de cotización -->
+        <div class="seccion">
+          <h3>Items de Cotización</h3>
+
+          <div class="items-input">
+            <div class="form-group">
+              <label for="itemDesc">Descripción</label>
+              <input
+                id="itemDesc"
+                type="text"
+                [(ngModel)]="nuevoItem.descripcion"
+                name="itemDescripcion"
+                placeholder="Ej: Diseño gráfico"
+                [disabled]="loading">
+            </div>
+
+            <div class="form-group">
+              <label for="itemCant">Cantidad</label>
+              <input
+                id="itemCant"
+                type="number"
+                [(ngModel)]="nuevoItem.cantidad"
+                name="itemCantidad"
+                min="1"
+                [disabled]="loading">
+            </div>
+
+            <div class="form-group">
+              <label for="itemPrecio">Precio Unitario</label>
+              <input
+                id="itemPrecio"
+                type="number"
+                [(ngModel)]="nuevoItem.precioUnitario"
+                name="itemPrecio"
+                min="0"
+                step="0.01"
+                [disabled]="loading">
+            </div>
+
+            <button type="button" class="btn btn-add" (click)="agregarItem()" [disabled]="loading">
+              + Agregar
+            </button>
+          </div>
+
+          <div *ngIf="cotizacion.items.length > 0" class="items-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unit.</th>
+                  <th>Subtotal</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of cotizacion.items; let i = index">
+                  <td>{{ item.descripcion }}</td>
+                  <td class="center">{{ item.cantidad }}</td>
+                  <td class="right">${{ item.precioUnitario | number: '1.2-2' }}</td>
+                  <td class="right">${{ item.subtotal | number: '1.2-2' }}</td>
+                  <td class="center">
+                    <button type="button" class="btn-remove" (click)="eliminarItem(i)" [disabled]="loading">
+                      ✕
+                    </button>
+                  </td>
+                </tr>
+                <tr class="total-row">
+                  <td colspan="3" class="right"><strong>Total:</strong></td>
+                  <td class="right"><strong>${{ getTotal() | number: '1.2-2' }}</strong></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="error" *ngIf="error">
+          <span class="error-icon">⚠️</span>
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? 'Guardando...' : 'Actualizar Cotización' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="loading">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

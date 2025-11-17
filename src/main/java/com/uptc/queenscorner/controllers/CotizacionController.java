@@ -6,6 +6,7 @@ import com.uptc.queenscorner.models.dtos.responses.ApiResponse;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.services.ICotizacionService;
 import com.uptc.queenscorner.services.async.PdfAsyncService;
+import com.uptc.queenscorner.services.async.NotificacionAsyncService;
 import com.uptc.queenscorner.repositories.ICotizacionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ public class CotizacionController {
 
     @Autowired
     private PdfAsyncService pdfAsyncService;
+
+    @Autowired
+    private NotificacionAsyncService notificacionAsyncService;
 
     @Autowired
     private ICotizacionRepository cotizacionRepository;
@@ -86,7 +90,25 @@ public class CotizacionController {
         CotizacionResponse cotizacion = cotizacionService.cambiarEstado(id, request.getEstado());
         ApiResponse<CotizacionResponse> response = new ApiResponse<>();
         response.setSuccess(true);
-        response.setMessage("Estado de cotización actualizado exitosamente");
+        
+        var cotizacionEntity = cotizacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+        
+        // PROCESOS SEGÚN ESTADO
+        if ("ENVIADA".equals(request.getEstado())) {
+            // Enviar notificación asincrónica al cliente
+            notificacionAsyncService.enviarCotizacionAlCliente(cotizacionEntity);
+            response.setMessage("Estado actualizado a ENVIADA y notificación en proceso (SMS/WhatsApp)");
+        } 
+        else if ("APROBADA".equals(request.getEstado())) {
+            // Generar PDF de aprobación
+            pdfAsyncService.generarPdfCotizacion(cotizacionEntity);
+            response.setMessage("Estado actualizado a APROBADA y PDF en generación (proceso asíncrono)");
+        }
+        else if ("RECHAZADA".equals(request.getEstado())) {
+            response.setMessage("Estado actualizado a RECHAZADA");
+        }
+        
         response.setData(cotizacion);
         response.setStatus(HttpStatus.OK.value());
         return ResponseEntity.ok(response);

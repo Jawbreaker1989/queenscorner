@@ -148,6 +148,11 @@ public class CotizacionServiceImpl implements ICotizacionService {
         CotizacionEntity cotizacion = cotizacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
+        // VALIDAR estados permitidos: ENVIADA, APROBADA, RECHAZADA
+        if (!estado.equals("ENVIADA") && !estado.equals("APROBADA") && !estado.equals("RECHAZADA")) {
+            throw new RuntimeException("Estado inválido. Solo se permite ENVIADA, APROBADA o RECHAZADA");
+        }
+
         cotizacion.setEstado(CotizacionEntity.EstadoCotizacion.valueOf(estado));
         CotizacionEntity updated = cotizacionRepository.save(cotizacion);
         return cotizacionMapper.toResponse(updated);

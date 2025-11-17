@@ -5,6 +5,8 @@ import com.uptc.queenscorner.repositories.IOrdenTrabajoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -19,6 +21,67 @@ public class NotificacionAsyncService {
 
     @Autowired
     private IOrdenTrabajoRepository ordenTrabajoRepository;
+
+    private final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+    /**
+     * Simula el envío de cotización al cliente por SMS/WhatsApp
+     * Registra un log con: nombre, teléfono y hora de envío
+     */
+    @Async
+    public CompletableFuture<Boolean> enviarCotizacionAlCliente(CotizacionEntity cotizacion) {
+        try {
+            // Datos del cliente
+            String nombreCliente = cotizacion.getCliente().getNombre();
+            String telefono = cotizacion.getCliente().getTelefono();
+            String codigo = cotizacion.getCodigo();
+            LocalDateTime horaEnvio = LocalDateTime.now();
+            
+            // Validar datos
+            if (telefono == null || telefono.trim().isEmpty()) {
+                System.err.println("⚠️ No se puede enviar cotización " + codigo + 
+                    ": Cliente sin número de contacto");
+                return CompletableFuture.completedFuture(false);
+            }
+            
+            // Simular delay de envío (50-200ms)
+            Thread.sleep(100);
+            
+            // REGISTRO DEL LOG DE ENVÍO
+            System.out.println("\n" + "=".repeat(70));
+            System.out.println("📱 LOG DE ENVÍO DE COTIZACIÓN");
+            System.out.println("=".repeat(70));
+            System.out.println("Código Cotización: " + codigo);
+            System.out.println("Cliente: " + nombreCliente);
+            System.out.println("Teléfono de Contacto: " + telefono);
+            System.out.println("Hora de Envío: " + horaEnvio.format(formatoFecha));
+            System.out.println("Método: SMS/WhatsApp");
+            System.out.println("Estado: ✓ ENVIADO EXITOSAMENTE");
+            System.out.println("Monto Total: $" + formatearMonto(cotizacion.getTotal()));
+            System.out.println("Validez: " + (cotizacion.getFechaValidez() != null ? 
+                cotizacion.getFechaValidez() : "30 días"));
+            System.out.println("=".repeat(70) + "\n");
+            
+            // Mensaje de confirmación
+            String mensaje = String.format(
+                "📤 Cotización %s enviada exitosamente a %s (%s) a las %s",
+                codigo, nombreCliente, telefono, horaEnvio.format(formatoFecha)
+            );
+            
+            System.out.println("✅ " + mensaje);
+            
+            return CompletableFuture.completedFuture(true);
+            
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("❌ Error en envío de cotización (interrumpido)");
+            return CompletableFuture.failedFuture(e);
+        } catch (Exception e) {
+            System.err.println("❌ Error enviando cotización: " + e.getMessage());
+            e.printStackTrace();
+            return CompletableFuture.failedFuture(e);
+        }
+    }
 
     @Async
     public CompletableFuture<Boolean> notificarOrdenLista(OrdenTrabajoEntity orden) {
@@ -184,5 +247,12 @@ public class NotificacionAsyncService {
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }
+    }
+
+    // =================== MÉTODOS AUXILIARES ===================
+
+    private String formatearMonto(java.math.BigDecimal monto) {
+        if (monto == null) return "0";
+        return String.format("%,.0f", monto.doubleValue());
     }
 }
