@@ -5,6 +5,8 @@ import com.uptc.queenscorner.models.dtos.requests.EstadoUpdateRequest;
 import com.uptc.queenscorner.models.dtos.responses.ApiResponse;
 import com.uptc.queenscorner.models.dtos.responses.OrdenTrabajoResponse;
 import com.uptc.queenscorner.services.IOrdenTrabajoService;
+import com.uptc.queenscorner.services.async.PdfAsyncService;
+import com.uptc.queenscorner.repositories.IOrdenTrabajoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,12 @@ public class OrdenTrabajoController {
 
     @Autowired
     private IOrdenTrabajoService ordenTrabajoService;
+
+    @Autowired
+    private PdfAsyncService pdfAsyncService;
+
+    @Autowired
+    private IOrdenTrabajoRepository ordenTrabajoRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<OrdenTrabajoResponse>>> getAll() {
@@ -104,5 +112,30 @@ public class OrdenTrabajoController {
         response.setData(orden);
         response.setStatus(HttpStatus.OK.value());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/pdf")
+    public ResponseEntity<ApiResponse<String>> generarPdf(@PathVariable Long id) {
+        try {
+            var orden = ordenTrabajoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Orden de trabajo no encontrada"));
+            
+            // Generar PDF de forma asíncrona usando hilos
+            pdfAsyncService.generarPdfOrdenTrabajo(orden);
+            
+            ApiResponse<String> response = new ApiResponse<>();
+            response.setSuccess(true);
+            response.setMessage("PDF de orden de trabajo en generación (proceso asíncrono)");
+            response.setData("Generando PDF para orden: " + orden.getCodigo());
+            response.setStatus(HttpStatus.ACCEPTED.value());
+            return ResponseEntity.accepted().body(response);
+            
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>();
+            response.setSuccess(false);
+            response.setMessage("Error al generar PDF: " + e.getMessage());
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

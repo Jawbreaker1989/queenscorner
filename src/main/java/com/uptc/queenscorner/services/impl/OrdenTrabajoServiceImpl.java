@@ -60,12 +60,41 @@ public class OrdenTrabajoServiceImpl implements IOrdenTrabajoService {
         NegocioEntity negocio = negocioRepository.findById(request.getNegocioId())
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
 
+        // APLICAR DEFAULTS INTELIGENTES
+        aplicarDefaultsInteligentesOrden(request, negocio);
+
         OrdenTrabajoEntity orden = ordenTrabajoMapper.toEntity(request);
         orden.setNegocio(negocio);
         orden.setCodigo(generarCodigoOrdenTrabajo());
 
         OrdenTrabajoEntity saved = ordenTrabajoRepository.save(orden);
         return ordenTrabajoMapper.toResponse(saved);
+    }
+
+    private void aplicarDefaultsInteligentesOrden(OrdenTrabajoRequest request, NegocioEntity negocio) {
+        // Si no hay descripción, usar info del negocio
+        if (request.getDescripcion() == null || request.getDescripcion().trim().isEmpty()) {
+            request.setDescripcion("Orden para: " + negocio.getCotizacion().getDescripcion());
+        }
+
+        // Si no hay prioridad, poner MEDIA
+        if (request.getPrioridad() == null || request.getPrioridad().trim().isEmpty()) {
+            request.setPrioridad("MEDIA");
+        }
+
+        // Si no hay fechas, calcular automáticamente
+        if (request.getFechaInicioEstimada() == null) {
+            request.setFechaInicioEstimada(java.time.LocalDate.now().plusDays(1));
+        }
+
+        if (request.getFechaFinEstimada() == null) {
+            request.setFechaFinEstimada(request.getFechaInicioEstimada().plusDays(7));
+        }
+
+        // Si no hay observaciones, crear básicas
+        if (request.getObservaciones() == null || request.getObservaciones().trim().isEmpty()) {
+            request.setObservaciones("Orden de trabajo programada automáticamente");
+        }
     }
 
     private String generarCodigoOrdenTrabajo() {

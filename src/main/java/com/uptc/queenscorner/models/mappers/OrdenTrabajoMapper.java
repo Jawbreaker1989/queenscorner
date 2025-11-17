@@ -55,19 +55,26 @@ public class OrdenTrabajoMapper {
     }
 
     public void updateEntityFromRequest(OrdenTrabajoRequest request, OrdenTrabajoEntity entity) {
-        if (request.getDescripcion() != null) {
+        if (request.getDescripcion() != null && !request.getDescripcion().trim().isEmpty()) {
             entity.setDescripcion(request.getDescripcion());
         }
-        if (request.getPrioridad() != null) {
-            entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad()));
+        
+        if (request.getPrioridad() != null && !request.getPrioridad().trim().isEmpty()) {
+            try {
+                entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.valueOf(request.getPrioridad().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                // Si la prioridad no es válida, usar MEDIA como default
+                entity.setPrioridad(OrdenTrabajoEntity.PrioridadOrden.MEDIA);
+            }
         }
+        
         if (request.getFechaInicioEstimada() != null) {
             entity.setFechaInicioEstimada(request.getFechaInicioEstimada());
         }
         if (request.getFechaFinEstimada() != null) {
             entity.setFechaFinEstimada(request.getFechaFinEstimada());
         }
-        if (request.getObservaciones() != null) {
+        if (request.getObservaciones() != null && !request.getObservaciones().trim().isEmpty()) {
             entity.setObservaciones(request.getObservaciones());
         }
     }

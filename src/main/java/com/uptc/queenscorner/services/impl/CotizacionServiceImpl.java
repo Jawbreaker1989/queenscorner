@@ -66,6 +66,9 @@ public class CotizacionServiceImpl implements ICotizacionService {
         ClienteEntity cliente = clienteRepository.findById(request.getClienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
 
+        // APLICAR DEFAULTS INTELIGENTES
+        aplicarDefaultsInteligentes(request);
+
         CotizacionEntity cotizacion = new CotizacionEntity();
         cotizacion.setCliente(cliente);
         cotizacion.setCodigo(generarCodigoCotizacion());
@@ -76,6 +79,27 @@ public class CotizacionServiceImpl implements ICotizacionService {
 
         guardarItemsCotizacion(request, saved);
         return cotizacionMapper.toResponse(saved);
+    }
+
+    private void aplicarDefaultsInteligentes(CotizacionRequest request) {
+        // Si no hay descripción, crear una básica
+        if (request.getDescripcion() == null || request.getDescripcion().trim().isEmpty()) {
+            request.setDescripcion("Servicio personalizado");
+        }
+
+        // Si no hay fecha validez, poner 30 días
+        if (request.getFechaValidez() == null) {
+            request.setFechaValidez(java.time.LocalDate.now().plusDays(30));
+        }
+
+        // Si no hay items, crear uno básico
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            var itemDefault = new com.uptc.queenscorner.models.dtos.requests.ItemCotizacionRequest();
+            itemDefault.setDescripcion(request.getDescripcion());
+            itemDefault.setCantidad(1);
+            itemDefault.setPrecioUnitario(new BigDecimal("100000"));
+            request.setItems(java.util.Arrays.asList(itemDefault));
+        }
     }
 
     private void calcularTotales(CotizacionEntity cotizacion, CotizacionRequest request) {

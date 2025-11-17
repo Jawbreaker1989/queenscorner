@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 public class FileUtils {
 
     // Directorio base para almacenamiento de PDFs organizados por tipo de documento
-    private static final String BASE_DIR = System.getProperty("user.home") + File.separator + "queenscorner-pdfs";
+    private static final String BASE_DIR = "D:" + File.separator + "queenscorner" + File.separator + "queenscornerarchives";
 
     /**
      * Crea un directorio si no existe - Esencial para el flujo async de PDFs

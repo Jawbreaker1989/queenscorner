@@ -87,11 +87,11 @@ public class PdfAsyncService {
         try {
             Thread.sleep(800); // Simula procesamiento
             
-            String directorioFacturas = FileUtils.getRutaFacturas();
-            FileUtils.crearDirectorioSiNoExiste(directorioFacturas);
+            String directorioComprobantes = FileUtils.getRutaComprobantes();
+            FileUtils.crearDirectorioSiNoExiste(directorioComprobantes);
             
             String nombreArchivo = "comprobante-pago-" + pago.getId() + ".pdf";
-            String rutaCompleta = directorioFacturas + File.separator + nombreArchivo;
+            String rutaCompleta = directorioComprobantes + File.separator + nombreArchivo;
             
             // Generar PDF con detalle completo del pago
             generarPdfComprobantePagoCompleto(pago, rutaCompleta);

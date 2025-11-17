@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,14 +57,45 @@ public class NegocioServiceImpl implements INegocioService {
         CotizacionEntity cotizacion = cotizacionRepository.findById(request.getCotizacionId())
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
+        // APLICAR DEFAULTS INTELIGENTES
+        aplicarDefaultsInteligentesNegocio(request, cotizacion);
+
         NegocioEntity negocio = new NegocioEntity();
         negocio.setCotizacion(cotizacion);
         negocio.setCodigo(generarCodigoNegocio());
         negocio.setTotalNegocio(cotizacion.getTotal());
         negocioMapper.updateEntityFromRequest(request, negocio);
 
+        // Calcular saldo pendiente si hay anticipo
+        if (negocio.getAnticipo() != null && negocio.getAnticipo().compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal saldoPendiente = negocio.getTotalNegocio().subtract(negocio.getAnticipo());
+            negocio.setSaldoPendiente(saldoPendiente);
+        }
+
         NegocioEntity saved = negocioRepository.save(negocio);
         return negocioMapper.toResponse(saved);
+    }
+
+    private void aplicarDefaultsInteligentesNegocio(NegocioRequest request, CotizacionEntity cotizacion) {
+        // Si no hay descripción, usar la de la cotización
+        if (request.getDescripcion() == null || request.getDescripcion().trim().isEmpty()) {
+            request.setDescripcion("Negocio para: " + cotizacion.getDescripcion());
+        }
+
+        // Si no hay observaciones, crear básicas
+        if (request.getObservaciones() == null || request.getObservaciones().trim().isEmpty()) {
+            request.setObservaciones("Negocio iniciado correctamente");
+        }
+
+        // Si no hay anticipo, poner 0
+        if (request.getAnticipo() == null) {
+            request.setAnticipo(BigDecimal.ZERO);
+        }
+
+        // Si no hay fecha estimada, poner 15 días
+        if (request.getFechaEntregaEstimada() == null) {
+            request.setFechaEntregaEstimada(java.time.LocalDate.now().plusDays(15));
+        }
     }
 
     private String generarCodigoNegocio() {

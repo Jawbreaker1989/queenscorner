@@ -34,7 +34,7 @@ public class NegocioMapper {
     }
 
     public void updateEntityFromRequest(NegocioRequest request, NegocioEntity entity) {
-        if (request.getDescripcion() != null) {
+        if (request.getDescripcion() != null && !request.getDescripcion().trim().isEmpty()) {
             entity.setDescripcion(request.getDescripcion());
         }
         if (request.getAnticipo() != null) {
@@ -43,13 +43,14 @@ public class NegocioMapper {
         if (request.getFechaEntregaEstimada() != null) {
             entity.setFechaEntregaEstimada(request.getFechaEntregaEstimada());
         }
-        if (request.getObservaciones() != null) {
+        if (request.getObservaciones() != null && !request.getObservaciones().trim().isEmpty()) {
             entity.setObservaciones(request.getObservaciones());
         }
         
+        // Recalcular saldo pendiente si se actualiza el anticipo
         if (request.getAnticipo() != null && entity.getTotalNegocio() != null) {
             BigDecimal saldoPendiente = entity.getTotalNegocio().subtract(request.getAnticipo());
-            entity.setSaldoPendiente(saldoPendiente);
+            entity.setSaldoPendiente(saldoPendiente.max(BigDecimal.ZERO)); // No permitir saldos negativos
         }
     }
 }
