@@ -1,8 +1,8 @@
 <div class="contenedor">
   <div class="header">
     <div class="header-content">
-      <h1>Negocios</h1>
-      <p class="subtitle">Gestiona todos tus negocios</p>
+      <h1>💼 Negocios</h1>
+      <p class="subtitle">Gestiona todos tus negocios desde cotizaciones aprobadas</p>
     </div>
     <div class="header-actions">
       <button class="btn btn-primary" (click)="crearNegocio()">
@@ -27,6 +27,7 @@
 
     <div *ngIf="!loading && negocios.length === 0 && !error" class="vacio">
       <p>No hay negocios registrados</p>
+      <p class="info-vacio">Los negocios se crean desde cotizaciones aprobadas</p>
       <button class="btn btn-primary" (click)="crearNegocio()">Crear primer negocio</button>
     </div>
 
@@ -34,27 +35,36 @@
       <table class="tabla">
         <thead>
           <tr>
-            <th>Código</th>
+            <th>Código Negocio</th>
+            <th>Cotización</th>
             <th>Cliente</th>
-            <th>Descripción</th>
+            <th>Presupuesto</th>
             <th>Estado</th>
-            <th>Monto</th>
-            <th>Fecha Creación</th>
+            <th>Inicio</th>
+            <th>Creación</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let negocio of negocios" class="fila">
             <td class="codigo">{{ negocio.codigo }}</td>
-            <td>{{ negocio.cliente.nombre }}</td>
-            <td class="descripcion">{{ negocio.descripcion }}</td>
-            <td>
+            <td class="cotizacion">
+              <a href="#" (click)="$event.preventDefault()" title="Cotización de origen">
+                {{ negocio.codigoCotizacion || '-' }}
+              </a>
+            </td>
+            <td class="cliente">{{ negocio.cliente.nombre }}</td>
+            <td class="presupuesto">
+              <span class="monto">${{ negocio.presupuestoAsignado | number: '1.2-2' }}</span>
+              <span class="disponible">(${{ (negocio.presupuestoAsignado || 0) - (negocio.presupuestoUtilizado || 0) | number: '1.2-2' }} disp.)</span>
+            </td>
+            <td class="estado">
               <span [ngClass]="getEstadoColor(negocio.estado)" class="badge">
                 {{ negocio.estado }}
               </span>
             </td>
-            <td class="monto">${{ negocio.monto | number: '1.2-2' }}</td>
-            <td class="fecha">{{ negocio.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
+            <td class="fecha">{{ negocio.fechaInicio | date: 'dd/MM' }}</td>
+            <td class="fecha">{{ negocio.fechaCreacion | date: 'dd/MM/yy' }}</td>
             <td class="acciones">
               <button class="btn-accion btn-detalle" (click)="verDetalle(negocio.id)" title="Ver detalles">
                 👁️

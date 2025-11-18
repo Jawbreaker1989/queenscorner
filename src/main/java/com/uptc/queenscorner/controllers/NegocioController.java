@@ -73,6 +73,18 @@ public class NegocioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/desde-cotizacion/{cotizacionId}")
+    public ResponseEntity<ApiResponse<NegocioResponse>> crearDesdeAprobada(@PathVariable Long cotizacionId, @RequestBody NegocioRequest request) {
+        request.setCotizacionId(cotizacionId);
+        NegocioResponse negocio = negocioService.crearDesdeAprobada(cotizacionId, request);
+        ApiResponse<NegocioResponse> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("Negocio creado exitosamente desde cotización aprobada");
+        response.setData(negocio);
+        response.setStatus(HttpStatus.CREATED.value());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<NegocioResponse>> update(@PathVariable Long id, @RequestBody NegocioRequest request) {
         NegocioResponse negocio = negocioService.update(id, request);

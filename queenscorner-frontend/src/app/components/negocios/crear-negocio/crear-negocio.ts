@@ -21,7 +21,9 @@ export class CrearNegocioComponent implements OnInit {
   negocio: NegocioRequest = {
     cotizacionId: 0,
     descripcion: '',
-    observaciones: ''
+    observaciones: '',
+    fechaInicio: new Date().toISOString().split('T')[0],
+    fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   };
 
   loading = false;
@@ -59,7 +61,11 @@ export class CrearNegocioComponent implements OnInit {
 
           this.cotizacion = response.data;
           this.negocio.cotizacionId = this.cotizacionId;
-          this.negocio.descripcion = response.data.descripcion;
+          
+          // Usar descripción de cotización como default
+          if (!this.negocio.descripcion) {
+            this.negocio.descripcion = `Negocio para: ${response.data.descripcion}`;
+          }
         } else {
           this.error = 'No se pudo cargar la cotización';
         }
@@ -105,6 +111,20 @@ export class CrearNegocioComponent implements OnInit {
     }
     if (!this.negocio.descripcion.trim()) {
       this.error = 'Descripción requerida';
+      return false;
+    }
+    if (!this.negocio.fechaInicio) {
+      this.error = 'Fecha inicio requerida';
+      return false;
+    }
+    if (!this.negocio.fechaFinEstimada) {
+      this.error = 'Fecha fin estimada requerida';
+      return false;
+    }
+    const inicio = new Date(this.negocio.fechaInicio);
+    const fin = new Date(this.negocio.fechaFinEstimada);
+    if (fin <= inicio) {
+      this.error = 'Fecha fin debe ser posterior a fecha inicio';
       return false;
     }
     return true;

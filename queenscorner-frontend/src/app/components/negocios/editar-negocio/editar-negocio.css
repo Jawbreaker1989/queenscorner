@@ -1,6 +1,6 @@
 .form-container {
   padding: 20px;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -51,34 +51,61 @@
 
 .seccion {
   margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #ecf0f1;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #ecf0f1;
 }
 
-.seccion:last-of-type {
-  border-bottom: none;
+.seccion.read-only-section {
+  background-color: #f0f7ff;
+  border-color: #b3d9ff;
+  border-left: 4px solid #3498db;
 }
 
-.seccion h3 {
+.seccion.editable-section {
+  background-color: #fffbf0;
+  border-color: #ffd699;
+  border-left: 4px solid #f39c12;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.section-header h3 {
   color: #2c3e50;
   font-size: 16px;
   font-weight: 600;
-  margin: 0 0 20px 0;
+  margin: 0;
 }
 
-.info-box {
+.info-label {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
+  background: white;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #ecf0f1;
 }
 
 .info-item label {
@@ -86,7 +113,8 @@
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
 }
 
 .info-item p {
@@ -97,9 +125,15 @@
 }
 
 .info-item .monto {
-  color: #28a745;
-  font-size: 18px;
+  color: #27ae60;
+  font-size: 16px;
   font-weight: 600;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .form-group {
@@ -114,6 +148,7 @@
   font-size: 14px;
 }
 
+.form-group input,
 .form-group textarea {
   width: 100%;
   padding: 12px;
@@ -121,14 +156,33 @@
   border-radius: 5px;
   font-size: 14px;
   font-family: inherit;
-  resize: vertical;
   transition: border-color 0.3s ease;
+  background-color: white;
 }
 
+.form-group textarea {
+  resize: vertical;
+}
+
+.form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  color: #6c757d;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #7f8c8d;
+  font-size: 12px;
 }
 
 .form-actions {
@@ -184,7 +238,17 @@
     font-size: 20px;
   }
 
-  .info-box {
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
     grid-template-columns: 1fr;
   }
 

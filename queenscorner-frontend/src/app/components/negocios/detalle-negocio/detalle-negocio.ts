@@ -55,22 +55,15 @@ export class DetalleNegocioComponent implements OnInit {
 
   getEstadoColor(estado: string): string {
     const colores: { [key: string]: string } = {
-      'INICIADO': '#0984e3',
-      'EN_PROGRESO': '#f39c12',
-      'FINALIZADO': '#27ae60',
-      'CANCELADO': '#e74c3c'
+      'EN_REVISION': '#3498db',
+      'CANCELADO': '#e74c3c',
+      'FINALIZADO': '#27ae60'
     };
     return colores[estado] || '#95a5a6';
   }
 
   getEstadoTextColor(estado: string): string {
-    const colores: { [key: string]: string } = {
-      'INICIADO': '#fff',
-      'EN_PROGRESO': '#fff',
-      'FINALIZADO': '#fff',
-      'CANCELADO': '#fff'
-    };
-    return colores[estado] || '#000';
+    return '#fff';
   }
 
   toggleCambioEstado(): void {
@@ -83,8 +76,7 @@ export class DetalleNegocioComponent implements OnInit {
   obtenerTransicionesValidas(): string[] {
     const estado = this.negocio?.estado;
     const transiciones: { [key: string]: string[] } = {
-      'INICIADO': ['EN_PROGRESO', 'CANCELADO'],
-      'EN_PROGRESO': ['FINALIZADO', 'CANCELADO'],
+      'EN_REVISION': ['FINALIZADO', 'CANCELADO'],
       'FINALIZADO': [],
       'CANCELADO': []
     };
@@ -142,6 +134,16 @@ export class DetalleNegocioComponent implements OnInit {
     this.router.navigate(['/ordenes-trabajo/crear'], {
       queryParams: { negocioId: this.negocio?.id }
     });
+  }
+
+  formatearFecha(fecha?: string): string {
+    if (!fecha) return '-';
+    try {
+      const d = new Date(fecha);
+      return d.toLocaleDateString('es-CO');
+    } catch {
+      return fecha;
+    }
   }
 
   volver(): void {

@@ -18,7 +18,11 @@ export class EditarNegocioComponent implements OnInit {
   negocioForm: NegocioRequest = {
     cotizacionId: 0,
     descripcion: '',
-    observaciones: ''
+    observaciones: '',
+    fechaInicio: '',
+    fechaFinEstimada: '',
+    presupuestoAsignado: 0,
+    responsable: ''
   };
   cargando: boolean = true;
   procesando: boolean = false;
@@ -47,12 +51,16 @@ export class EditarNegocioComponent implements OnInit {
         this.negocioForm = {
           cotizacionId: this.negocio?.cotizacionId || 0,
           descripcion: this.negocio?.descripcion || '',
-          observaciones: this.negocio?.observaciones || ''
+          observaciones: this.negocio?.observaciones || '',
+          fechaInicio: this.negocio?.fechaInicio || '',
+          fechaFinEstimada: this.negocio?.fechaFinEstimada || '',
+          presupuestoAsignado: this.negocio?.presupuestoAsignado || 0,
+          responsable: this.negocio?.responsable || ''
         };
         this.cargando = false;
 
         // Validar que el negocio pueda ser editado
-        if (this.negocio?.estado !== 'INICIADO' && this.negocio?.estado !== 'EN_PROGRESO') {
+        if (this.negocio?.estado !== 'EN_REVISION') {
           Swal.fire('Información', `No se puede editar un negocio en estado ${this.negocio?.estado}`, 'info');
           this.router.navigate(['/negocios/detalle', id]);
         }
@@ -66,9 +74,33 @@ export class EditarNegocioComponent implements OnInit {
     });
   }
 
+  formatearFecha(fecha?: string): string {
+    if (!fecha) return '-';
+    try {
+      const d = new Date(fecha);
+      return d.toLocaleDateString('es-CO');
+    } catch {
+      return fecha;
+    }
+  }
+
   validar(): boolean {
     if (!this.negocioForm.descripcion.trim()) {
       Swal.fire('Error', 'La descripción es requerida', 'error');
+      return false;
+    }
+    if (!this.negocioForm.fechaInicio) {
+      Swal.fire('Error', 'Fecha inicio es requerida', 'error');
+      return false;
+    }
+    if (!this.negocioForm.fechaFinEstimada) {
+      Swal.fire('Error', 'Fecha fin estimada es requerida', 'error');
+      return false;
+    }
+    const inicio = new Date(this.negocioForm.fechaInicio);
+    const fin = new Date(this.negocioForm.fechaFinEstimada);
+    if (fin <= inicio) {
+      Swal.fire('Error', 'Fecha fin debe ser posterior a fecha inicio', 'error');
       return false;
     }
     return true;

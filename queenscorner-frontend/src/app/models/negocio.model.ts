@@ -1,12 +1,17 @@
-export type EstadoNegocio = 'INICIADO' | 'EN_PROGRESO' | 'FINALIZADO' | 'CANCELADO';
+export type EstadoNegocio = 'EN_REVISION' | 'CANCELADO' | 'FINALIZADO';
 
 export interface NegocioRequest {
   cotizacionId: number;
   descripcion: string;
   observaciones?: string;
+  fechaInicio?: string;
+  fechaFinEstimada?: string;
+  presupuestoAsignado?: number;
+  responsable?: string;
 }
 
 export interface NegocioResponse {
+  // ===== DATOS DEL NEGOCIO =====
   id: number;
   cotizacionId: number;
   codigo: string;
@@ -18,13 +23,30 @@ export interface NegocioResponse {
     direccion: string;
     ciudad: string;
   };
-  descripcion: string;
-  observaciones?: string;
   estado: EstadoNegocio;
   fechaCreacion: string;
+  fechaActualizacion?: string;
+
+  // ===== DATOS DESNORMALIZADOS DE COTIZACIÓN (READ-ONLY) =====
+  codigoCotizacion?: string;
+  estadoCotizacion?: string;
+  fechaCotizacion?: string;
+  fechaValidezCotizacion?: string;
+  descripcionCotizacion?: string;
+  subtotalCotizacion?: number;
+  impuestosCotizacion?: number;
+  totalCotizacion?: number;
+  observacionesCotizacion?: string;
+
+  // ===== DATOS EDITABLES DEL NEGOCIO =====
   fechaInicio?: string;
-  fechaFinalizacion?: string;
-  monto: number;
+  fechaFinEstimada?: string;
+  presupuestoAsignado?: number;
+  presupuestoUtilizado?: number;
+  responsable?: string;
+  descripcion: string;
+  observaciones?: string;
+  monto?: number;
 }
 
 export interface ApiResponse<T> {
@@ -33,3 +55,4 @@ export interface ApiResponse<T> {
   data: T;
   status: number;
 }
+

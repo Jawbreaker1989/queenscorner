@@ -1,56 +1,114 @@
 <div class="form-container" *ngIf="!cargando; else loadingTemplate">
   <div class="form-card">
-    <h1>Editar Negocio</h1>
+    <h1>✏️ Editar Negocio</h1>
     <p class="subtitle">Modifique los datos del negocio {{ negocio?.codigo }}</p>
 
     <div *ngIf="negocio" class="formulario">
-      <div class="seccion">
-        <h3>Información del Negocio</h3>
-        <div class="info-box">
+      <!-- SECCIÓN 1: INFORMACIÓN DE COTIZACIÓN (READ-ONLY) -->
+      <div class="seccion read-only-section">
+        <div class="section-header">
+          <h3>📝 COTIZACIÓN ORIGEN</h3>
+          <span class="info-label">(Información de referencia)</span>
+        </div>
+
+        <div class="info-grid">
           <div class="info-item">
-            <label>Código</label>
-            <p>{{ negocio.codigo }}</p>
+            <label>Código Cotización</label>
+            <p>{{ negocio?.codigoCotizacion }}</p>
           </div>
           <div class="info-item">
             <label>Cliente</label>
-            <p>{{ negocio.cliente.nombre }}</p>
+            <p>{{ negocio?.cliente?.nombre }}</p>
           </div>
           <div class="info-item">
-            <label>Estado</label>
-            <p>{{ negocio.estado }}</p>
+            <label>Total Cotización</label>
+            <p class="monto">${{ negocio?.totalCotizacion | number:'1.2-2' }}</p>
           </div>
           <div class="info-item">
-            <label>Monto</label>
-            <p class="monto">${{ negocio.monto | number:'1.2-2' }}</p>
+            <label>Fecha Cotización</label>
+            <p>{{ formatearFecha(negocio?.fechaCotizacion) }}</p>
           </div>
         </div>
       </div>
 
-      <div class="seccion">
-        <h3>Editar Datos</h3>
+      <!-- SECCIÓN 2: DATOS DEL NEGOCIO (EDITABLES) -->
+      <div class="seccion editable-section">
+        <div class="section-header">
+          <h3>💼 DATOS DEL NEGOCIO</h3>
+          <span class="info-label">(Modifique según sea necesario)</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fechaInicio">Fecha Inicio *</label>
+            <input type="date" 
+                   id="fechaInicio" 
+                   [(ngModel)]="negocioForm.fechaInicio" 
+                   name="fechaInicio"
+                   [disabled]="procesando" />
+          </div>
+
+          <div class="form-group">
+            <label for="fechaFinEstimada">Fecha Fin Estimada *</label>
+            <input type="date" 
+                   id="fechaFinEstimada" 
+                   [(ngModel)]="negocioForm.fechaFinEstimada" 
+                   name="fechaFinEstimada"
+                   [disabled]="procesando" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="presupuestoAsignado">Presupuesto Asignado</label>
+            <input type="number" 
+                   id="presupuestoAsignado" 
+                   [(ngModel)]="negocioForm.presupuestoAsignado" 
+                   name="presupuestoAsignado"
+                   step="0.01"
+                   [disabled]="procesando" />
+          </div>
+
+          <div class="form-group">
+            <label for="responsable">Responsable</label>
+            <input type="text" 
+                   id="responsable" 
+                   [(ngModel)]="negocioForm.responsable" 
+                   name="responsable"
+                   placeholder="Nombre del responsable"
+                   [disabled]="procesando" />
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="descripcion">Descripción *</label>
+          <label for="descripcion">Descripción del Negocio *</label>
           <textarea id="descripcion" 
                     [(ngModel)]="negocioForm.descripcion" 
-                    placeholder="Describa el negocio"
-                    rows="5"></textarea>
+                    name="descripcion"
+                    placeholder="Describa el negocio y sus actividades"
+                    rows="4"
+                    [disabled]="procesando"></textarea>
+          <small>Esta información documenta el propósito y alcance del negocio</small>
         </div>
 
         <div class="form-group">
           <label for="observaciones">Observaciones</label>
           <textarea id="observaciones" 
                     [(ngModel)]="negocioForm.observaciones" 
-                    placeholder="Agregue observaciones (opcional)"
-                    rows="4"></textarea>
+                    name="observaciones"
+                    placeholder="Agregue observaciones o notas adicionales (opcional)"
+                    rows="3"
+                    [disabled]="procesando"></textarea>
         </div>
       </div>
 
+      <!-- ACCIONES -->
       <div class="form-actions">
         <button class="btn btn-secondary" (click)="cancelar()" [disabled]="procesando">
           Cancelar
         </button>
         <button class="btn btn-primary" (click)="guardar()" [disabled]="procesando">
-          {{ procesando ? 'Guardando...' : 'Guardar Cambios' }}
+          {{ procesando ? '⏳ Guardando...' : '✓ Guardar Cambios' }}
         </button>
       </div>
     </div>

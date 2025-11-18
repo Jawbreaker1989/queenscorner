@@ -9,6 +9,7 @@ public interface INegocioService {
     NegocioResponse findById(Long id);
     NegocioResponse findByCodigo(String codigo);
     NegocioResponse create(NegocioRequest request);
+    NegocioResponse crearDesdeAprobada(Long cotizacionId, NegocioRequest request);
     NegocioResponse update(Long id, NegocioRequest request);
     NegocioResponse cambiarEstado(Long id, String estado);
     List<NegocioResponse> findByEstado(String estado);

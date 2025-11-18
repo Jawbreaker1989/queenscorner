@@ -85,9 +85,7 @@ export class ListarNegociosComponent implements OnInit {
 
   getEstadoColor(estado: EstadoNegocio): string {
     switch (estado) {
-      case 'INICIADO':
-        return 'badge-secondary';
-      case 'EN_PROGRESO':
+      case 'EN_REVISION':
         return 'badge-info';
       case 'FINALIZADO':
         return 'badge-success';

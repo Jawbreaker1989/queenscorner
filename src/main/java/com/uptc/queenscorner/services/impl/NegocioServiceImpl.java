@@ -12,7 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,17 +64,41 @@ public class NegocioServiceImpl implements INegocioService {
         NegocioEntity negocio = new NegocioEntity();
         negocio.setCotizacion(cotizacion);
         negocio.setCodigo(generarCodigoNegocio());
-        negocio.setTotalNegocio(cotizacion.getTotal());
+        
+        // Asignar presupuesto desde la cotización
+        negocio.setPresupuestoAsignado(cotizacion.getTotal());
+        
+        // POBLAR DATOS DESNORMALIZADOS DE COTIZACIÓN
+        negocioMapper.populateDesnormalizedFields(negocio, cotizacion);
+        
+        // Actualizar con datos del request
         negocioMapper.updateEntityFromRequest(request, negocio);
-
-        // Calcular saldo pendiente si hay anticipo
-        if (negocio.getAnticipo() != null && negocio.getAnticipo().compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal saldoPendiente = negocio.getTotalNegocio().subtract(negocio.getAnticipo());
-            negocio.setSaldoPendiente(saldoPendiente);
-        }
+        
+        // Registrar timestamp de actualización
+        negocio.setFechaActualizacion(LocalDateTime.now());
 
         NegocioEntity saved = negocioRepository.save(negocio);
         return negocioMapper.toResponse(saved);
+    }
+
+    @Override
+    @CacheEvict(value = "negocios", allEntries = true)
+    public NegocioResponse crearDesdeAprobada(Long cotizacionId, NegocioRequest request) {
+        CotizacionEntity cotizacion = cotizacionRepository.findById(cotizacionId)
+                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+
+        // Validar que la cotización esté aprobada
+        if (!"APROBADA".equals(cotizacion.getEstado().name())) {
+            throw new RuntimeException("Solo se pueden crear negocios desde cotizaciones aprobadas");
+        }
+
+        // Validar que no exista un negocio para esta cotización
+        if (negocioRepository.findByCotizacion(cotizacion).isPresent()) {
+            throw new RuntimeException("Ya existe un negocio para esta cotización");
+        }
+
+        request.setCotizacionId(cotizacionId);
+        return create(request);
     }
 
     private void aplicarDefaultsInteligentesNegocio(NegocioRequest request, CotizacionEntity cotizacion) {
@@ -87,14 +112,19 @@ public class NegocioServiceImpl implements INegocioService {
             request.setObservaciones("Negocio iniciado correctamente");
         }
 
-        // Si no hay anticipo, poner 0
-        if (request.getAnticipo() == null) {
-            request.setAnticipo(BigDecimal.ZERO);
+        // Si no hay fecha inicio, usar hoy
+        if (request.getFechaInicio() == null) {
+            request.setFechaInicio(LocalDate.now());
         }
 
-        // Si no hay fecha estimada, poner 15 días
-        if (request.getFechaEntregaEstimada() == null) {
-            request.setFechaEntregaEstimada(java.time.LocalDate.now().plusDays(15));
+        // Si no hay fecha fin estimada, poner 30 días
+        if (request.getFechaFinEstimada() == null) {
+            request.setFechaFinEstimada(LocalDate.now().plusDays(30));
+        }
+
+        // Si no hay presupuesto asignado, usar el total de la cotización
+        if (request.getPresupuestoAsignado() == null) {
+            request.setPresupuestoAsignado(cotizacion.getTotal());
         }
     }
 
@@ -109,6 +139,7 @@ public class NegocioServiceImpl implements INegocioService {
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
 
         negocioMapper.updateEntityFromRequest(request, negocio);
+        negocio.setFechaActualizacion(LocalDateTime.now());
         NegocioEntity updated = negocioRepository.save(negocio);
         return negocioMapper.toResponse(updated);
     }
@@ -120,6 +151,7 @@ public class NegocioServiceImpl implements INegocioService {
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
 
         negocio.setEstado(NegocioEntity.EstadoNegocio.valueOf(estado));
+        negocio.setFechaActualizacion(LocalDateTime.now());
         NegocioEntity updated = negocioRepository.save(negocio);
         return negocioMapper.toResponse(updated);
     }

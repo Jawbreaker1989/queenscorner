@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CotizacionesService } from '../../../services/cotizaciones';
+import { NegociosService } from '../../../services/negocios';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotizacionResponse, EstadoCotizacion } from '../../../models/cotizacion.model';
@@ -27,6 +28,7 @@ export class DetalleCotizacionComponent implements OnInit {
 
   constructor(
     private cotizacionesService: CotizacionesService,
+    private negociosService: NegociosService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
@@ -208,5 +210,52 @@ export class DetalleCotizacionComponent implements OnInit {
 
   volver() {
     this.router.navigate(['/cotizaciones']);
+  }
+
+  crearNegocio() {
+    if (!this.cotizacion) return;
+    
+    if (this.cotizacion.estado !== 'APROBADA') {
+      Swal.fire('No permitido', 'Solo se pueden crear negocios desde cotizaciones APROBADAS', 'warning');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Crear Negocio',
+      text: `¿Crear un negocio para la cotización ${this.cotizacion.codigo}?`,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Crear',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.loading = true;
+        const negocioRequest = {
+          cotizacionId: this.cotizacion!.id,
+          descripcion: this.cotizacion!.descripcion,
+          observaciones: `Negocio creado desde cotización ${this.cotizacion!.codigo}`
+        };
+
+        this.negociosService.crearDesdeAprobada(this.cotizacion!.id, negocioRequest).subscribe({
+          next: (response) => {
+            if (response.success) {
+              Swal.fire('Éxito', 'Negocio creado exitosamente', 'success').then(() => {
+                this.router.navigate(['/negocios/detalle', response.data.id]);
+              });
+            } else {
+              Swal.fire('Error', response.message || 'Error al crear negocio', 'error');
+              this.loading = false;
+            }
+          },
+          error: (error: any) => {
+            console.error('Error al crear negocio:', error);
+            Swal.fire('Error', error.error?.message || 'Error al crear negocio. Por favor intenta de nuevo.', 'error');
+            this.loading = false;
+          }
+        });
+      }
+    });
   }
 }

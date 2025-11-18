@@ -6,37 +6,80 @@
     </div>
 
     <div *ngIf="!cargando">
-      <h1>Crear Negocio desde Cotización</h1>
-      <p class="subtitle">Genera un negocio a partir de una cotización aprobada</p>
+      <h1>📋 Crear Negocio desde Cotización</h1>
+      <p class="subtitle">Genera un nuevo negocio a partir de una cotización aprobada</p>
 
       <form (ngSubmit)="guardar()" class="formulario">
-        <!-- Información de la Cotización -->
-        <div class="seccion">
-          <h3>Información de la Cotización</h3>
+        <!-- SECCIÓN 1: Información de la Cotización (READ-ONLY) -->
+        <div class="seccion read-only-section">
+          <div class="section-header">
+            <h3>📝 COTIZACIÓN ORIGEN</h3>
+            <span class="info-label">(Información de referencia)</span>
+          </div>
 
-          <div *ngIf="cotizacion" class="info-box">
+          <div *ngIf="cotizacion" class="info-grid">
             <div class="info-item">
-              <label>Código Cotización</label>
-              <p>{{ cotizacion.codigo }}</p>
+              <label>Código</label>
+              <p class="value">{{ cotizacion.codigo }}</p>
             </div>
             <div class="info-item">
               <label>Cliente</label>
-              <p>{{ cotizacion.cliente.nombre }}</p>
+              <p class="value">{{ cotizacion.cliente.nombre }}</p>
             </div>
             <div class="info-item">
-              <label>Monto Total</label>
-              <p class="monto">${{ cotizacion.total | number: '1.2-2' }}</p>
+              <label>Subtotal</label>
+              <p class="value">${{ cotizacion.subtotal | number: '1.2-2' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Impuestos</label>
+              <p class="value">${{ cotizacion.impuestos | number: '1.2-2' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Total</label>
+              <p class="value monto">${{ cotizacion.total | number: '1.2-2' }}</p>
             </div>
             <div class="info-item">
               <label>Estado</label>
               <p><span class="badge badge-success">{{ cotizacion.estado }}</span></p>
             </div>
           </div>
+
+          <div *ngIf="cotizacion && cotizacion.descripcion" class="info-section">
+            <label>Descripción</label>
+            <p class="value">{{ cotizacion.descripcion }}</p>
+          </div>
         </div>
 
-        <!-- Datos del Negocio -->
-        <div class="seccion">
-          <h3>Información del Negocio</h3>
+        <!-- SECCIÓN 2: Datos del Negocio (EDITABLES) -->
+        <div class="seccion editable-section">
+          <div class="section-header">
+            <h3>💼 DATOS DEL NEGOCIO</h3>
+            <span class="info-label">(Información a completar)</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaInicio">Fecha Inicio *</label>
+              <input
+                type="date"
+                id="fechaInicio"
+                [(ngModel)]="negocio.fechaInicio"
+                name="fechaInicio"
+                [disabled]="loading"
+                required />
+            </div>
+
+            <div class="form-group">
+              <label for="fechaFinEstimada">Fecha Fin Estimada *</label>
+              <input
+                type="date"
+                id="fechaFinEstimada"
+                [(ngModel)]="negocio.fechaFinEstimada"
+                name="fechaFinEstimada"
+                [disabled]="loading"
+                required />
+            </div>
+          </div>
 
           <div class="form-group">
             <label for="descripcion">Descripción del Negocio *</label>
@@ -48,6 +91,7 @@
               rows="3"
               [disabled]="loading"
               required></textarea>
+            <small>Esta información se utilizará para documentar el propósito del negocio</small>
           </div>
 
           <div class="form-group">
@@ -62,14 +106,17 @@
           </div>
         </div>
 
+        <!-- Mensajes de Error -->
         <div class="error" *ngIf="error">
           <span class="error-icon">⚠️</span>
           {{ error }}
         </div>
 
+        <!-- Botones de Acción -->
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" [disabled]="loading">
-            {{ loading ? 'Creando...' : 'Crear Negocio' }}
+            <span *ngIf="!loading">✓ Crear Negocio</span>
+            <span *ngIf="loading">⏳ Creando...</span>
           </button>
           <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="loading">
             Cancelar

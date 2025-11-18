@@ -1,20 +1,71 @@
 <div class="detail-container" *ngIf="!cargando; else loadingTemplate">
   <div class="detail-card">
+    <!-- ENCABEZADO -->
     <div class="header">
       <div class="header-content">
-        <h1>Detalle del Negocio</h1>
+        <h1>💼 Detalle del Negocio</h1>
         <p class="subtitle">Código: <strong>{{ negocio?.codigo }}</strong></p>
       </div>
       <button class="btn-volver" (click)="volver()">← Volver</button>
     </div>
 
-    <div class="seccion">
-      <h3>Información del Negocio</h3>
+    <!-- SECCIÓN 1: COTIZACIÓN ORIGEN (READ-ONLY) -->
+    <div class="seccion read-only-section" *ngIf="negocio?.codigoCotizacion">
+      <div class="section-header">
+        <h3>📝 COTIZACIÓN ORIGEN</h3>
+        <span class="info-label">(Información de referencia)</span>
+      </div>
+
       <div class="info-grid">
         <div class="info-item">
-          <label>Código</label>
-          <p>{{ negocio?.codigo }}</p>
+          <label>Código Cotización</label>
+          <p>{{ negocio?.codigoCotizacion }}</p>
         </div>
+        <div class="info-item">
+          <label>Estado Cotización</label>
+          <p><span class="badge badge-info">{{ negocio?.estadoCotizacion }}</span></p>
+        </div>
+        <div class="info-item">
+          <label>Fecha Cotización</label>
+          <p>{{ formatearFecha(negocio?.fechaCotizacion) }}</p>
+        </div>
+        <div class="info-item">
+          <label>Validez hasta</label>
+          <p>{{ formatearFecha(negocio?.fechaValidezCotizacion) }}</p>
+        </div>
+        <div class="info-item">
+          <label>Subtotal</label>
+          <p>${{ negocio?.subtotalCotizacion | number:'1.2-2' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Impuestos</label>
+          <p>${{ negocio?.impuestosCotizacion | number:'1.2-2' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Total Cotización</label>
+          <p class="monto">${{ negocio?.totalCotizacion | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="negocio?.descripcionCotizacion" class="info-section">
+        <label>Descripción Cotización</label>
+        <p>{{ negocio?.descripcionCotizacion }}</p>
+      </div>
+
+      <div *ngIf="negocio?.observacionesCotizacion" class="info-section">
+        <label>Observaciones Cotización</label>
+        <p>{{ negocio?.observacionesCotizacion }}</p>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: DATOS DEL NEGOCIO -->
+    <div class="seccion editable-section">
+      <div class="section-header">
+        <h3>💼 DATOS DEL NEGOCIO</h3>
+        <span class="info-label">(Información de negocio)</span>
+      </div>
+
+      <div class="info-grid">
         <div class="info-item">
           <label>Cliente</label>
           <p>{{ negocio?.cliente?.nombre }}</p>
@@ -30,30 +81,53 @@
           </p>
         </div>
         <div class="info-item">
-          <label>Monto</label>
-          <p class="monto">${{ negocio?.monto | number:'1.2-2' }}</p>
+          <label>Presupuesto Asignado</label>
+          <p class="monto">${{ negocio?.presupuestoAsignado | number:'1.2-2' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Presupuesto Utilizado</label>
+          <p>${{ negocio?.presupuestoUtilizado | number:'1.2-2' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Disponible</label>
+          <p [ngClass]="{'warning': (negocio?.presupuestoAsignado! - (negocio?.presupuestoUtilizado || 0)) < 0}">
+            ${{ (negocio?.presupuestoAsignado || 0) - (negocio?.presupuestoUtilizado || 0) | number:'1.2-2' }}
+          </p>
+        </div>
+        <div class="info-item">
+          <label>Responsable</label>
+          <p>{{ negocio?.responsable || '-' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Fecha Inicio</label>
+          <p>{{ formatearFecha(negocio?.fechaInicio) }}</p>
+        </div>
+        <div class="info-item">
+          <label>Fecha Fin Estimada</label>
+          <p>{{ formatearFecha(negocio?.fechaFinEstimada) }}</p>
         </div>
         <div class="info-item">
           <label>Creado</label>
-          <p>{{ negocio?.fechaCreacion | date:'dd/MM/yyyy' }}</p>
+          <p>{{ formatearFecha(negocio?.fechaCreacion) }}</p>
         </div>
         <div class="info-item">
           <label>Última actualización</label>
-          <p>{{ negocio?.fechaFinalizacion | date:'dd/MM/yyyy' }}</p>
+          <p>{{ formatearFecha(negocio?.fechaActualizacion) }}</p>
         </div>
+      </div>
+
+      <div *ngIf="negocio?.descripcion" class="info-section">
+        <label>Descripción</label>
+        <p>{{ negocio?.descripcion }}</p>
+      </div>
+
+      <div *ngIf="negocio?.observaciones" class="info-section">
+        <label>Observaciones</label>
+        <p>{{ negocio?.observaciones }}</p>
       </div>
     </div>
 
-    <div class="seccion">
-      <h3>Descripción</h3>
-      <p class="descripcion">{{ negocio?.descripcion }}</p>
-    </div>
-
-    <div *ngIf="negocio?.observaciones" class="seccion">
-      <h3>Observaciones</h3>
-      <p class="observaciones">{{ negocio?.observaciones }}</p>
-    </div>
-
+    <!-- CAMBIO DE ESTADO -->
     <div class="seccion">
       <div class="cambio-estado-container">
         <button class="btn-cambiar-estado" 
@@ -78,6 +152,7 @@
       </div>
     </div>
 
+    <!-- ACCIONES -->
     <div class="acciones">
       <button class="btn-primary" (click)="editar()" 
               [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'">

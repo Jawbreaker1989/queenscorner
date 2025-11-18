@@ -65,8 +65,7 @@ public class PagoServiceImpl implements IPagoService {
                 .map(PagoEntity::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal saldoPendiente = negocio.getTotalNegocio().subtract(totalPagado);
-        negocio.setSaldoPendiente(saldoPendiente);
+        negocio.setPresupuestoUtilizado(totalPagado);
         negocioRepository.save(negocio);
     }
 
