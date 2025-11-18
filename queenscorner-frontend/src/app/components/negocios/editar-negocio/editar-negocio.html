@@ -14,19 +14,19 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Código Cotización</label>
-            <p>{{ negocio?.codigoCotizacion }}</p>
+            <p>{{ negocio.codigoCotizacion }}</p>
           </div>
           <div class="info-item">
             <label>Cliente</label>
-            <p>{{ negocio?.cliente?.nombre }}</p>
+            <p>{{ negocio.cliente.nombre }}</p>
           </div>
           <div class="info-item">
             <label>Total Cotización</label>
-            <p class="monto">${{ negocio?.totalCotizacion | number:'1.2-2' }}</p>
+            <p class="monto">${{ negocio.totalCotizacion | number:'1.2-2' }}</p>
           </div>
           <div class="info-item">
             <label>Fecha Cotización</label>
-            <p>{{ formatearFecha(negocio?.fechaCotizacion) }}</p>
+            <p>{{ formatearFecha(negocio.fechaCotizacion) }}</p>
           </div>
         </div>
       </div>
