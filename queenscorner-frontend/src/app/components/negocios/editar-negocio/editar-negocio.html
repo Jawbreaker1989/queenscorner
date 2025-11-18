@@ -1,0 +1,65 @@
+<div class="form-container" *ngIf="!cargando; else loadingTemplate">
+  <div class="form-card">
+    <h1>Editar Negocio</h1>
+    <p class="subtitle">Modifique los datos del negocio {{ negocio?.codigo }}</p>
+
+    <div *ngIf="negocio" class="formulario">
+      <div class="seccion">
+        <h3>Información del Negocio</h3>
+        <div class="info-box">
+          <div class="info-item">
+            <label>Código</label>
+            <p>{{ negocio.codigo }}</p>
+          </div>
+          <div class="info-item">
+            <label>Cliente</label>
+            <p>{{ negocio.cliente.nombre }}</p>
+          </div>
+          <div class="info-item">
+            <label>Estado</label>
+            <p>{{ negocio.estado }}</p>
+          </div>
+          <div class="info-item">
+            <label>Monto</label>
+            <p class="monto">${{ negocio.monto | number:'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <h3>Editar Datos</h3>
+        <div class="form-group">
+          <label for="descripcion">Descripción *</label>
+          <textarea id="descripcion" 
+                    [(ngModel)]="negocioForm.descripcion" 
+                    placeholder="Describa el negocio"
+                    rows="5"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" 
+                    [(ngModel)]="negocioForm.observaciones" 
+                    placeholder="Agregue observaciones (opcional)"
+                    rows="4"></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-secondary" (click)="cancelar()" [disabled]="procesando">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" (click)="guardar()" [disabled]="procesando">
+          {{ procesando ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-center">
+    <div class="spinner"></div>
+    <p>Cargando negocio...</p>
+  </div>
+</ng-template>

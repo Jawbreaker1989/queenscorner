@@ -1,0 +1,81 @@
+<div class="form-container">
+  <div class="form-card">
+    <div *ngIf="cargando" class="loading-center">
+      <div class="spinner"></div>
+      <p>Cargando cotización...</p>
+    </div>
+
+    <div *ngIf="!cargando">
+      <h1>Crear Negocio desde Cotización</h1>
+      <p class="subtitle">Genera un negocio a partir de una cotización aprobada</p>
+
+      <form (ngSubmit)="guardar()" class="formulario">
+        <!-- Información de la Cotización -->
+        <div class="seccion">
+          <h3>Información de la Cotización</h3>
+
+          <div *ngIf="cotizacion" class="info-box">
+            <div class="info-item">
+              <label>Código Cotización</label>
+              <p>{{ cotizacion.codigo }}</p>
+            </div>
+            <div class="info-item">
+              <label>Cliente</label>
+              <p>{{ cotizacion.cliente.nombre }}</p>
+            </div>
+            <div class="info-item">
+              <label>Monto Total</label>
+              <p class="monto">${{ cotizacion.total | number: '1.2-2' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Estado</label>
+              <p><span class="badge badge-success">{{ cotizacion.estado }}</span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos del Negocio -->
+        <div class="seccion">
+          <h3>Información del Negocio</h3>
+
+          <div class="form-group">
+            <label for="descripcion">Descripción del Negocio *</label>
+            <textarea
+              id="descripcion"
+              [(ngModel)]="negocio.descripcion"
+              name="descripcion"
+              placeholder="Describe el negocio a realizar"
+              rows="3"
+              [disabled]="loading"
+              required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observaciones">Observaciones</label>
+            <textarea
+              id="observaciones"
+              [(ngModel)]="negocio.observaciones"
+              name="observaciones"
+              placeholder="Notas adicionales (opcional)"
+              rows="2"
+              [disabled]="loading"></textarea>
+          </div>
+        </div>
+
+        <div class="error" *ngIf="error">
+          <span class="error-icon">⚠️</span>
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? 'Creando...' : 'Crear Negocio' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="loading">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

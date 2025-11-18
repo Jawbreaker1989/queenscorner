@@ -6,7 +6,7 @@
     </div>
     <div class="header-actions">
       <button class="btn btn-pdf" (click)="generarPdf()" [disabled]="!cotizacion || cotizacion.estado !== 'APROBADA' || loading || pdfGenerando || pdfGenerado" [title]="pdfGenerado ? 'PDF ya generado' : pdfGenerando ? 'Generando PDF...' : cotizacion && cotizacion.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">
-        {{ pdfGenerando ? '⏳ Generando...' : pdfGenerado ? '✅ PDF Generado' : '📄 Generar PDF' }}
+        📄 Generar PDF
       </button>
       <button class="btn btn-primary" (click)="editar()" [disabled]="!cotizacion || (cotizacion.estado !== 'BORRADOR' && cotizacion.estado !== 'ENVIADA') || loading" [title]="cotizacion && cotizacion.estado !== 'BORRADOR' && cotizacion.estado !== 'ENVIADA' ? 'Solo se puede editar en BORRADOR o ENVIADA' : 'Editar'">
         ✏️ Editar
@@ -110,6 +110,27 @@
         <div class="total-item grande">
           <label>Total:</label>
           <span>${{ cotizacion.total | number: '1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Cambiar Estado -->
+      <div class="cambiar-estado" *ngIf="cotizacion.estado === 'BORRADOR'">
+        <h3>Cambiar Estado</h3>
+        <div class="estado-controls">
+          <select [(ngModel)]="nuevoEstado" [disabled]="cambiandoEstado">
+            <option [value]="null">Selecciona nuevo estado</option>
+            <option *ngFor="let estado of estados" [value]="estado">
+              {{ estado }}
+            </option>
+          </select>
+          <button class="btn btn-primary" (click)="cambiarEstado()" [disabled]="!nuevoEstado || cambiandoEstado">
+            {{ cambiandoEstado ? 'Actualizando...' : 'Actualizar Estado' }}
+          </button>
+        </div>
+        <div class="estado-info">
+          <p>📱 <strong>ENVIADA:</strong> Notifica al cliente por SMS/WhatsApp</p>
+          <p>✅ <strong>APROBADA:</strong> Genera PDF de aprobación</p>
+          <p>❌ <strong>RECHAZADA:</strong> Rechaza la cotización</p>
         </div>
       </div>
     </div>

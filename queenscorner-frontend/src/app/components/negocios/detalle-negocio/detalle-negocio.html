@@ -1,0 +1,99 @@
+<div class="detail-container" *ngIf="!cargando; else loadingTemplate">
+  <div class="detail-card">
+    <div class="header">
+      <div class="header-content">
+        <h1>Detalle del Negocio</h1>
+        <p class="subtitle">Código: <strong>{{ negocio?.codigo }}</strong></p>
+      </div>
+      <button class="btn-volver" (click)="volver()">← Volver</button>
+    </div>
+
+    <div class="seccion">
+      <h3>Información del Negocio</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Código</label>
+          <p>{{ negocio?.codigo }}</p>
+        </div>
+        <div class="info-item">
+          <label>Cliente</label>
+          <p>{{ negocio?.cliente?.nombre }}</p>
+        </div>
+        <div class="info-item">
+          <label>Estado</label>
+          <p>
+            <span class="badge" 
+                  [style.background-color]="getEstadoColor(negocio?.estado || '')"
+                  [style.color]="getEstadoTextColor(negocio?.estado || '')">
+              {{ negocio?.estado }}
+            </span>
+          </p>
+        </div>
+        <div class="info-item">
+          <label>Monto</label>
+          <p class="monto">${{ negocio?.monto | number:'1.2-2' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Creado</label>
+          <p>{{ negocio?.fechaCreacion | date:'dd/MM/yyyy' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Última actualización</label>
+          <p>{{ negocio?.fechaFinalizacion | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h3>Descripción</h3>
+      <p class="descripcion">{{ negocio?.descripcion }}</p>
+    </div>
+
+    <div *ngIf="negocio?.observaciones" class="seccion">
+      <h3>Observaciones</h3>
+      <p class="observaciones">{{ negocio?.observaciones }}</p>
+    </div>
+
+    <div class="seccion">
+      <div class="cambio-estado-container">
+        <button class="btn-cambiar-estado" 
+                (click)="toggleCambioEstado()"
+                [disabled]="obtenerTransicionesValidas().length === 0">
+          {{ mostrarCambioEstado ? '✕ Cancelar' : '⚙️ Cambiar Estado' }}
+        </button>
+
+        <div *ngIf="mostrarCambioEstado" class="cambio-estado-form">
+          <select [(ngModel)]="nuevoEstado" class="select-estado">
+            <option value="">-- Seleccionar estado --</option>
+            <option *ngFor="let estado of obtenerTransicionesValidas()" [value]="estado">
+              {{ estado }}
+            </option>
+          </select>
+          <button class="btn-guardar" 
+                  (click)="guardarCambioEstado()"
+                  [disabled]="procesando || !nuevoEstado">
+            {{ procesando ? 'Guardando...' : 'Guardar Cambio' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn-primary" (click)="editar()" 
+              [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'">
+        ✏️ Editar Negocio
+      </button>
+      <button class="btn-success" (click)="crearOrden()" 
+              [disabled]="negocio?.estado !== 'FINALIZADO'">
+        📋 Crear Orden de Trabajo
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-center">
+    <div class="spinner"></div>
+    <p>Cargando negocio...</p>
+  </div>
+</ng-template>

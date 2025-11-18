@@ -1,0 +1,75 @@
+<div class="list-container">
+  <div class="list-card">
+    <div class="header">
+      <h1>Órdenes de Trabajo</h1>
+      <button class="btn-crear" (click)="crearOrden()">✚ Nueva Orden</button>
+    </div>
+
+    <div class="filtro-section">
+      <input type="text" 
+             [(ngModel)]="filtro" 
+             (ngModelChange)="onFiltroChange()"
+             placeholder="Buscar por código, cliente o descripción..."
+             class="filtro-input">
+    </div>
+
+    <div *ngIf="cargando" class="loading-center">
+      <div class="spinner"></div>
+      <p>Cargando órdenes...</p>
+    </div>
+
+    <div *ngIf="!cargando && ordenesFiltradas.length === 0" class="empty-state">
+      <p>{{ filtro ? 'No se encontraron órdenes que coincidan' : 'No hay órdenes de trabajo registradas' }}</p>
+    </div>
+
+    <div *ngIf="!cargando && ordenesFiltradas.length > 0" class="table-wrapper">
+      <table class="ordenes-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Monto</th>
+            <th>Fecha Inicio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let orden of ordenesFiltradas" [class.completada]="orden.estado === 'COMPLETADA'">
+            <td class="codigo">{{ orden.codigo }}</td>
+            <td>{{ orden.cliente.nombre }}</td>
+            <td class="descripcion">{{ (orden.descripcion | slice:0:40) }}{{ (orden.descripcion.length > 40) ? '...' : '' }}</td>
+            <td>
+              <span class="badge" 
+                    [style.background-color]="getEstadoColor(orden.estado)"
+                    [style.color]="getEstadoTextColor(orden.estado)">
+                {{ orden.estado }}
+              </span>
+            </td>
+            <td class="monto">${{ orden.total | number:'1.2-2' }}</td>
+            <td class="fecha">{{ orden.fechaInicio | date:'dd/MM/yyyy' }}</td>
+            <td class="acciones">
+              <button class="btn-accion btn-ver" 
+                      title="Ver detalles"
+                      (click)="verDetalle(orden.id)">
+                👁️
+              </button>
+              <button class="btn-accion btn-editar" 
+                      title="Editar"
+                      [disabled]="orden.estado === 'COMPLETADA' || orden.estado === 'CANCELADA'"
+                      (click)="editar(orden.id)">
+                ✏️
+              </button>
+              <button class="btn-accion btn-eliminar" 
+                      title="Eliminar"
+                      (click)="eliminar(orden)">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

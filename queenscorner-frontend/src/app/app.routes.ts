@@ -9,6 +9,14 @@ import { ListarCotizacionesComponent } from './components/cotizaciones/listar-co
 import { CrearCotizacionComponent } from './components/cotizaciones/crear-cotizacion/crear-cotizacion';
 import { EditarCotizacionComponent } from './components/cotizaciones/editar-cotizacion/editar-cotizacion';
 import { DetalleCotizacionComponent } from './components/cotizaciones/detalle-cotizacion/detalle-cotizacion';
+import { ListarNegociosComponent } from './components/negocios/listar-negocios/listar-negocios';
+import { CrearNegocioComponent } from './components/negocios/crear-negocio/crear-negocio';
+import { EditarNegocioComponent } from './components/negocios/editar-negocio/editar-negocio';
+import { DetalleNegocioComponent } from './components/negocios/detalle-negocio/detalle-negocio';
+import { ListarOrdenesComponent } from './components/ordenes-trabajo/listar-ordenes/listar-ordenes';
+import { CrearOrdenComponent } from './components/ordenes-trabajo/crear-orden/crear-orden';
+import { EditarOrdenComponent } from './components/ordenes-trabajo/editar-orden/editar-orden';
+import { DetalleOrdenComponent } from './components/ordenes-trabajo/detalle-orden/detalle-orden';
 import { AuthGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -33,6 +41,26 @@ export const routes: Routes = [
       { path: 'crear', component: CrearCotizacionComponent },
       { path: 'editar/:id', component: EditarCotizacionComponent },
       { path: 'detalle/:id', component: DetalleCotizacionComponent }
+    ]
+  },
+  {
+    path: 'negocios',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: ListarNegociosComponent },
+      { path: 'crear', component: CrearNegocioComponent },
+      { path: 'editar/:id', component: EditarNegocioComponent },
+      { path: 'detalle/:id', component: DetalleNegocioComponent }
+    ]
+  },
+  {
+    path: 'ordenes-trabajo',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: ListarOrdenesComponent },
+      { path: 'crear', component: CrearOrdenComponent },
+      { path: 'editar/:id', component: EditarOrdenComponent },
+      { path: 'detalle/:id', component: DetalleOrdenComponent }
     ]
   },
   { path: '**', redirectTo: 'login' }

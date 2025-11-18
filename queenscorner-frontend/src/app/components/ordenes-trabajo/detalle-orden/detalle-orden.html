@@ -1,0 +1,132 @@
+<div class="detail-container" *ngIf="!cargando; else loadingTemplate">
+  <div class="detail-card">
+    <div class="header">
+      <div class="header-content">
+        <h1>Orden de Trabajo</h1>
+        <p class="subtitle">Código: <strong>{{ orden?.codigo }}</strong></p>
+      </div>
+      <button class="btn-volver" (click)="volver()">← Volver</button>
+    </div>
+
+    <div class="seccion">
+      <h3>Información de la Orden</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Código</label>
+          <p>{{ orden?.codigo }}</p>
+        </div>
+        <div class="info-item">
+          <label>Cliente</label>
+          <p>{{ orden?.cliente?.nombre }}</p>
+        </div>
+        <div class="info-item">
+          <label>Estado</label>
+          <p>
+            <span class="badge" 
+                  [style.background-color]="getEstadoColor(orden?.estado || '')"
+                  [style.color]="getEstadoTextColor(orden?.estado || '')">
+              {{ orden?.estado }}
+            </span>
+          </p>
+        </div>
+        <div class="info-item">
+          <label>Fecha Inicio</label>
+          <p>{{ orden?.fechaInicio | date:'dd/MM/yyyy' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <h3>Descripción</h3>
+      <p class="descripcion">{{ orden?.descripcion }}</p>
+    </div>
+
+    <div *ngIf="orden?.observaciones" class="seccion">
+      <h3>Observaciones</h3>
+      <p class="observaciones">{{ orden?.observaciones }}</p>
+    </div>
+
+    <div class="seccion">
+      <h3>Detalles de la Orden</h3>
+      <div *ngIf="(orden?.detalles || []).length > 0" class="detalles-table-wrapper">
+        <table class="detalles-table">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detalle of orden?.detalles">
+              <td>{{ detalle.descripcion }}</td>
+              <td>{{ detalle.cantidad }}</td>
+              <td>${{ detalle.precioUnitario | number:'1.2-2' }}</td>
+              <td>${{ (detalle.subtotal || 0) | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="totales">
+          <div class="total-item">
+            <span>Subtotal:</span>
+            <span>${{ orden?.subtotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-item">
+            <span>Impuestos (19%):</span>
+            <span>${{ orden?.impuestos | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-item total-final">
+            <span>Total:</span>
+            <span>${{ orden?.total | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!(orden?.detalles || []).length" class="empty-detalles">
+        <p>No hay detalles en esta orden</p>
+      </div>
+    </div>
+
+    <div class="seccion">
+      <div class="cambio-estado-container">
+        <button class="btn-cambiar-estado" 
+                (click)="toggleCambioEstado()"
+                [disabled]="obtenerTransicionesValidas().length === 0">
+          {{ mostrarCambioEstado ? '✕ Cancelar' : '⚙️ Cambiar Estado' }}
+        </button>
+
+        <div *ngIf="mostrarCambioEstado" class="cambio-estado-form">
+          <select [(ngModel)]="nuevoEstado" class="select-estado">
+            <option value="">-- Seleccionar estado --</option>
+            <option *ngFor="let estado of obtenerTransicionesValidas()" [value]="estado">
+              {{ estado }}
+            </option>
+          </select>
+          <button class="btn-guardar" 
+                  (click)="guardarCambioEstado()"
+                  [disabled]="procesando || !nuevoEstado">
+            {{ procesando ? 'Guardando...' : 'Guardar Cambio' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn-primary" (click)="editar()" 
+              [disabled]="orden?.estado === 'COMPLETADA' || orden?.estado === 'CANCELADA'">
+        ✏️ Editar Orden
+      </button>
+      <button class="btn-pdf" (click)="generarPdf()" [disabled]="generandoPdf">
+        {{ generandoPdf ? 'Generando PDF...' : '📄 Descargar PDF' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading-center">
+    <div class="spinner"></div>
+    <p>Cargando orden...</p>
+  </div>
+</ng-template>

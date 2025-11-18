@@ -1,0 +1,74 @@
+<div class="contenedor">
+  <div class="header">
+    <div class="header-content">
+      <h1>Negocios</h1>
+      <p class="subtitle">Gestiona todos tus negocios</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="crearNegocio()">
+        ➕ Nuevo Negocio
+      </button>
+      <button class="btn btn-secondary" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando negocios...</p>
+    </div>
+
+    <div *ngIf="error && !loading" class="error">
+      <span class="icon">⚠️</span>
+      {{ error }}
+    </div>
+
+    <div *ngIf="!loading && negocios.length === 0 && !error" class="vacio">
+      <p>No hay negocios registrados</p>
+      <button class="btn btn-primary" (click)="crearNegocio()">Crear primer negocio</button>
+    </div>
+
+    <div *ngIf="!loading && negocios.length > 0" class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Cliente</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Monto</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let negocio of negocios" class="fila">
+            <td class="codigo">{{ negocio.codigo }}</td>
+            <td>{{ negocio.cliente.nombre }}</td>
+            <td class="descripcion">{{ negocio.descripcion }}</td>
+            <td>
+              <span [ngClass]="getEstadoColor(negocio.estado)" class="badge">
+                {{ negocio.estado }}
+              </span>
+            </td>
+            <td class="monto">${{ negocio.monto | number: '1.2-2' }}</td>
+            <td class="fecha">{{ negocio.fechaCreacion | date: 'dd/MM/yyyy' }}</td>
+            <td class="acciones">
+              <button class="btn-accion btn-detalle" (click)="verDetalle(negocio.id)" title="Ver detalles">
+                👁️
+              </button>
+              <button class="btn-accion btn-editar" (click)="editar(negocio.id)" [disabled]="negocio.estado === 'FINALIZADO' || negocio.estado === 'CANCELADO'" title="Editar">
+                ✏️
+              </button>
+              <button class="btn-accion btn-eliminar" (click)="eliminar(negocio.id, negocio.codigo)" title="Eliminar">
+                🗑️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
