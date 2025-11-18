@@ -29,7 +29,7 @@ public class NegocioResponse {
     private LocalDate fechaFinEstimada;
     private String estado;
     private BigDecimal presupuestoAsignado;
-    private BigDecimal presupuestoUtilizado;
+    private BigDecimal anticipo;
     private String responsable;
     private String descripcion;
     private String observaciones;
@@ -94,8 +94,8 @@ public class NegocioResponse {
     public BigDecimal getPresupuestoAsignado() { return presupuestoAsignado; }
     public void setPresupuestoAsignado(BigDecimal presupuestoAsignado) { this.presupuestoAsignado = presupuestoAsignado; }
     
-    public BigDecimal getPresupuestoUtilizado() { return presupuestoUtilizado; }
-    public void setPresupuestoUtilizado(BigDecimal presupuestoUtilizado) { this.presupuestoUtilizado = presupuestoUtilizado; }
+    public BigDecimal getAnticipo() { return anticipo; }
+    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
     
     public String getResponsable() { return responsable; }
     public void setResponsable(String responsable) { this.responsable = responsable; }

@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,8 +66,10 @@ public class NegocioServiceImpl implements INegocioService {
         negocio.setCotizacion(cotizacion);
         negocio.setCodigo(generarCodigoNegocio());
         
-        // Asignar presupuesto desde la cotización
-        negocio.setPresupuestoAsignado(cotizacion.getTotal());
+        // Asignar presupuesto desde la request (ya validado en aplicarDefaults)
+        if (request.getPresupuestoAsignado() != null) {
+            negocio.setPresupuestoAsignado(request.getPresupuestoAsignado());
+        }
         
         // POBLAR DATOS DESNORMALIZADOS DE COTIZACIÓN
         negocioMapper.populateDesnormalizedFields(negocio, cotizacion);
@@ -122,9 +125,32 @@ public class NegocioServiceImpl implements INegocioService {
             request.setFechaFinEstimada(LocalDate.now().plusDays(30));
         }
 
-        // Si no hay presupuesto asignado, usar el total de la cotización
+        // Si no hay presupuesto asignado, usar el 75% del total de la cotización
         if (request.getPresupuestoAsignado() == null) {
-            request.setPresupuestoAsignado(cotizacion.getTotal());
+            request.setPresupuestoAsignado(
+                    cotizacion.getTotal().multiply(new BigDecimal("0.75"))
+            );
+        } else {
+            // Si hay presupuesto asignado, validar que no exceda el 75%
+            validarPresupuestoAsignado(request.getPresupuestoAsignado(), cotizacion.getTotal());
+        }
+    }
+
+    private void validarPresupuestoAsignado(BigDecimal presupuestoAsignado, BigDecimal totalCotizacion) {
+        if (presupuestoAsignado == null || totalCotizacion == null) {
+            return;
+        }
+        
+        // Calcular el 75% del total de la cotización
+        BigDecimal limitePresupuesto = totalCotizacion.multiply(new BigDecimal("0.75"));
+        
+        // Validar que no exceda el límite
+        if (presupuestoAsignado.compareTo(limitePresupuesto) > 0) {
+            throw new RuntimeException(
+                    "El presupuesto asignado no puede exceder el 75% del total de la cotización. " +
+                    "Máximo permitido: $" + limitePresupuesto.setScale(2, java.math.RoundingMode.HALF_UP) + 
+                    " (Total cotización: $" + totalCotizacion.setScale(2, java.math.RoundingMode.HALF_UP) + ")"
+            );
         }
     }
 
@@ -137,6 +163,12 @@ public class NegocioServiceImpl implements INegocioService {
     public NegocioResponse update(Long id, NegocioRequest request) {
         NegocioEntity negocio = negocioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
+
+        // Validar presupuesto asignado si se está actualizando
+        if (request.getPresupuestoAsignado() != null) {
+            validarPresupuestoAsignado(request.getPresupuestoAsignado(), 
+                    negocio.getTotalCotizacion());
+        }
 
         negocioMapper.updateEntityFromRequest(request, negocio);
         negocio.setFechaActualizacion(LocalDateTime.now());

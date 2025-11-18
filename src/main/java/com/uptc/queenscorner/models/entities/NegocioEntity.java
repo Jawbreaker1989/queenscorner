@@ -63,8 +63,8 @@ public class NegocioEntity {
     @Column(name = "presupuesto_asignado", precision = 15, scale = 2)
     private BigDecimal presupuestoAsignado;
 
-    @Column(name = "presupuesto_utilizado", precision = 15, scale = 2)
-    private BigDecimal presupuestoUtilizado;
+    @Column(name = "anticipo", precision = 15, scale = 2)
+    private BigDecimal anticipo;
 
     @Column(name = "responsable")
     private String responsable;
@@ -83,7 +83,7 @@ public class NegocioEntity {
         this.fechaActualizacion = LocalDateTime.now();
         this.estado = EstadoNegocio.EN_REVISION;
         this.presupuestoAsignado = BigDecimal.ZERO;
-        this.presupuestoUtilizado = BigDecimal.ZERO;
+        this.anticipo = BigDecimal.ZERO;
     }
 
     public enum EstadoNegocio {
@@ -144,8 +144,8 @@ public class NegocioEntity {
     public BigDecimal getPresupuestoAsignado() { return presupuestoAsignado; }
     public void setPresupuestoAsignado(BigDecimal presupuestoAsignado) { this.presupuestoAsignado = presupuestoAsignado; }
     
-    public BigDecimal getPresupuestoUtilizado() { return presupuestoUtilizado; }
-    public void setPresupuestoUtilizado(BigDecimal presupuestoUtilizado) { this.presupuestoUtilizado = presupuestoUtilizado; }
+    public BigDecimal getAnticipo() { return anticipo; }
+    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
     
     public String getResponsable() { return responsable; }
     public void setResponsable(String responsable) { this.responsable = responsable; }

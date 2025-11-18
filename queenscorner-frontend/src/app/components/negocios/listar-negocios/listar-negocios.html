@@ -56,7 +56,7 @@
             <td class="cliente">{{ negocio.cliente.nombre }}</td>
             <td class="presupuesto">
               <span class="monto">${{ negocio.presupuestoAsignado | number: '1.2-2' }}</span>
-              <span class="disponible">(${{ (negocio.presupuestoAsignado || 0) - (negocio.presupuestoUtilizado || 0) | number: '1.2-2' }} disp.)</span>
+              <span class="disponible">(${{ (negocio.presupuestoAsignado || 0) - (negocio.anticipo || 0) | number: '1.2-2' }} disp.)</span>
             </td>
             <td class="estado">
               <span [ngClass]="getEstadoColor(negocio.estado)" class="badge">

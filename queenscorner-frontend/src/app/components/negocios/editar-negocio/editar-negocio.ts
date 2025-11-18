@@ -22,6 +22,7 @@ export class EditarNegocioComponent implements OnInit {
     fechaInicio: '',
     fechaFinEstimada: '',
     presupuestoAsignado: 0,
+    anticipo: 0,
     responsable: ''
   };
   cargando: boolean = true;
@@ -55,6 +56,7 @@ export class EditarNegocioComponent implements OnInit {
           fechaInicio: this.negocio?.fechaInicio || '',
           fechaFinEstimada: this.negocio?.fechaFinEstimada || '',
           presupuestoAsignado: this.negocio?.presupuestoAsignado || 0,
+          anticipo: this.negocio?.anticipo || 0,
           responsable: this.negocio?.responsable || ''
         };
         this.cargando = false;
@@ -103,6 +105,18 @@ export class EditarNegocioComponent implements OnInit {
       Swal.fire('Error', 'Fecha fin debe ser posterior a fecha inicio', 'error');
       return false;
     }
+    
+    // Validar presupuesto asignado si se especificó
+    if (this.negocioForm.presupuestoAsignado && this.negocio?.totalCotizacion) {
+      const maxPresupuesto = this.negocio.totalCotizacion * 0.75;
+      if (this.negocioForm.presupuestoAsignado > maxPresupuesto) {
+        Swal.fire('Error', 
+          `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (75% del total de $${this.negocio.totalCotizacion.toFixed(2)})`, 
+          'error');
+        return false;
+      }
+    }
+    
     return true;
   }
 
@@ -125,7 +139,10 @@ export class EditarNegocioComponent implements OnInit {
           next: () => {
             this.procesando = false;
             Swal.fire('Éxito', 'Negocio actualizado correctamente', 'success');
-            this.router.navigate(['/negocios/detalle', this.negocio?.id]);
+            // Navegar y forzar recarga con queryParam
+            this.router.navigate(['/negocios/detalle', this.negocio?.id], { 
+              queryParams: { 'refresh': Date.now() } 
+            });
           },
           error: (error: any) => {
             this.procesando = false;

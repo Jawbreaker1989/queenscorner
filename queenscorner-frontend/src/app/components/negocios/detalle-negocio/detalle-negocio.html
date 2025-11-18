@@ -85,13 +85,13 @@
           <p class="monto">${{ negocio?.presupuestoAsignado | number:'1.2-2' }}</p>
         </div>
         <div class="info-item">
-          <label>Presupuesto Utilizado</label>
-          <p>${{ negocio?.presupuestoUtilizado | number:'1.2-2' }}</p>
+          <label>Anticipo</label>
+          <p>${{ negocio?.anticipo | number:'1.2-2' }}</p>
         </div>
         <div class="info-item">
           <label>Disponible</label>
-          <p [ngClass]="{'warning': (negocio?.presupuestoAsignado! - (negocio?.presupuestoUtilizado || 0)) < 0}">
-            ${{ (negocio?.presupuestoAsignado || 0) - (negocio?.presupuestoUtilizado || 0) | number:'1.2-2' }}
+          <p [ngClass]="{'warning': (negocio?.presupuestoAsignado! - (negocio?.anticipo || 0)) < 0}">
+            ${{ (negocio?.presupuestoAsignado || 0) - (negocio?.anticipo || 0) | number:'1.2-2' }}
           </p>
         </div>
         <div class="info-item">

@@ -81,6 +81,51 @@
             </div>
           </div>
 
+          <div class="form-row">
+            <div class="form-group">
+              <label for="presupuestoAsignado">Presupuesto Asignado</label>
+              <input
+                type="number"
+                id="presupuestoAsignado"
+                [(ngModel)]="negocio.presupuestoAsignado"
+                name="presupuestoAsignado"
+                placeholder="Dejar vacío para usar 75% del total"
+                step="0.01"
+                [disabled]="loading"
+                min="0" />
+              <small *ngIf="cotizacion">
+                Máximo permitido: ${{ (cotizacion.total * 0.75) | number:'1.2-2' }} (75% de ${{ cotizacion.total | number:'1.2-2' }})
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="anticipo">Anticipo Otorgado</label>
+              <input
+                type="number"
+                id="anticipo"
+                [(ngModel)]="negocio.anticipo"
+                name="anticipo"
+                placeholder="Monto del anticipo recibido"
+                step="0.01"
+                [disabled]="loading"
+                min="0" />
+              <small>Anticipo recibido por la cotización aprobada</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="responsable">Responsable</label>
+              <input
+                type="text"
+                id="responsable"
+                [(ngModel)]="negocio.responsable"
+                name="responsable"
+                placeholder="Nombre del responsable"
+                [disabled]="loading" />
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="descripcion">Descripción del Negocio *</label>
             <textarea

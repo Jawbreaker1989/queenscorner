@@ -43,7 +43,7 @@ public class NegocioMapper {
         response.setFechaFinEstimada(entity.getFechaFinEstimada());
         response.setEstado(entity.getEstado() != null ? entity.getEstado().name() : "EN_REVISION");
         response.setPresupuestoAsignado(entity.getPresupuestoAsignado());
-        response.setPresupuestoUtilizado(entity.getPresupuestoUtilizado());
+        response.setAnticipo(entity.getAnticipo());
         response.setDescripcion(entity.getDescripcion());
         response.setObservaciones(entity.getObservaciones());
         response.setResponsable(entity.getResponsable());
@@ -89,6 +89,9 @@ public class NegocioMapper {
         }
         if (request.getPresupuestoAsignado() != null) {
             entity.setPresupuestoAsignado(request.getPresupuestoAsignado());
+        }
+        if (request.getAnticipo() != null) {
+            entity.setAnticipo(request.getAnticipo());
         }
         if (request.getResponsable() != null && !request.getResponsable().trim().isEmpty()) {
             entity.setResponsable(request.getResponsable());

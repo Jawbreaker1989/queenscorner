@@ -27,7 +27,10 @@ export class DetalleNegocioComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.cargarNegocio();
+    // Suscribirse a cambios en queryParams para detectar refresco
+    this.route.queryParams.subscribe(() => {
+      this.cargarNegocio();
+    });
   }
 
   cargarNegocio(): void {

@@ -23,7 +23,8 @@ export class CrearNegocioComponent implements OnInit {
     descripcion: '',
     observaciones: '',
     fechaInicio: new Date().toISOString().split('T')[0],
-    fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    anticipo: 0
   };
 
   loading = false;
@@ -127,6 +128,16 @@ export class CrearNegocioComponent implements OnInit {
       this.error = 'Fecha fin debe ser posterior a fecha inicio';
       return false;
     }
+    
+    // Validar presupuesto asignado si se especificó
+    if (this.negocio.presupuestoAsignado && this.cotizacion) {
+      const maxPresupuesto = this.cotizacion.total * 0.75;
+      if (this.negocio.presupuestoAsignado > maxPresupuesto) {
+        this.error = `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (75% del total de $${this.cotizacion.total.toFixed(2)})`;
+        return false;
+      }
+    }
+    
     return true;
   }
 

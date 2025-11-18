@@ -7,6 +7,7 @@ export interface NegocioRequest {
   fechaInicio?: string;
   fechaFinEstimada?: string;
   presupuestoAsignado?: number;
+  anticipo?: number;
   responsable?: string;
 }
 
@@ -42,7 +43,7 @@ export interface NegocioResponse {
   fechaInicio?: string;
   fechaFinEstimada?: string;
   presupuestoAsignado?: number;
-  presupuestoUtilizado?: number;
+  anticipo?: number;
   responsable?: string;
   descripcion: string;
   observaciones?: string;

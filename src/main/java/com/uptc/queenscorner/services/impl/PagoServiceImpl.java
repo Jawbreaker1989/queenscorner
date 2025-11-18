@@ -65,7 +65,7 @@ public class PagoServiceImpl implements IPagoService {
                 .map(PagoEntity::getMonto)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        negocio.setPresupuestoUtilizado(totalPagado);
+        negocio.setAnticipo(totalPagado);
         negocioRepository.save(negocio);
     }
 
