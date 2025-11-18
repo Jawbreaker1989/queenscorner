@@ -4,6 +4,26 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Frontend
+queenscorner-frontend/dist/
+queenscorner-frontend/node_modules/
+queenscorner-frontend/.angular/
+
+# Temporary scripts (use src/main/resources/db/migration/ for Flyway)
+scripts/migrate_*.sql
+scripts/test_*.sql
+scripts/temp/
+
+# Build artifacts
+/node_modules/
+.DS_Store
+dist/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -31,3 +51,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
