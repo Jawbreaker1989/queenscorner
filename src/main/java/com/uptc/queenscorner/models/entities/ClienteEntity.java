@@ -17,14 +17,15 @@ public class ClienteEntity {
     private String email;
     private String telefono;
     private String direccion;
+    private String ciudad;
 
-    @Column(name = "fecha_registro")
-    private LocalDateTime fechaRegistro;
+    @Column(name = "fecha_creacion")
+    private LocalDateTime fechaCreacion;
 
     private Boolean activo;
 
     public ClienteEntity() {
-        this.fechaRegistro = LocalDateTime.now();
+        this.fechaCreacion = LocalDateTime.now();
         this.activo = true;
     }
 
@@ -40,8 +41,10 @@ public class ClienteEntity {
     public void setTelefono(String telefono) { this.telefono = telefono; }
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
-    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public Boolean getActivo() { return activo; }
     public void setActivo(Boolean activo) { this.activo = activo; }
 }

@@ -5,6 +5,9 @@
       <p class="subtitle">Ver información completa</p>
     </div>
     <div class="header-actions">
+      <button class="btn btn-success" (click)="crearCotizacion()" [disabled]="loading" title="Crear cotización para este cliente">
+        📋 Crear Cotización
+      </button>
       <button class="btn btn-primary" (click)="editar()" [disabled]="loading">
         ✏️ Editar
       </button>

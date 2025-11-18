@@ -4,8 +4,9 @@ import { CotizacionesService } from '../../../services/cotizaciones';
 import { Clientes } from '../../../services/clientes';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CotizacionRequest, CotizacionResponse, ItemCotizacion } from '../../../models/cotizacion.model';
+import { CotizacionRequest, CotizacionResponse, ItemCotizacion, EstadoCotizacion } from '../../../models/cotizacion.model';
 import { ClienteResponse } from '../../../models/cliente.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-editar-cotizacion',
@@ -30,11 +31,14 @@ export class EditarCotizacionComponent implements OnInit {
     cantidad: 1,
     precioUnitario: 0
   };
+  estadoActual: EstadoCotizacion | null = null;
+  nuevoEstado: EstadoCotizacion | null = null;
 
   loading = false;
   cargando = true;
   cargandoClientes = true;
   error = '';
+  estados: EstadoCotizacion[] = ['ENVIADA', 'APROBADA', 'RECHAZADA'];
 
   constructor(
     private cotizacionesService: CotizacionesService,
@@ -57,12 +61,31 @@ export class EditarCotizacionComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.cotizacionOriginal = response.data;
+          
+          // Si está APROBADA o RECHAZADA, no permitir editar
+          if (response.data.estado === 'APROBADA' || response.data.estado === 'RECHAZADA') {
+            Swal.fire('No permitido', 'No se puede editar cotizaciones en estado ' + response.data.estado, 'warning').then(() => {
+              this.router.navigate(['/cotizaciones/detalle', this.cotizacionId]);
+            });
+            return;
+          }
+
+          // MAPEAR ITEMS CON SUS IDs
+          const itemsConId = (response.data.items || []).map(item => ({
+            id: item.id,
+            descripcion: item.descripcion,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            subtotal: item.subtotal
+          }));
+
+          this.estadoActual = response.data.estado;
           this.cotizacion = {
             clienteId: response.data.cliente.id,
             descripcion: response.data.descripcion,
             fechaValidez: response.data.fechaValidez,
             observaciones: response.data.observaciones || '',
-            items: response.data.items || []
+            items: itemsConId
           };
         } else {
           this.error = 'No se pudo cargar la cotización';
@@ -106,11 +129,13 @@ export class EditarCotizacionComponent implements OnInit {
       return;
     }
 
+    // NUEVO ITEM SIN ID (para que el backend lo identifique como nuevo)
     this.cotizacion.items.push({
       descripcion: this.nuevoItem.descripcion,
       cantidad: this.nuevoItem.cantidad,
       precioUnitario: this.nuevoItem.precioUnitario,
       subtotal: this.nuevoItem.cantidad * this.nuevoItem.precioUnitario
+      // NO incluir 'id' - undefined indica que es nuevo
     });
 
     this.nuevoItem = {
@@ -126,7 +151,7 @@ export class EditarCotizacionComponent implements OnInit {
   }
 
   getTotal(): number {
-    return this.cotizacion.items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+    return this.cotizacion.items.reduce((sum: number, item: ItemCotizacion) => sum + (item.subtotal || 0), 0);
   }
 
   guardar() {
@@ -135,17 +160,66 @@ export class EditarCotizacionComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
+    // Primero actualizar la cotización
     this.cotizacionesService.actualizar(this.cotizacionId, this.cotizacion).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/cotizaciones']);
+          this.cotizacionOriginal = response.data;
+          this.estadoActual = response.data.estado;
+          
+          // Si se cambió el estado, aplicarlo después
+          if (this.nuevoEstado && this.nuevoEstado !== this.estadoActual) {
+            this.aplicarCambioEstado();
+          } else {
+            Swal.fire('Éxito', 'Cotización actualizada exitosamente', 'success').then(() => {
+              this.router.navigate(['/cotizaciones']);
+            });
+            this.loading = false;
+            this.nuevoEstado = null;
+          }
         } else {
           this.error = response.message || 'Error al actualizar cotización';
+          Swal.fire('Error', this.error, 'error');
           this.loading = false;
         }
       },
       error: (error) => {
         this.error = 'Error al actualizar cotización. Por favor intenta de nuevo.';
+        Swal.fire('Error', this.error, 'error');
+        this.loading = false;
+      }
+    });
+  }
+
+  private aplicarCambioEstado() {
+    if (!this.nuevoEstado) {
+      this.loading = false;
+      return;
+    }
+
+    this.cotizacionesService.cambiarEstado(this.cotizacionId, this.nuevoEstado).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.cotizacionOriginal = response.data;
+          this.estadoActual = response.data.estado;
+          this.nuevoEstado = null;
+          Swal.fire('Éxito', 'Cotización y estado actualizados exitosamente', 'success').then(() => {
+            this.router.navigate(['/cotizaciones']);
+          });
+          this.loading = false;
+        } else {
+          this.error = response.message || 'Error al cambiar estado';
+          Swal.fire('Advertencia', 'Cotización guardada pero no se pudo cambiar estado: ' + this.error, 'warning').then(() => {
+            this.router.navigate(['/cotizaciones']);
+          });
+          this.loading = false;
+        }
+      },
+      error: () => {
+        this.error = 'Error al cambiar estado';
+        Swal.fire('Advertencia', 'Cotización guardada pero no se pudo cambiar estado', 'warning').then(() => {
+          this.router.navigate(['/cotizaciones']);
+        });
         this.loading = false;
       }
     });
@@ -173,5 +247,18 @@ export class EditarCotizacionComponent implements OnInit {
 
   cancelar() {
     this.router.navigate(['/cotizaciones']);
+  }
+
+  getMensajeEstado(estado: EstadoCotizacion): string {
+    switch (estado) {
+      case 'ENVIADA':
+        return '📱 Se enviará notificación al cliente por SMS/WhatsApp';
+      case 'APROBADA':
+        return '✅ Se generará un PDF de aprobación';
+      case 'RECHAZADA':
+        return '❌ Se rechazará la cotización';
+      default:
+        return '';
+    }
   }
 }

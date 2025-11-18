@@ -25,7 +25,7 @@
   font-weight: 600;
 }
 
-.subtitle {
+.header-content .subtitle {
   color: #7f8c8d;
   margin: 0.5rem 0 0 0;
   font-size: 0.9rem;
@@ -189,53 +189,41 @@
 }
 
 .tabla-cotizaciones .codigo {
-  color: #2c3e50;
+  color: #34495e;
   font-weight: 600;
+  font-size: 0.85rem;
   font-family: 'Courier New', monospace;
 }
 
 .tabla-cotizaciones .cliente {
-  color: #2c3e50;
   font-weight: 600;
+  color: #2c3e50;
 }
 
 .tabla-cotizaciones .total {
   color: #27ae60;
   font-weight: 600;
+  text-align: right;
 }
 
-.badge {
-  display: inline-block;
-  padding: 0.4rem 0.8rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
+.tabla-cotizaciones .estado {
+  text-align: center;
 }
 
-.estado-borrador {
-  background: #ecf0f1;
+.tabla-cotizaciones .validez {
   color: #7f8c8d;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
-.estado-enviada {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.estado-aprobada {
-  background: #e8f5e9;
-  color: #27ae60;
-}
-
-.estado-rechazada {
-  background: #ffebee;
-  color: #c0392b;
+.tabla-cotizaciones .acciones {
+  text-align: center;
 }
 
 .acciones {
   display: flex;
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .btn-icon {
@@ -268,21 +256,31 @@
   color: #f57c00;
 }
 
-.btn-warning:hover {
+.btn-warning:hover:not(:disabled) {
   background: #f57c00;
   color: white;
   transform: scale(1.1);
 }
 
-.btn-pdf {
-  background: #fce4ec;
-  color: #c2185b;
+.btn-warning:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.btn-pdf:hover {
-  background: #c2185b;
+.btn-pdf {
+  background: #f1f8e9;
+  color: #558b2f;
+}
+
+.btn-pdf:hover:not(:disabled) {
+  background: #558b2f;
   color: white;
   transform: scale(1.1);
+}
+
+.btn-pdf:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-danger {
@@ -294,6 +292,36 @@
   background: #c0392b;
   color: white;
   transform: scale(1.1);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-secondary {
+  background: #ecf0f1;
+  color: #34495e;
+}
+
+.badge-info {
+  background: #d6eaf8;
+  color: #1976d2;
+}
+
+.badge-success {
+  background: #c8e6c9;
+  color: #27ae60;
+}
+
+.badge-danger {
+  background: #ffcccc;
+  color: #c0392b;
 }
 
 @keyframes slideIn {

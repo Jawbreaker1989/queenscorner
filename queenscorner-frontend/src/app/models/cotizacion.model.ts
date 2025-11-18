@@ -1,10 +1,11 @@
+export type EstadoCotizacion = 'BORRADOR' | 'ENVIADA' | 'APROBADA' | 'RECHAZADA';
+
 export interface ItemCotizacion {
   id?: number;
   descripcion: string;
   cantidad: number;
   precioUnitario: number;
   subtotal?: number;
-  fechaCreacion?: string;
 }
 
 export interface CotizacionRequest {
@@ -15,26 +16,28 @@ export interface CotizacionRequest {
   items: ItemCotizacion[];
 }
 
-export interface CotizacionResponse extends CotizacionRequest {
+export interface ClienteInfo {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+}
+
+export interface CotizacionResponse {
   id: number;
   codigo: string;
+  cliente: ClienteInfo;
+  descripcion: string;
+  fechaValidez: string;
+  observaciones?: string;
   estado: EstadoCotizacion;
+  items: ItemCotizacion[];
   subtotal: number;
   impuestos: number;
   total: number;
   fechaCreacion: string;
-  cliente: {
-    id: number;
-    nombre: string;
-    email: string;
-  };
-}
-
-export enum EstadoCotizacion {
-  BORRADOR = 'BORRADOR',
-  ENVIADA = 'ENVIADA',
-  APROBADA = 'APROBADA',
-  RECHAZADA = 'RECHAZADA'
 }
 
 export interface ApiResponse<T> {

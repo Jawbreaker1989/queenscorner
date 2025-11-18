@@ -14,6 +14,7 @@ public class ClienteMapper {
         entity.setEmail(request.getEmail());
         entity.setTelefono(request.getTelefono());
         entity.setDireccion(request.getDireccion());
+        entity.setCiudad(request.getCiudad());
         return entity;
     }
 
@@ -24,7 +25,8 @@ public class ClienteMapper {
         response.setEmail(entity.getEmail());
         response.setTelefono(entity.getTelefono());
         response.setDireccion(entity.getDireccion());
-        response.setFechaRegistro(entity.getFechaRegistro());
+        response.setCiudad(entity.getCiudad());
+        response.setFechaCreacion(entity.getFechaCreacion());
         response.setEstado(entity.getActivo() ? "ACTIVO" : "INACTIVO");
         return response;
     }
@@ -34,5 +36,6 @@ public class ClienteMapper {
         if (request.getEmail() != null) entity.setEmail(request.getEmail());
         if (request.getTelefono() != null) entity.setTelefono(request.getTelefono());
         if (request.getDireccion() != null) entity.setDireccion(request.getDireccion());
+        if (request.getCiudad() != null) entity.setCiudad(request.getCiudad());
     }
 }

@@ -2,20 +2,24 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CotizacionesService } from '../../../services/cotizaciones';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CotizacionResponse, EstadoCotizacion } from '../../../models/cotizacion.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-cotizaciones',
   templateUrl: './listar-cotizaciones.html',
-  styleUrls: ['./listar-cotizaciones.css'],
+  styleUrl: './listar-cotizaciones.css',
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class ListarCotizacionesComponent implements OnInit {
   cotizaciones: CotizacionResponse[] = [];
-  loading = true;
+  loading = false;
   error = '';
   mensajeExito = '';
+  pdfGenerando: { [key: number]: boolean } = {};
+  pdfGenerados: { [key: number]: boolean } = {};
 
   constructor(
     private cotizacionesService: CotizacionesService,
@@ -24,13 +28,13 @@ export class ListarCotizacionesComponent implements OnInit {
 
   ngOnInit() {
     this.cargarCotizaciones();
+    // Verificar PDFs generados desde localStorage
+    this.verificarPdfsGenerados();
   }
 
   cargarCotizaciones() {
     this.loading = true;
     this.error = '';
-    this.mensajeExito = '';
-
     this.cotizacionesService.obtenerTodas().subscribe({
       next: (response) => {
         if (response.success) {
@@ -40,11 +44,29 @@ export class ListarCotizacionesComponent implements OnInit {
         }
         this.loading = false;
       },
-      error: (error) => {
-        this.error = 'Error al cargar cotizaciones. Por favor intenta de nuevo.';
+      error: () => {
+        this.error = 'Error al cargar cotizaciones';
         this.loading = false;
       }
     });
+  }
+
+  verificarPdfsGenerados() {
+    // Revisar localStorage para cada cotización y marcar si PDF fue generado
+    this.cotizaciones.forEach(cot => {
+      const pdfKey = `pdf_generado_${cot.id}`;
+      if (localStorage.getItem(pdfKey)) {
+        this.pdfGenerados[cot.id] = true;
+      }
+    });
+  }
+
+  ver(id: number) {
+    this.router.navigate(['/cotizaciones/detalle', id]);
+  }
+
+  verDobleClick(id: number) {
+    this.ver(id);
   }
 
   crear() {
@@ -52,69 +74,111 @@ export class ListarCotizacionesComponent implements OnInit {
   }
 
   editar(id: number) {
-    this.router.navigate([`/cotizaciones/editar/${id}`]);
-  }
-
-  ver(id: number) {
-    this.router.navigate([`/cotizaciones/detalle/${id}`]);
-  }
-
-  eliminar(id: number, codigo: string) {
-    if (confirm(`¿Estás seguro de que deseas eliminar la cotización ${codigo}?`)) {
-      this.cotizacionesService.eliminar(id).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.mensajeExito = 'Cotización eliminada exitosamente';
-            this.cargarCotizaciones();
-          } else {
-            this.error = response.message || 'Error al eliminar cotización';
-          }
-        },
-        error: (error) => {
-          this.error = 'Error al eliminar cotización. Por favor intenta de nuevo.';
-        }
-      });
+    const cot = this.cotizaciones.find(c => c.id === id);
+    if (!cot) return;
+    if (cot.estado !== 'BORRADOR' && cot.estado !== 'ENVIADA') {
+      Swal.fire('No permitido', 'Solo se puede editar en BORRADOR o ENVIADA', 'warning');
+      return;
     }
-  }
-
-  cambiarEstado(id: number, nuevoEstado: EstadoCotizacion) {
-    this.cotizacionesService.cambiarEstado(id, nuevoEstado).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.mensajeExito = 'Estado actualizado exitosamente';
-          this.cargarCotizaciones();
-        } else {
-          this.error = response.message || 'Error al cambiar estado';
-        }
-      },
-      error: (error) => {
-        this.error = 'Error al cambiar estado. Por favor intenta de nuevo.';
-      }
-    });
+    this.router.navigate(['/cotizaciones/editar', id]);
   }
 
   generarPdf(id: number) {
+    const cot = this.cotizaciones.find(c => c.id === id);
+    if (!cot || cot.estado !== 'APROBADA') {
+      Swal.fire('No permitido', 'Solo se puede generar PDF para cotizaciones APROBADAS', 'warning');
+      return;
+    }
+
+    if (this.pdfGenerados[id]) {
+      Swal.fire('Ya existe', 'El PDF para esta cotización ya fue generado', 'info');
+      return;
+    }
+
+    this.pdfGenerando[id] = true;
     this.cotizacionesService.generarPdf(id).subscribe({
       next: (response) => {
         if (response.success) {
-          this.mensajeExito = response.message;
+          // Marcar como generado en localStorage
+          const pdfKey = `pdf_generado_${id}`;
+          localStorage.setItem(pdfKey, 'true');
+          this.pdfGenerados[id] = true;
+
+          Swal.fire('Éxito', 'PDF generado exitosamente', 'success');
         } else {
-          this.error = response.message;
+          Swal.fire('Error', response.message || 'Error al generar PDF', 'error');
         }
+        this.pdfGenerando[id] = false;
       },
-      error: (error) => {
-        this.error = 'Error al generar PDF. Por favor intenta de nuevo.';
+      error: () => {
+        Swal.fire('Error', 'Error al generar PDF', 'error');
+        this.pdfGenerando[id] = false;
       }
     });
+  }
+
+  eliminar(id: number, codigo: string) {
+    Swal.fire({
+      title: '¿Eliminar cotización?',
+      text: `¿Estás seguro de que deseas eliminar la cotización ${codigo}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.cotizacionesService.eliminar(id).subscribe({
+          next: () => {
+            this.mensajeExito = `Cotización ${codigo} eliminada exitosamente`;
+            this.cargarCotizaciones();
+            setTimeout(() => this.mensajeExito = '', 3000);
+          },
+          error: () => {
+            this.error = 'Error al eliminar cotización';
+          }
+        });
+      }
+    });
+  }
+
+  cambiarEstado(id: number) {
+    const cot = this.cotizaciones.find(c => c.id === id);
+    if (!cot || cot.estado === 'APROBADA' || cot.estado === 'RECHAZADA') {
+      Swal.fire('No permitido', 'No se puede cambiar estado desde aquí', 'warning');
+      return;
+    }
+    this.router.navigate(['/cotizaciones/detalle', id]);
+  }
+
+  getMensajeEstado(estado: EstadoCotizacion): string {
+    switch (estado) {
+      case 'BORRADOR':
+        return '📝 En preparación';
+      case 'ENVIADA':
+        return '📱 Enviada al cliente';
+      case 'APROBADA':
+        return '✅ Aprobada';
+      case 'RECHAZADA':
+        return '❌ Rechazada';
+      default:
+        return '';
+    }
   }
 
   getEstadoColor(estado: EstadoCotizacion): string {
     switch (estado) {
-      case 'BORRADOR': return 'estado-borrador';
-      case 'ENVIADA': return 'estado-enviada';
-      case 'APROBADA': return 'estado-aprobada';
-      case 'RECHAZADA': return 'estado-rechazada';
-      default: return '';
+      case 'BORRADOR':
+        return 'badge-secondary';
+      case 'ENVIADA':
+        return 'badge-info';
+      case 'APROBADA':
+        return 'badge-success';
+      case 'RECHAZADA':
+        return 'badge-danger';
+      default:
+        return 'badge-secondary';
     }
   }
 

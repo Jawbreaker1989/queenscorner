@@ -8,7 +8,8 @@ public class ClienteResponse {
     private String email;
     private String telefono;
     private String direccion;
-    private LocalDateTime fechaRegistro;
+    private String ciudad;
+    private LocalDateTime fechaCreacion;
     private String estado;
 
     public Long getId() { return id; }
@@ -21,8 +22,10 @@ public class ClienteResponse {
     public void setTelefono(String telefono) { this.telefono = telefono; }
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
-    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public String getCiudad() { return ciudad; }
+    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
 }

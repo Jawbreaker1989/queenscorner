@@ -1,6 +1,7 @@
 package com.uptc.queenscorner.services.impl;
 
 import com.uptc.queenscorner.models.dtos.requests.CotizacionRequest;
+import com.uptc.queenscorner.models.dtos.requests.ItemCotizacionRequest;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.ClienteEntity;
 import com.uptc.queenscorner.models.entities.CotizacionEntity;
@@ -137,9 +138,68 @@ public class CotizacionServiceImpl implements ICotizacionService {
         CotizacionEntity cotizacion = cotizacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
+        // Actualizar campos básicos
         cotizacionMapper.updateEntityFromRequest(request, cotizacion);
+
+        // ACTUALIZAR ITEMS - SINCRONIZAR CAMBIOS
+        sincronizarItems(id, request, cotizacion);
+
+        // Recalcular totales basado en los items actualizados
+        calcularTotales(cotizacion, request);
+
+        // Guardar cotización con los nuevos totales
         CotizacionEntity updated = cotizacionRepository.save(cotizacion);
+        
         return cotizacionMapper.toResponse(updated);
+    }
+
+    private void sincronizarItems(Long cotizacionId, CotizacionRequest request, CotizacionEntity cotizacion) {
+        // Obtener items existentes de la base de datos
+        List<ItemCotizacionEntity> itemsExistentes = itemCotizacionRepository.findByCotizacionId(cotizacionId);
+
+        // Procesar items del request
+        List<ItemCotizacionEntity> itemsActualizados = request.getItems().stream()
+                .map(itemRequest -> {
+                    if (itemRequest.getId() != null) {
+                        // Actualizar item existente
+                        ItemCotizacionEntity itemExistente = itemsExistentes.stream()
+                                .filter(i -> i.getId().equals(itemRequest.getId()))
+                                .findFirst()
+                                .orElseThrow(() -> new RuntimeException("Item no encontrado: " + itemRequest.getId()));
+                        
+                        itemExistente.setDescripcion(itemRequest.getDescripcion());
+                        itemExistente.setCantidad(itemRequest.getCantidad());
+                        itemExistente.setPrecioUnitario(itemRequest.getPrecioUnitario());
+                        itemExistente.setSubtotal(itemRequest.getPrecioUnitario()
+                                .multiply(BigDecimal.valueOf(itemRequest.getCantidad())));
+                        
+                        return itemExistente;
+                    } else {
+                        // Nuevo item
+                        ItemCotizacionEntity nuevoItem = itemCotizacionMapper.toEntity(itemRequest);
+                        nuevoItem.setCotizacion(cotizacion);
+                        return nuevoItem;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        // Eliminar items que no están en el request
+        List<Long> idsItemsRequest = request.getItems().stream()
+                .filter(i -> i.getId() != null)
+                .map(ItemCotizacionRequest::getId)
+                .collect(Collectors.toList());
+
+        itemsExistentes.forEach(itemExistente -> {
+            if (!idsItemsRequest.contains(itemExistente.getId())) {
+                itemCotizacionRepository.delete(itemExistente);
+            }
+        });
+
+        // Guardar o actualizar todos los items
+        itemCotizacionRepository.saveAll(itemsActualizados);
+
+        // Actualizar la lista de items en la entidad
+        cotizacion.setItems(itemsActualizados);
     }
 
     @Override

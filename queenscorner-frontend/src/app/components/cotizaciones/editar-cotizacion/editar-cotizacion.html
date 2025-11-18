@@ -146,6 +146,25 @@
           {{ error }}
         </div>
 
+        <!-- Cambiar Estado (solo si es BORRADOR o ENVIADA) -->
+        <div class="cambiar-estado" *ngIf="cotizacionOriginal && (cotizacionOriginal.estado === 'BORRADOR' || cotizacionOriginal.estado === 'ENVIADA')">
+          <h3>Cambiar Estado</h3>
+          <div class="estado-controls">
+            <select [(ngModel)]="nuevoEstado" name="nuevoEstado">
+              <option [value]="null">Selecciona nuevo estado</option>
+              <option *ngFor="let estado of estados" [value]="estado">
+                {{ estado }}
+              </option>
+            </select>
+          </div>
+          <div class="estado-info">
+            <p>📝 <strong>Nota:</strong> El cambio de estado se aplicará cuando guardes la cotización</p>
+            <p>📱 <strong>ENVIADA:</strong> Notifica al cliente por SMS/WhatsApp</p>
+            <p>✅ <strong>APROBADA:</strong> Genera PDF de aprobación</p>
+            <p>❌ <strong>RECHAZADA:</strong> Rechaza la cotización</p>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" [disabled]="loading">
             {{ loading ? 'Guardando...' : 'Actualizar Cotización' }}

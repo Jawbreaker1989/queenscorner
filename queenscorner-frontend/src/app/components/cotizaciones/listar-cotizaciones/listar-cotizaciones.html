@@ -49,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let cot of cotizaciones" class="fila-cotizacion">
+          <tr *ngFor="let cot of cotizaciones" class="fila-cotizacion" (dblclick)="verDobleClick(cot.id)">
             <td class="codigo">{{ cot.codigo }}</td>
             <td class="cliente">{{ cot.cliente.nombre }}</td>
             <td class="total">${{ cot.total | number: '1.2-2' }}</td>
@@ -59,8 +59,8 @@
             <td class="validez">{{ cot.fechaValidez }}</td>
             <td class="acciones">
               <button class="btn-icon btn-info" (click)="ver(cot.id)" title="Ver">👁️</button>
-              <button class="btn-icon btn-warning" (click)="editar(cot.id)" title="Editar">✏️</button>
-              <button class="btn-icon btn-pdf" (click)="generarPdf(cot.id)" title="PDF">📄</button>
+              <button class="btn-icon btn-warning" (click)="editar(cot.id)" [disabled]="cot.estado !== 'BORRADOR' && cot.estado !== 'ENVIADA'" [title]="cot.estado !== 'BORRADOR' && cot.estado !== 'ENVIADA' ? 'Solo se puede editar en BORRADOR o ENVIADA' : 'Editar'">✏️</button>
+              <button class="btn-icon btn-pdf" (click)="generarPdf(cot.id)" [disabled]="pdfGenerando[cot.id] || pdfGenerados[cot.id] || cot.estado !== 'APROBADA'" [title]="pdfGenerados[cot.id] ? 'PDF ya generado' : cot.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">📄</button>
               <button class="btn-icon btn-danger" (click)="eliminar(cot.id, cot.codigo)" title="Eliminar">🗑️</button>
             </td>
           </tr>

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Clientes } from '../../../services/clientes';
 import { CommonModule } from '@angular/common';
 import { ClienteResponse } from '../../../models/cliente.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-clientes',
@@ -59,22 +60,37 @@ export class ListarClientesComponent implements OnInit {
     this.router.navigate([`/clientes/detalle/${id}`]);
   }
 
+  verDobleClick(id: number) {
+    this.ver(id);
+  }
+
   eliminar(id: number, nombre: string) {
-    if (confirm(`¿Estás seguro de que deseas eliminar a ${nombre}?`)) {
-      this.clientesService.eliminar(id).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.mensajeExito = 'Cliente eliminado exitosamente';
-            this.cargarClientes();
-          } else {
-            this.error = response.message || 'Error al eliminar cliente';
+    Swal.fire({
+      title: '¿Eliminar cliente?',
+      text: `Se eliminará permanentemente a ${nombre}`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.clientesService.eliminar(id).subscribe({
+          next: (response) => {
+            if (response.success) {
+              Swal.fire('Eliminado', 'Cliente eliminado exitosamente', 'success');
+              this.cargarClientes();
+            } else {
+              Swal.fire('Error', response.message || 'Error al eliminar cliente', 'error');
+            }
+          },
+          error: (error) => {
+            Swal.fire('Error', 'Error al eliminar cliente. Por favor intenta de nuevo.', 'error');
           }
-        },
-        error: (error) => {
-          this.error = 'Error al eliminar cliente. Por favor intenta de nuevo.';
-        }
-      });
-    }
+        });
+      }
+    });
   }
 
   volver() {

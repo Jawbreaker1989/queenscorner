@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Clientes } from '../../../services/clientes';
 import { CommonModule } from '@angular/common';
 import { ClienteResponse } from '../../../models/cliente.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalle-cliente',
@@ -54,6 +55,25 @@ export class DetalleClienteComponent implements OnInit {
 
   editar() {
     this.router.navigate([`/clientes/editar/${this.clienteId}`]);
+  }
+
+  crearCotizacion() {
+    Swal.fire({
+      title: 'Crear cotización',
+      text: `¿Crear una nueva cotización para ${this.cliente?.nombre}?`,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Crear',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.router.navigate(['/cotizaciones/crear'], { 
+          queryParams: { clienteId: this.clienteId } 
+        });
+      }
+    });
   }
 
   volver() {

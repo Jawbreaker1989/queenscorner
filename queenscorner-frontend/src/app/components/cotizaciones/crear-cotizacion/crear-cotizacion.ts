@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CotizacionesService } from '../../../services/cotizaciones';
 import { Clientes } from '../../../services/clientes';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotizacionRequest, ItemCotizacion } from '../../../models/cotizacion.model';
 import { ClienteResponse } from '../../../models/cliente.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-crear-cotizacion',
@@ -36,11 +37,18 @@ export class CrearCotizacionComponent implements OnInit {
   constructor(
     private cotizacionesService: CotizacionesService,
     private clientesService: Clientes,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.cargarClientes();
+    // Obtener clienteId de los query params
+    this.route.queryParams.subscribe(params => {
+      if (params['clienteId']) {
+        this.cotizacion.clienteId = Number(params['clienteId']);
+      }
+    });
   }
 
   cargarClientes() {
@@ -104,14 +112,18 @@ export class CrearCotizacionComponent implements OnInit {
     this.cotizacionesService.crear(this.cotizacion).subscribe({
       next: (response) => {
         if (response.success) {
-          this.router.navigate(['/cotizaciones']);
+          Swal.fire('Éxito', 'Cotización creada exitosamente', 'success').then(() => {
+            this.router.navigate(['/cotizaciones']);
+          });
         } else {
           this.error = response.message || 'Error al crear cotización';
+          Swal.fire('Error', this.error, 'error');
           this.loading = false;
         }
       },
       error: (error) => {
         this.error = 'Error al crear cotización. Por favor intenta de nuevo.';
+        Swal.fire('Error', this.error, 'error');
         this.loading = false;
       }
     });
