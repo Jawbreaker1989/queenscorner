@@ -1,0 +1,203 @@
+<div class="crear-factura-container">
+  <div class="header">
+    <h1>Crear Nueva Factura</h1>
+    <button (click)="cancelar()" class="btn-cancel">← Volver</button>
+  </div>
+
+  <div *ngIf="success" class="alert alert-success">
+    ✓ Factura creada exitosamente. Redirigiendo...
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    ✗ {{ error }}
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="crearFactura()" class="form-container">
+    <!-- SECCIÓN 1: DATOS BÁSICOS -->
+    <div class="form-section">
+      <h2>Información de la Factura</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="negocio">Negocio *</label>
+          <select 
+            id="negocio" 
+            formControlName="negocioId"
+            (change)="onNegocioChange($event.target.value)"
+            required>
+            <option value="">-- Selecciona un negocio --</option>
+            <option *ngFor="let negocio of negocios" [value]="negocio.id">
+              {{ negocio.codigo }} - {{ negocio.cliente?.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="cotizacion">Cotización *</label>
+          <input 
+            id="cotizacion" 
+            type="text"
+            [value]="cotizacion?.codigo || 'No seleccionada'"
+            disabled>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fechaVencimiento">Fecha de Vencimiento *</label>
+          <input 
+            id="fechaVencimiento" 
+            type="date"
+            formControlName="fechaVencimiento"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="medioPago">Medio de Pago *</label>
+          <select 
+            id="medioPago" 
+            formControlName="medioPago"
+            required>
+            <option value="">-- Selecciona medio de pago --</option>
+            <option *ngFor="let medio of medioPagoOptions" [value]="medio.value">
+              {{ medio.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="referenciaPago">Referencia de Pago</label>
+          <input 
+            id="referenciaPago" 
+            type="text"
+            formControlName="referenciaPago"
+            placeholder="Ej: Transferencia #123456">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="notas">Notas</label>
+          <textarea 
+            id="notas" 
+            formControlName="notas"
+            rows="3"
+            placeholder="Notas adicionales para la factura"></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="condicionesPago">Condiciones de Pago</label>
+          <textarea 
+            id="condicionesPago" 
+            formControlName="condicionesPago"
+            rows="3"
+            placeholder="Ej: Pago dentro de 30 días, 50% anticipo, etc."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: LÍNEAS DE FACTURA -->
+    <div class="form-section">
+      <div class="section-header">
+        <h2>Líneas de Factura</h2>
+        <button type="button" (click)="agregarLinea()" class="btn-secondary">+ Agregar Línea</button>
+      </div>
+
+      <div class="table-container">
+        <table class="lineas-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Descripción</th>
+              <th>Cantidad</th>
+              <th>Valor Unitario</th>
+              <th>Subtotal</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="lineas.length === 0">
+              <td colspan="6" class="text-center">No hay líneas. Agrega una para continuar.</td>
+            </tr>
+            <tr *ngFor="let linea of lineas; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input 
+                  type="text" 
+                  [(ngModel)]="linea.descripcion"
+                  [ngModelOptions]="{standalone: true}"
+                  placeholder="Descripción del producto/servicio">
+              </td>
+              <td>
+                <input 
+                  type="number" 
+                  [(ngModel)]="linea.cantidad"
+                  [ngModelOptions]="{standalone: true}"
+                  min="1"
+                  class="input-numeric">
+              </td>
+              <td>
+                <input 
+                  type="number" 
+                  [(ngModel)]="linea.valorUnitario"
+                  [ngModelOptions]="{standalone: true}"
+                  min="0"
+                  step="0.01"
+                  class="input-numeric">
+              </td>
+              <td class="value">$ {{ calcularValorLinea(linea) | number: '1.0-2' }}</td>
+              <td>
+                <button 
+                  type="button" 
+                  (click)="eliminarLinea(i)"
+                  class="btn-delete">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: TOTALES -->
+    <div class="form-section totales-section">
+      <div class="totales-box">
+        <div class="total-row">
+          <span class="label">Subtotal:</span>
+          <span class="value">$ {{ calcularSubtotal() | number: '1.0-2' }}</span>
+        </div>
+        <div class="total-row">
+          <span class="label">IVA 19%:</span>
+          <span class="value">$ {{ calcularIva() | number: '1.0-2' }}</span>
+        </div>
+        <div class="total-row total-final">
+          <span class="label">TOTAL A PAGAR:</span>
+          <span class="value">$ {{ calcularTotal() | number: '1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: BOTONES DE ACCIÓN -->
+    <div class="form-actions">
+      <button 
+        type="button" 
+        (click)="cancelar()"
+        class="btn btn-secondary"
+        [disabled]="loading">
+        Cancelar
+      </button>
+      <button 
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="!form.valid || lineas.length === 0 || loading">
+        <span *ngIf="loading">Creando...</span>
+        <span *ngIf="!loading">Crear Factura</span>
+      </button>
+    </div>
+  </form>
+</div>

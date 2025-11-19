@@ -14,6 +14,7 @@ import { CrearNegocioComponent } from './components/negocios/crear-negocio/crear
 import { EditarNegocioComponent } from './components/negocios/editar-negocio/editar-negocio';
 import { DetalleNegocioComponent } from './components/negocios/detalle-negocio/detalle-negocio';
 import { ListarFacturasComponent } from './components/facturas/listar-facturas/listar-facturas';
+import { CrearFacturaComponent } from './components/facturas/crear-factura/crear-factura';
 import { DetalleFacturaComponent } from './components/facturas/detalle-factura/detalle-factura';
 import { AuthGuard } from './guards/auth-guard';
 
@@ -56,6 +57,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: ListarFacturasComponent },
+      { path: 'crear', component: CrearFacturaComponent },
       { path: 'detalle/:id', component: DetalleFacturaComponent }
     ]
   },
