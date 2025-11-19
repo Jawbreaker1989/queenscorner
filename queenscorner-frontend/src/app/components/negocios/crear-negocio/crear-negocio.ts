@@ -139,8 +139,7 @@ export class CrearNegocioComponent implements OnInit {
     // Limpiar presupuestoAsignado si está vacío para usar el default del backend (75%)
     if (this.negocio.presupuestoAsignado === undefined || 
         this.negocio.presupuestoAsignado === null || 
-        this.negocio.presupuestoAsignado === 0 ||
-        (typeof this.negocio.presupuestoAsignado === 'string' && this.negocio.presupuestoAsignado.trim() === '')) {
+        this.negocio.presupuestoAsignado === 0) {
       delete this.negocio.presupuestoAsignado;
     }
 
@@ -190,9 +189,11 @@ export class CrearNegocioComponent implements OnInit {
     
     // Validar presupuesto asignado si se especificó
     if (this.negocio.presupuestoAsignado && this.cotizacion) {
-      const maxPresupuesto = this.cotizacion.total * 0.75;
+      // Presupuesto máximo = Total - Anticipo (anticipo es lo ya pagado)
+      const anticipoActual = this.negocio.anticipo || 0;
+      const maxPresupuesto = this.cotizacion.total - anticipoActual;
       if (this.negocio.presupuestoAsignado > maxPresupuesto) {
-        this.error = `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (75% del total de $${this.cotizacion.total.toFixed(2)})`;
+        this.error = `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (Total: $${this.cotizacion.total.toFixed(2)} - Anticipo: $${anticipoActual.toFixed(2)})`;
         return false;
       }
     }

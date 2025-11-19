@@ -69,7 +69,7 @@
                    min="0"
                    [disabled]="procesando" />
             <small *ngIf="negocio && negocio.totalCotizacion">
-              Máximo permitido: ${{ (negocio!.totalCotizacion * 0.75) | number:'1.2-2' }} (75% de ${{ negocio!.totalCotizacion | number:'1.2-2' }})
+              Máximo permitido: ${{ (negocio!.totalCotizacion - (negocioForm.anticipo || 0)) | number:'1.2-2' }} (Total: ${{ negocio!.totalCotizacion | number:'1.2-2' }} - Anticipo: ${{ (negocioForm.anticipo || 0) | number:'1.2-2' }})
             </small>
           </div>
 

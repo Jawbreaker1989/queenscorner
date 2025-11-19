@@ -141,7 +141,7 @@
                 [disabled]="loading"
                 min="0" />
               <small *ngIf="cotizacion">
-                Máximo permitido: ${{ (cotizacion.total * 0.75) | number:'1.2-2' }} (75% de ${{ cotizacion.total | number:'1.2-2' }})
+                Máximo permitido: ${{ (cotizacion.total - (negocio.anticipo || 0)) | number:'1.2-2' }} (Total: ${{ cotizacion.total | number:'1.2-2' }} - Anticipo: ${{ (negocio.anticipo || 0) | number:'1.2-2' }})
               </small>
             </div>
 

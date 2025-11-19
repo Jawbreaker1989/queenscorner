@@ -100,6 +100,11 @@ public class NegocioServiceImpl implements INegocioService {
             throw new RuntimeException("Ya existe un negocio para esta cotización");
         }
 
+        // Validar que la cotización tenga total válido
+        if (cotizacion.getTotal() == null || cotizacion.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("La cotización no tiene un total válido");
+        }
+
         request.setCotizacionId(cotizacionId);
         return create(request);
     }
@@ -107,7 +112,8 @@ public class NegocioServiceImpl implements INegocioService {
     private void aplicarDefaultsInteligentesNegocio(NegocioRequest request, CotizacionEntity cotizacion) {
         // Si no hay descripción, usar la de la cotización
         if (request.getDescripcion() == null || request.getDescripcion().trim().isEmpty()) {
-            request.setDescripcion("Negocio para: " + cotizacion.getDescripcion());
+            String descCotizacion = cotizacion.getDescripcion() != null ? cotizacion.getDescripcion() : "Negocio";
+            request.setDescripcion("Negocio para: " + descCotizacion);
         }
 
         // Si no hay observaciones, crear básicas
@@ -125,37 +131,44 @@ public class NegocioServiceImpl implements INegocioService {
             request.setFechaFinEstimada(LocalDate.now().plusDays(30));
         }
 
-        // Si no hay anticipo, establecer a 0
+        // ANTICIPO: Es un campo exclusivo del Negocio (no viene de cotización)
+        // Si no se proporciona, se establece a 0
         if (request.getAnticipo() == null) {
             request.setAnticipo(BigDecimal.ZERO);
         }
 
-        // Si no hay presupuesto asignado o es 0, usar el 75% del total de la cotización
+        // Si no hay presupuesto asignado o es 0, usar el saldo disponible después de descontar anticipo
         if (request.getPresupuestoAsignado() == null || 
             request.getPresupuestoAsignado().compareTo(BigDecimal.ZERO) <= 0) {
+            BigDecimal totalCotizacion = cotizacion.getTotal() != null ? cotizacion.getTotal() : BigDecimal.ZERO;
+            BigDecimal anticipoEffectivo = request.getAnticipo() != null ? request.getAnticipo() : BigDecimal.ZERO;
+            // Presupuesto default = Total - Anticipo (todo lo disponible después del anticipo)
             request.setPresupuestoAsignado(
-                    cotizacion.getTotal().multiply(new BigDecimal("0.75"))
+                    totalCotizacion.subtract(anticipoEffectivo)
             );
         } else {
-            // Si hay presupuesto asignado válido (> 0), validar que no exceda el 75%
-            validarPresupuestoAsignado(request.getPresupuestoAsignado(), cotizacion.getTotal());
+            // Si hay presupuesto asignado válido (> 0), validar que no exceda el límite
+            validarPresupuestoAsignado(request.getPresupuestoAsignado(), cotizacion.getTotal(), request.getAnticipo());
         }
     }
 
-    private void validarPresupuestoAsignado(BigDecimal presupuestoAsignado, BigDecimal totalCotizacion) {
+    private void validarPresupuestoAsignado(BigDecimal presupuestoAsignado, BigDecimal totalCotizacion, BigDecimal anticipo) {
         if (presupuestoAsignado == null || totalCotizacion == null) {
             return;
         }
         
-        // Calcular el 75% del total de la cotización
-        BigDecimal limitePresupuesto = totalCotizacion.multiply(new BigDecimal("0.75"));
+        // El anticipo es el monto ya pagado/reservado
+        // El presupuesto asignado NO puede exceder: Total - Anticipo
+        BigDecimal anticipoEffectivo = anticipo != null ? anticipo : BigDecimal.ZERO;
+        BigDecimal limitePresupuesto = totalCotizacion.subtract(anticipoEffectivo);
         
         // Validar que no exceda el límite
         if (presupuestoAsignado.compareTo(limitePresupuesto) > 0) {
             throw new RuntimeException(
-                    "El presupuesto asignado no puede exceder el 75% del total de la cotización. " +
+                    "El presupuesto asignado no puede exceder el saldo disponible. " +
                     "Máximo permitido: $" + limitePresupuesto.setScale(2, java.math.RoundingMode.HALF_UP) + 
-                    " (Total cotización: $" + totalCotizacion.setScale(2, java.math.RoundingMode.HALF_UP) + ")"
+                    " (Total cotización: $" + totalCotizacion.setScale(2, java.math.RoundingMode.HALF_UP) + 
+                    " - Anticipo: $" + anticipoEffectivo.setScale(2, java.math.RoundingMode.HALF_UP) + ")"
             );
         }
     }
@@ -173,7 +186,7 @@ public class NegocioServiceImpl implements INegocioService {
         // Validar presupuesto asignado si se está actualizando
         if (request.getPresupuestoAsignado() != null) {
             validarPresupuestoAsignado(request.getPresupuestoAsignado(), 
-                    negocio.getTotalCotizacion());
+                    negocio.getTotalCotizacion(), negocio.getAnticipo());
         }
 
         negocioMapper.updateEntityFromRequest(request, negocio);

@@ -43,6 +43,7 @@ public class NegocioMapper {
         response.setFechaFinEstimada(entity.getFechaFinEstimada());
         response.setEstado(entity.getEstado() != null ? entity.getEstado().name() : "EN_REVISION");
         response.setPresupuestoAsignado(entity.getPresupuestoAsignado());
+        // ANTICIPO: Es un campo exclusivo del Negocio (no viene de cotización)
         response.setAnticipo(entity.getAnticipo());
         response.setDescripcion(entity.getDescripcion());
         response.setObservaciones(entity.getObservaciones());

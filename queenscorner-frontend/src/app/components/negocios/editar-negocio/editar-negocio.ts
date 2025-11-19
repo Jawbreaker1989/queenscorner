@@ -108,10 +108,12 @@ export class EditarNegocioComponent implements OnInit {
     
     // Validar presupuesto asignado si se especificó
     if (this.negocioForm.presupuestoAsignado && this.negocio?.totalCotizacion) {
-      const maxPresupuesto = this.negocio.totalCotizacion * 0.75;
+      // Presupuesto máximo = Total - Anticipo (anticipo es lo ya pagado)
+      const anticipoActual = this.negocioForm.anticipo || 0;
+      const maxPresupuesto = this.negocio.totalCotizacion - anticipoActual;
       if (this.negocioForm.presupuestoAsignado > maxPresupuesto) {
         Swal.fire('Error', 
-          `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (75% del total de $${this.negocio.totalCotizacion.toFixed(2)})`, 
+          `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (Total: $${this.negocio.totalCotizacion.toFixed(2)} - Anticipo: $${anticipoActual.toFixed(2)})`, 
           'error');
         return false;
       }

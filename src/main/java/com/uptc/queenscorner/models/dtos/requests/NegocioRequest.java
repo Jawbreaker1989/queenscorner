@@ -2,11 +2,14 @@ package com.uptc.queenscorner.models.dtos.requests;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class NegocioRequest {
     private Long cotizacionId;
     private String descripcion;
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate fechaInicio;
+    @JsonFormat(pattern = "yyyy-MM-dd", shape = JsonFormat.Shape.STRING)
     private LocalDate fechaFinEstimada;
     private BigDecimal presupuestoAsignado;
     private BigDecimal anticipo;
