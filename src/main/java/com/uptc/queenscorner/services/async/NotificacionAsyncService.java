@@ -1,7 +1,6 @@
 package com.uptc.queenscorner.services.async;
 
 import com.uptc.queenscorner.models.entities.*;
-import com.uptc.queenscorner.repositories.IOrdenTrabajoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -10,17 +9,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Servicio que demuestra el flujo completo con los nuevos estados y PDFs mejorados
- * Implementa el flujo: COTIZACIÓN → NEGOCIO → ORDEN TRABAJO → FACTURA → PAGO
+ * Servicio que notifica eventos de cotizaciones y negocios
+ * Implementa el flujo: COTIZACIÓN → NEGOCIO → FACTURA
  */
 @Service
 public class NotificacionAsyncService {
 
     @Autowired
     private PdfAsyncService pdfAsyncService;
-
-    @Autowired
-    private IOrdenTrabajoRepository ordenTrabajoRepository;
 
     private final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
@@ -84,20 +80,9 @@ public class NotificacionAsyncService {
     }
 
     @Async
-    public CompletableFuture<Boolean> notificarOrdenLista(OrdenTrabajoEntity orden) {
+    public CompletableFuture<Boolean> notificarFacturaCreada(FacturaEntity factura) {
         try {
-            // Generar PDF de notificación usando el nuevo método
-            CompletableFuture<String> pdfFuture = pdfAsyncService.generarPdfOrdenTrabajo(orden);
-            String rutaPdf = pdfFuture.get(); // Espera a que se complete
-            
-            // Guardar la ruta del PDF en la entidad
-            orden.setRutaPdfNotificacion(rutaPdf);
-            ordenTrabajoRepository.save(orden);
-            
-            System.out.println("✅ Notificación procesada para orden " + orden.getCodigo() + 
-                             " - PDF guardado en: " + rutaPdf);
-            
-            Thread.sleep(500); // Simulación de procesamiento adicional
+            System.out.println("✅ Factura " + factura.getNumeroFactura() + " creada exitosamente");
             return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
@@ -131,21 +116,13 @@ public class NotificacionAsyncService {
      * Procesa una orden de trabajo FINALIZADA generando notificaciones
      */
     @Async
-    public CompletableFuture<Boolean> procesarOrdenFinalizada(OrdenTrabajoEntity orden) {
+    public CompletableFuture<Boolean> procesarCotizacionFinalizada(CotizacionEntity cotizacion) {
         try {
-            System.out.println("🔄 Procesando orden FINALIZADA: " + orden.getCodigo());
-            
-            // 1. Generar PDF de la orden de trabajo
-            CompletableFuture<String> pdfOrden = pdfAsyncService.generarPdfOrdenTrabajo(orden);
-            
-            // Esperar que la tarea async se complete
-            pdfOrden.get();
-            
-            System.out.println("✅ Orden " + orden.getCodigo() + " procesada exitosamente");
+            System.out.println("🔄 Procesando cotización FINALIZADA: " + cotizacion.getCodigo());
+            System.out.println("✅ Cotización procesada exitosamente");
             return CompletableFuture.completedFuture(true);
-            
         } catch (Exception e) {
-            System.err.println("❌ Error procesando orden: " + e.getMessage());
+            System.err.println("❌ Error procesando cotización: " + e.getMessage());
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -156,7 +133,7 @@ public class NotificacionAsyncService {
     @Async
     public CompletableFuture<Boolean> procesarFacturaCreada(FacturaEntity factura) {
         try {
-            System.out.println("🔄 Procesando factura PENDIENTE: " + factura.getCodigo());
+            System.out.println("🔄 Procesando factura: " + factura.getNumeroFactura());
             
             // 1. Generar PDF de la factura con items incluidos
             CompletableFuture<String> pdfFactura = pdfAsyncService.generarFacturaPdfAsync(factura);
@@ -164,7 +141,7 @@ public class NotificacionAsyncService {
             // Esperar que el PDF se genere
             String rutaPdf = pdfFactura.get();
             
-            System.out.println("✅ Factura " + factura.getCodigo() + " procesada exitosamente");
+            System.out.println("✅ Factura " + factura.getNumeroFactura() + " procesada exitosamente");
             System.out.println("📄 PDF generado: " + rutaPdf);
             
             return CompletableFuture.completedFuture(true);
@@ -176,26 +153,16 @@ public class NotificacionAsyncService {
     }
 
     /**
-     * Procesa un pago confirmado generando comprobante
+     * Procesa un evento confirmado
      */
     @Async
-    public CompletableFuture<Boolean> procesarPagoConfirmado(PagoEntity pago) {
+    public CompletableFuture<Boolean> procesarEventoConfirmado() {
         try {
-            System.out.println("🔄 Procesando pago confirmado: " + pago.getId());
-            
-            // 1. Generar PDF del comprobante de pago
-            CompletableFuture<String> pdfComprobante = pdfAsyncService.generarPdfComprobantePago(pago);
-            
-            // Esperar que el PDF se genere
-            String rutaPdf = pdfComprobante.get();
-            
-            System.out.println("✅ Pago procesado exitosamente");
-            System.out.println("📄 Comprobante generado: " + rutaPdf);
-            
+            System.out.println("🔄 Procesando evento confirmado");
+            System.out.println("✅ Evento procesado exitosamente");
             return CompletableFuture.completedFuture(true);
-            
         } catch (Exception e) {
-            System.err.println("❌ Error procesando pago: " + e.getMessage());
+            System.err.println("❌ Error procesando evento: " + e.getMessage());
             return CompletableFuture.failedFuture(e);
         }
     }

@@ -11,6 +11,7 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.uptc.queenscorner.models.entities.FacturaEntity;
 import com.uptc.queenscorner.models.entities.LineaFacturaEntity;
+import com.uptc.queenscorner.models.entities.ClienteEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -113,11 +114,12 @@ public class FacturaPdfGeneratorService {
         labelCell.add(new Paragraph("Teléfono: ").setBold().setFontSize(10));
 
         Cell dataCell = new Cell();
-        dataCell.add(new Paragraph(factura.getNegocio().getNombreCliente()).setFontSize(10));
-        dataCell.add(new Paragraph(factura.getNegocio().getRutCliente()).setFontSize(10));
-        dataCell.add(new Paragraph(factura.getNegocio().getNombreCliente()).setFontSize(10));
-        dataCell.add(new Paragraph(factura.getNegocio().getEmailCliente()).setFontSize(10));
-        dataCell.add(new Paragraph(factura.getNegocio().getTelefonoCliente()).setFontSize(10));
+        ClienteEntity cliente = factura.getNegocio().getCotizacion().getCliente();
+        dataCell.add(new Paragraph(cliente != null ? cliente.getNombre() : "N/A").setFontSize(10));
+        dataCell.add(new Paragraph(cliente != null ? cliente.getDocumento() : "N/A").setFontSize(10));
+        dataCell.add(new Paragraph(cliente != null ? cliente.getNombre() : "N/A").setFontSize(10));
+        dataCell.add(new Paragraph(cliente != null ? cliente.getEmail() : "N/A").setFontSize(10));
+        dataCell.add(new Paragraph(cliente != null ? cliente.getTelefono() : "N/A").setFontSize(10));
 
         clienteTable.addCell(labelCell);
         clienteTable.addCell(dataCell);

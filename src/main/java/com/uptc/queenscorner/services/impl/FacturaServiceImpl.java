@@ -196,11 +196,12 @@ public class FacturaServiceImpl implements IFacturaService {
         response.setFechaEmision(factura.getFechaEmision());
         response.setFechaVencimiento(factura.getFechaVencimiento());
 
-        response.setNombreNegocio(factura.getNegocio().getNombreNegocio());
-        response.setNombreCliente(factura.getNegocio().getNombreCliente());
-        response.setRutCliente(factura.getNegocio().getRutCliente());
-        response.setEmailCliente(factura.getNegocio().getEmailCliente());
-        response.setTelefonoCliente(factura.getNegocio().getTelefonoCliente());
+        response.setNombreNegocio(factura.getNegocio().getCodigo());
+        ClienteEntity cliente = factura.getNegocio().getCotizacion().getCliente();
+        response.setNombreCliente(cliente != null ? cliente.getNombre() : "N/A");
+        response.setRutCliente(cliente != null ? cliente.getDocumento() : "N/A");
+        response.setEmailCliente(cliente != null ? cliente.getEmail() : "N/A");
+        response.setTelefonoCliente(cliente != null ? cliente.getTelefono() : "N/A");
 
         response.setAnticipo(factura.getAnticipo());
         response.setSubtotalItems(factura.getSubtotalItems());

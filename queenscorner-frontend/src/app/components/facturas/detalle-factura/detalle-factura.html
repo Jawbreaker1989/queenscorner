@@ -1,0 +1,97 @@
+<div class="container" *ngIf="factura">
+  <div class="header">
+    <h1>Factura {{ factura.numeroFactura }}</h1>
+    <div class="actions">
+      <button *ngIf="factura.pdfGenerado" (click)="descargarPdf()" class="btn">
+        Descargar PDF
+      </button>
+      <button *ngIf="factura.estado === 'BORRADOR'" (click)="emitirFactura()" class="btn btn-primary">
+        Emitir Factura
+      </button>
+    </div>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-section">
+      <h3>Información General</h3>
+      <p><strong>Número:</strong> {{ factura.numeroFactura }}</p>
+      <p><strong>Fecha Emisión:</strong> {{ factura.fechaEmision | date:'short' }}</p>
+      <p><strong>Fecha Vencimiento:</strong> {{ factura.fechaVencimiento | date:'short' }}</p>
+      <p><strong>Estado:</strong> <span [ngClass]="'estado-' + factura.estado.toLowerCase()">{{ factura.estado }}</span></p>
+    </div>
+
+    <div class="info-section">
+      <h3>Cliente</h3>
+      <p><strong>Razón Social:</strong> {{ factura.nombreCliente }}</p>
+      <p><strong>RUT:</strong> {{ factura.rutCliente }}</p>
+      <p><strong>Email:</strong> {{ factura.emailCliente }}</p>
+      <p><strong>Teléfono:</strong> {{ factura.telefonoCliente }}</p>
+    </div>
+  </div>
+
+  <div class="info-section">
+    <h3>Medio de Pago</h3>
+    <p><strong>Tipo:</strong> {{ factura.medioPago }}</p>
+    <p *ngIf="factura.referenciaPago"><strong>Referencia:</strong> {{ factura.referenciaPago }}</p>
+  </div>
+
+  <div class="lineas-section">
+    <h3>Líneas de Factura</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>V. Unitario</th>
+          <th>V. Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let linea of factura.lineas">
+          <td>{{ linea.numeroLinea }}</td>
+          <td>{{ linea.descripcion }}</td>
+          <td>{{ linea.cantidad }}</td>
+          <td>{{ linea.valorUnitario | currency }}</td>
+          <td>{{ linea.valorLinea | currency }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totales-section">
+    <div class="total-item">
+      <span>Anticipo:</span>
+      <span>{{ factura.anticipo | currency }}</span>
+    </div>
+    <div class="total-item">
+      <span>Subtotal:</span>
+      <span>{{ factura.subtotalItems | currency }}</span>
+    </div>
+    <div class="total-item">
+      <span>Base Gravable:</span>
+      <span>{{ factura.baseGravable | currency }}</span>
+    </div>
+    <div class="total-item">
+      <span>IVA 19%:</span>
+      <span>{{ factura.iva19 | currency }}</span>
+    </div>
+    <div class="total-item total">
+      <span>TOTAL A PAGAR:</span>
+      <span>{{ factura.totalAPagar | currency }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="factura.notas" class="info-section">
+    <h3>Notas</h3>
+    <p>{{ factura.notas }}</p>
+  </div>
+</div>
+
+<div *ngIf="loading" class="loading">
+  Cargando factura...
+</div>
+
+<div *ngIf="error" class="error-message">
+  {{ error }}
+</div>

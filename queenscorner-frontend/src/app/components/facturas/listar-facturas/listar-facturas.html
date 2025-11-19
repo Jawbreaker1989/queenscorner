@@ -1,0 +1,63 @@
+<div class="container">
+  <div class="header">
+    <h1>Facturas</h1>
+    <a routerLink="/facturas/crear" class="btn-create">+ Nueva Factura</a>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Cargando facturas...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <table *ngIf="!loading && facturas.length > 0" class="table">
+    <thead>
+      <tr>
+        <th>Número</th>
+        <th>Cliente</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Estado</th>
+        <th>PDF</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let factura of facturas">
+        <td>{{ factura.numeroFactura }}</td>
+        <td>{{ factura.nombreCliente }}</td>
+        <td>{{ factura.fechaEmision | date:'short' }}</td>
+        <td>{{ factura.totalAPagar | currency }}</td>
+        <td>
+          <span [ngClass]="'estado-' + factura.estado.toLowerCase()">
+            {{ factura.estado }}
+          </span>
+        </td>
+        <td>
+          <button *ngIf="factura.pdfGenerado" 
+                  (click)="descargarPdf(factura.rutaPdf)"
+                  class="btn-small">
+            Descargar
+          </button>
+          <span *ngIf="!factura.pdfGenerado" class="text-muted">
+            Generando...
+          </span>
+        </td>
+        <td>
+          <a [routerLink]="['/facturas/detalle', factura.id]" class="btn-small">Ver</a>
+          <button *ngIf="factura.estado === 'BORRADOR'" 
+                  (click)="anularFactura(factura.id)"
+                  class="btn-small btn-danger">
+            Anular
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && facturas.length === 0" class="empty-state">
+    No hay facturas registradas
+  </div>
+</div>

@@ -13,10 +13,8 @@ import { ListarNegociosComponent } from './components/negocios/listar-negocios/l
 import { CrearNegocioComponent } from './components/negocios/crear-negocio/crear-negocio';
 import { EditarNegocioComponent } from './components/negocios/editar-negocio/editar-negocio';
 import { DetalleNegocioComponent } from './components/negocios/detalle-negocio/detalle-negocio';
-import { ListarOrdenesComponent } from './components/ordenes-trabajo/listar-ordenes/listar-ordenes';
-import { CrearOrdenComponent } from './components/ordenes-trabajo/crear-orden/crear-orden';
-import { EditarOrdenComponent } from './components/ordenes-trabajo/editar-orden/editar-orden';
-import { DetalleOrdenComponent } from './components/ordenes-trabajo/detalle-orden/detalle-orden';
+import { ListarFacturasComponent } from './components/facturas/listar-facturas/listar-facturas';
+import { DetalleFacturaComponent } from './components/facturas/detalle-factura/detalle-factura';
 import { AuthGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
@@ -54,13 +52,11 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'ordenes-trabajo',
+    path: 'facturas',
     canActivate: [AuthGuard],
     children: [
-      { path: '', component: ListarOrdenesComponent },
-      { path: 'crear', component: CrearOrdenComponent },
-      { path: 'editar/:id', component: EditarOrdenComponent },
-      { path: 'detalle/:id', component: DetalleOrdenComponent }
+      { path: '', component: ListarFacturasComponent },
+      { path: 'detalle/:id', component: DetalleFacturaComponent }
     ]
   },
   { path: '**', redirectTo: 'login' }
