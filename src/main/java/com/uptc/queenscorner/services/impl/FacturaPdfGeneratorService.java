@@ -1,10 +1,8 @@
 package com.uptc.queenscorner.services.impl;
 
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TextAlignment;

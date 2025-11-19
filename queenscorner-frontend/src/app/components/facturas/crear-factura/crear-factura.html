@@ -23,11 +23,11 @@
           <select 
             id="negocio" 
             formControlName="negocioId"
-            (change)="onNegocioChange($event.target.value)"
+            (ngModelChange)="onNegocioChange($event)"
             required>
             <option value="">-- Selecciona un negocio --</option>
             <option *ngFor="let negocio of negocios" [value]="negocio.id">
-              {{ negocio.codigo }} - {{ negocio.cliente?.nombre }}
+              {{ negocio.codigo }} - {{ negocio.cliente.nombre }}
             </option>
           </select>
         </div>

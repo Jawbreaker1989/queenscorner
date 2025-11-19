@@ -68,15 +68,16 @@ export class CrearFacturaComponent implements OnInit {
     });
   }
 
-  onNegocioChange(negocioId: number) {
-    if (!negocioId) {
+  onNegocioChange(negocioId: any) {
+    const id = negocioId ? (typeof negocioId === 'string' ? parseInt(negocioId, 10) : negocioId) : null;
+    if (!id) {
       this.cotizacion = null;
       this.lineas = [];
       return;
     }
 
     // Get negocios's cotización
-    const negocio = this.negocios.find(n => n.id === negocioId);
+    const negocio = this.negocios.find(n => n.id === id);
     if (negocio && negocio.cotizacionId) {
       this.cotizacionesService.obtenerPorId(negocio.cotizacionId).subscribe({
         next: (response: any) => {

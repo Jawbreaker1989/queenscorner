@@ -1,13 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FacturaService } from '../../services/facturas';
-import { Factura } from '../../models/factura.model';
+import { RouterLink } from '@angular/router';
+import { FacturaService } from '../../../services/facturas';
+import { Factura, ApiResponse } from '../../../models/factura.model';
 
 @Component({
   selector: 'app-listar-facturas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './listar-facturas.html',
   styleUrls: ['./listar-facturas.css']
 })
@@ -25,11 +26,11 @@ export class ListarFacturasComponent implements OnInit {
   cargarFacturas() {
     this.loading = true;
     this.facturaService.listarFacturas().subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<Factura[]>) => {
         this.facturas = response.data;
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.error = 'Error al cargar facturas';
         this.loading = false;
         console.error(error);
@@ -43,7 +44,7 @@ export class ListarFacturasComponent implements OnInit {
         next: () => {
           this.cargarFacturas();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error al anular factura', error);
         }
       });

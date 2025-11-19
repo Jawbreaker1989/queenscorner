@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { FacturaService } from '../../services/facturas';
-import { Factura } from '../../models/factura.model';
+import { FacturaService } from '../../../services/facturas';
+import { Factura, ApiResponse } from '../../../models/factura.model';
 
 @Component({
   selector: 'app-detalle-factura',
@@ -30,11 +30,11 @@ export class DetalleFacturaComponent implements OnInit {
 
   cargarFactura(id: number) {
     this.facturaService.obtenerFactura(id).subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<Factura>) => {
         this.factura = response.data;
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.error = 'Error al cargar factura';
         this.loading = false;
         console.error(error);
@@ -51,10 +51,10 @@ export class DetalleFacturaComponent implements OnInit {
   emitirFactura() {
     if (this.factura) {
       this.facturaService.emitirFactura(this.factura.id).subscribe({
-        next: (response) => {
+        next: (response: ApiResponse<Factura>) => {
           this.factura = response.data;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error al emitir factura', error);
         }
       });
@@ -64,10 +64,10 @@ export class DetalleFacturaComponent implements OnInit {
   cambiarEstado(estado: string) {
     if (this.factura) {
       this.facturaService.cambiarEstado(this.factura.id, estado).subscribe({
-        next: (response) => {
+        next: (response: ApiResponse<Factura>) => {
           this.factura = response.data;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error al cambiar estado', error);
         }
       });
