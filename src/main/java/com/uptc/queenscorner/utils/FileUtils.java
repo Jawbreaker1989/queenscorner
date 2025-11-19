@@ -6,13 +6,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Utilidad para gestionar rutas y creación de directorios para almacenamiento de PDFs
+ * Actualmente soporta:
+ * - Cotizaciones (generación async)
+ * - Facturas (generación async)
+ */
 public class FileUtils {
 
-    // Directorio base para almacenamiento de PDFs organizados por tipo de documento
+    // Directorio base para almacenamiento de PDFs
     private static final String BASE_DIR = "D:" + File.separator + "queenscorner" + File.separator + "queenscornerarchives";
 
     /**
-     * Crea un directorio si no existe - Esencial para el flujo async de PDFs
+     * Crea un directorio si no existe
      */
     public static void crearDirectorioSiNoExiste(String rutaDirectorio) {
         try {
@@ -37,13 +43,6 @@ public class FileUtils {
      */
     public static String getRutaFacturas() {
         return BASE_DIR + File.separator + "facturas";
-    }
-
-    /**
-     * Obtiene la ruta completa para PDFs de notificaciones
-     */
-    public static String getRutaNotificaciones() {
-        return BASE_DIR + File.separator + "notificaciones";
     }
 
     /**
@@ -80,28 +79,23 @@ public class FileUtils {
             case "FACTURA":
                 rutaBase = getRutaFacturas();
                 break;
-            case "NOTIFICACION":
-                rutaBase = getRutaNotificaciones();
-                break;
             default:
-                rutaBase = BASE_DIR;
+                throw new IllegalArgumentException("Tipo de documento no soportado: " + tipoDocumento);
         }
         
         return rutaBase + File.separator + nombreArchivo;
     }
 
     /**
-     * Inicializa todos los directorios necesarios para el flujo completo
+     * Inicializa todos los directorios necesarios
      */
     public static void inicializarDirectorios() {
         crearDirectorioSiNoExiste(BASE_DIR);
         crearDirectorioSiNoExiste(getRutaCotizaciones());
         crearDirectorioSiNoExiste(getRutaFacturas());
-        crearDirectorioSiNoExiste(getRutaNotificaciones());
         
         System.out.println("📁 Directorios inicializados:");
         System.out.println("   📄 Cotizaciones: " + getRutaCotizaciones());
         System.out.println("   🧾 Facturas: " + getRutaFacturas());
-        System.out.println("   📧 Notificaciones: " + getRutaNotificaciones());
     }
 }

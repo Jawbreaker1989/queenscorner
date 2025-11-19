@@ -9,8 +9,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Servicio que notifica eventos de cotizaciones y negocios
- * Implementa el flujo: COTIZACIÓN → NEGOCIO → FACTURA
+ * Servicio que procesa eventos asincronos de cotizaciones, negocios y facturas
+ * Responsabilidades:
+ * - Enviar notificaciones de cotizaciones al cliente
+ * - Generar PDFs de cotizaciones aprobadas
+ * - Generar PDFs de facturas creadas
  */
 @Service
 public class NotificacionAsyncService {
@@ -27,54 +30,35 @@ public class NotificacionAsyncService {
     @Async
     public CompletableFuture<Boolean> enviarCotizacionAlCliente(CotizacionEntity cotizacion) {
         try {
-            // Datos del cliente
+            // Validar datos del cliente
             String nombreCliente = cotizacion.getCliente().getNombre();
             String telefono = cotizacion.getCliente().getTelefono();
             String codigo = cotizacion.getCodigo();
-            LocalDateTime horaEnvio = LocalDateTime.now();
             
-            // Validar datos
             if (telefono == null || telefono.trim().isEmpty()) {
                 System.err.println("⚠️ No se puede enviar cotización " + codigo + 
                     ": Cliente sin número de contacto");
                 return CompletableFuture.completedFuture(false);
             }
             
-            // Simular delay de envío (50-200ms)
-            Thread.sleep(100);
-            
-            // REGISTRO DEL LOG DE ENVÍO
+            // Registrar envío
+            LocalDateTime horaEnvio = LocalDateTime.now();
             System.out.println("\n" + "=".repeat(70));
             System.out.println("📱 LOG DE ENVÍO DE COTIZACIÓN");
             System.out.println("=".repeat(70));
             System.out.println("Código Cotización: " + codigo);
             System.out.println("Cliente: " + nombreCliente);
-            System.out.println("Teléfono de Contacto: " + telefono);
+            System.out.println("Teléfono: " + telefono);
             System.out.println("Hora de Envío: " + horaEnvio.format(formatoFecha));
             System.out.println("Método: SMS/WhatsApp");
-            System.out.println("Estado: ✓ ENVIADO EXITOSAMENTE");
+            System.out.println("Estado: ✓ ENVIADO");
             System.out.println("Monto Total: $" + formatearMonto(cotizacion.getTotal()));
-            System.out.println("Validez: " + (cotizacion.getFechaValidez() != null ? 
-                cotizacion.getFechaValidez() : "30 días"));
             System.out.println("=".repeat(70) + "\n");
-            
-            // Mensaje de confirmación
-            String mensaje = String.format(
-                "📤 Cotización %s enviada exitosamente a %s (%s) a las %s",
-                codigo, nombreCliente, telefono, horaEnvio.format(formatoFecha)
-            );
-            
-            System.out.println("✅ " + mensaje);
             
             return CompletableFuture.completedFuture(true);
             
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.err.println("❌ Error en envío de cotización (interrumpido)");
-            return CompletableFuture.failedFuture(e);
         } catch (Exception e) {
             System.err.println("❌ Error enviando cotización: " + e.getMessage());
-            e.printStackTrace();
             return CompletableFuture.failedFuture(e);
         }
     }
@@ -85,22 +69,21 @@ public class NotificacionAsyncService {
             System.out.println("✅ Factura " + factura.getNumeroFactura() + " creada exitosamente");
             return CompletableFuture.completedFuture(true);
         } catch (Exception e) {
+            System.err.println("❌ Error notificando factura: " + e.getMessage());
             return CompletableFuture.failedFuture(e);
         }
     }
 
     /**
-     * Procesa una cotización APROBADA creando el negocio y generando notificaciones
+     * Procesa una cotización APROBADA generando PDF
      */
     @Async
     public CompletableFuture<Boolean> procesarCotizacionAprobada(CotizacionEntity cotizacion) {
         try {
             System.out.println("🔄 Procesando cotización APROBADA: " + cotizacion.getCodigo());
             
-            // 1. Generar PDF de la cotización aprobada
+            // Generar PDF de la cotización aprobada
             CompletableFuture<String> pdfCotizacion = pdfAsyncService.generarPdfCotizacion(cotizacion);
-            
-            // Esperar que la tarea async se complete
             pdfCotizacion.get();
             
             System.out.println("✅ Cotización " + cotizacion.getCodigo() + " procesada exitosamente");
@@ -113,32 +96,15 @@ public class NotificacionAsyncService {
     }
 
     /**
-     * Procesa una orden de trabajo FINALIZADA generando notificaciones
-     */
-    @Async
-    public CompletableFuture<Boolean> procesarCotizacionFinalizada(CotizacionEntity cotizacion) {
-        try {
-            System.out.println("🔄 Procesando cotización FINALIZADA: " + cotizacion.getCodigo());
-            System.out.println("✅ Cotización procesada exitosamente");
-            return CompletableFuture.completedFuture(true);
-        } catch (Exception e) {
-            System.err.println("❌ Error procesando cotización: " + e.getMessage());
-            return CompletableFuture.failedFuture(e);
-        }
-    }
-
-    /**
-     * Procesa una factura creada generando PDF y enviando notificaciones
+     * Procesa una factura creada generando PDF
      */
     @Async
     public CompletableFuture<Boolean> procesarFacturaCreada(FacturaEntity factura) {
         try {
             System.out.println("🔄 Procesando factura: " + factura.getNumeroFactura());
             
-            // 1. Generar PDF de la factura con items incluidos
+            // Generar PDF de la factura con items incluidos
             CompletableFuture<String> pdfFactura = pdfAsyncService.generarFacturaPdfAsync(factura);
-            
-            // Esperar que el PDF se genere
             String rutaPdf = pdfFactura.get();
             
             System.out.println("✅ Factura " + factura.getNumeroFactura() + " procesada exitosamente");
@@ -148,65 +114,6 @@ public class NotificacionAsyncService {
             
         } catch (Exception e) {
             System.err.println("❌ Error procesando factura: " + e.getMessage());
-            return CompletableFuture.failedFuture(e);
-        }
-    }
-
-    /**
-     * Procesa un evento confirmado
-     */
-    @Async
-    public CompletableFuture<Boolean> procesarEventoConfirmado() {
-        try {
-            System.out.println("🔄 Procesando evento confirmado");
-            System.out.println("✅ Evento procesado exitosamente");
-            return CompletableFuture.completedFuture(true);
-        } catch (Exception e) {
-            System.err.println("❌ Error procesando evento: " + e.getMessage());
-            return CompletableFuture.failedFuture(e);
-        }
-    }
-
-    /**
-     * Ejemplo de flujo completo: desde cotización hasta pago
-     */
-    @Async
-    public CompletableFuture<String> ejemploFlujoCompleto() {
-        try {
-            StringBuilder resultado = new StringBuilder();
-            
-            resultado.append("🔄 FLUJO COMPLETO CORREGIDO - INCLUYENDO ITEMS\n");
-            resultado.append("=".repeat(60)).append("\n\n");
-            
-            resultado.append("📄 PASO 1: COTIZACIÓN\n");
-            resultado.append("• Estado inicial: BORRADOR\n");
-            resultado.append("• Incluye items detallados (descripción, cantidad, precio)\n");
-            resultado.append("• Estado final: APROBADA → Genera PDF + Email\n\n");
-            
-            resultado.append("🏢 PASO 2: NEGOCIO\n");
-            resultado.append("• Estado inicial: FINALIZADO (El cliente ya procedió)\n");
-            resultado.append("• Hereda items y totales de la cotización\n");
-            resultado.append("• Estado final: FINALIZADO → Continúa flujo\n\n");
-            
-            resultado.append("🧾 PASO 3: FACTURA\n");
-            resultado.append("• Estado inicial: BORRADOR (Generada automáticamente)\n");
-            resultado.append("• Incluye items en el PDF generado async\n");
-            resultado.append("• Estado final: PAGADA → Proceso completado\n\n");
-            
-            resultado.append("💰 PASO 4: PAGO\n");
-            resultado.append("• Registrado - referencia a items facturados\n");
-            resultado.append("• Genera comprobante de pago con detalle de items\n");
-            resultado.append("• Marca la factura como PAGADA\n\n");
-            
-            resultado.append("✅ FLUJO COMPLETADO CON ÉXITO\n");
-            resultado.append("📋 Estados simplificados y más claros\n");
-            resultado.append("📄 PDFs con contenido completo incluyendo items\n");
-            resultado.append("🔄 Procesamiento asíncrono optimizado\n");
-            
-            System.out.println(resultado.toString());
-            return CompletableFuture.completedFuture(resultado.toString());
-            
-        } catch (Exception e) {
             return CompletableFuture.failedFuture(e);
         }
     }
