@@ -1,5 +1,6 @@
 export interface Factura {
   id: number;
+  negocioId: number;
   numeroFactura: string;
   fechaEmision: Date;
   fechaVencimiento: Date;

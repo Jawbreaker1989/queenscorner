@@ -125,13 +125,19 @@ public class NegocioServiceImpl implements INegocioService {
             request.setFechaFinEstimada(LocalDate.now().plusDays(30));
         }
 
-        // Si no hay presupuesto asignado, usar el 75% del total de la cotización
-        if (request.getPresupuestoAsignado() == null) {
+        // Si no hay anticipo, establecer a 0
+        if (request.getAnticipo() == null) {
+            request.setAnticipo(BigDecimal.ZERO);
+        }
+
+        // Si no hay presupuesto asignado o es 0, usar el 75% del total de la cotización
+        if (request.getPresupuestoAsignado() == null || 
+            request.getPresupuestoAsignado().compareTo(BigDecimal.ZERO) <= 0) {
             request.setPresupuestoAsignado(
                     cotizacion.getTotal().multiply(new BigDecimal("0.75"))
             );
         } else {
-            // Si hay presupuesto asignado, validar que no exceda el 75%
+            // Si hay presupuesto asignado válido (> 0), validar que no exceda el 75%
             validarPresupuestoAsignado(request.getPresupuestoAsignado(), cotizacion.getTotal());
         }
     }

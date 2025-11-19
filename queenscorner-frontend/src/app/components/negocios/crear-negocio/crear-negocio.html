@@ -152,10 +152,11 @@
                 id="anticipo"
                 [(ngModel)]="negocio.anticipo"
                 name="anticipo"
-                placeholder="Monto del anticipo recibido"
+                placeholder="0.00"
                 step="0.01"
                 [disabled]="loading"
-                min="0" />
+                min="0"
+                value="0" />
               <small>Anticipo recibido por la cotización aprobada</small>
             </div>
           </div>

@@ -57,7 +57,7 @@ export class CrearNegocioComponent implements OnInit {
         if (response.success && response.data) {
           // Filtrar solo cotizaciones con estado APROBADA
           this.cotizacionesAprobadas = response.data.filter(
-            (cot) => cot.estado === 'APROBADA' || cot.estado === 'ACEPTADA'
+            (cot) => cot.estado === 'APROBADA'
           );
           
           if (this.cotizacionesAprobadas.length === 0) {
@@ -78,7 +78,7 @@ export class CrearNegocioComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           // Validar que la cotización esté aprobada
-          if (response.data.estado !== 'APROBADA' && response.data.estado !== 'ACEPTADA') {
+          if (response.data.estado !== 'APROBADA') {
             Swal.fire('No permitido', 'Solo se puede crear negocio desde cotización APROBADA', 'warning').then(() => {
               this.router.navigate(['/cotizaciones']);
             });
@@ -130,6 +130,19 @@ export class CrearNegocioComponent implements OnInit {
 
     this.loading = true;
     this.error = '';
+
+    // Asegurar que anticipo tenga un valor válido (por defecto 0)
+    if (this.negocio.anticipo === undefined || this.negocio.anticipo === null) {
+      this.negocio.anticipo = 0;
+    }
+
+    // Limpiar presupuestoAsignado si está vacío para usar el default del backend (75%)
+    if (this.negocio.presupuestoAsignado === undefined || 
+        this.negocio.presupuestoAsignado === null || 
+        this.negocio.presupuestoAsignado === 0 ||
+        (typeof this.negocio.presupuestoAsignado === 'string' && this.negocio.presupuestoAsignado.trim() === '')) {
+      delete this.negocio.presupuestoAsignado;
+    }
 
     this.negociosService.crearDesdeAprobada(this.cotizacionId, this.negocio).subscribe({
       next: (response) => {
