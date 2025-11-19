@@ -6,6 +6,7 @@ import com.uptc.queenscorner.models.dtos.responses.FacturaResponse;
 import com.uptc.queenscorner.models.entities.*;
 import com.uptc.queenscorner.repositories.*;
 import com.uptc.queenscorner.services.IFacturaService;
+import com.uptc.queenscorner.services.async.PdfAsyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -38,7 +39,7 @@ public class FacturaServiceImpl implements IFacturaService {
     private IItemCotizacionRepository itemRepository;
 
     @Autowired
-    private FacturaPdfGeneratorService pdfGeneratorService;
+    private PdfAsyncService pdfAsyncService;
 
     @Override
     @CacheEvict(value = "facturas", allEntries = true)
@@ -125,12 +126,20 @@ public class FacturaServiceImpl implements IFacturaService {
             FacturaEntity factura = facturaRepository.findById(facturaId)
                     .orElseThrow(() -> new BusinessException("Factura no encontrada"));
 
-            String rutaPdf = pdfGeneratorService.generarPdfFactura(factura);
-
-            factura.setRutaPdf(rutaPdf);
-            factura.setPdfGenerado(true);
-            facturaRepository.save(factura);
+            // Usar PdfAsyncService que delega a CompletableFuture
+            pdfAsyncService.generarFacturaPdfAsync(factura)
+                    .thenAccept(rutaPdf -> {
+                        factura.setRutaPdf(rutaPdf);
+                        factura.setPdfGenerado(true);
+                        facturaRepository.save(factura);
+                    })
+                    .exceptionally(ex -> {
+                        System.err.println("Error generando PDF de factura: " + ex.getMessage());
+                        ex.printStackTrace();
+                        return null;
+                    });
         } catch (Exception e) {
+            System.err.println("Error en proceso asincrónico de generación de PDF: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -40,24 +40,10 @@ public class FileUtils {
     }
 
     /**
-     * Obtiene la ruta completa para PDFs de órdenes de trabajo
-     */
-    public static String getRutaOrdenesTrabajo() {
-        return BASE_DIR + File.separator + "ordenes-trabajo";
-    }
-
-    /**
      * Obtiene la ruta completa para PDFs de notificaciones
      */
     public static String getRutaNotificaciones() {
         return BASE_DIR + File.separator + "notificaciones";
-    }
-
-    /**
-     * Obtiene la ruta completa para comprobantes de pago
-     */
-    public static String getRutaComprobantes() {
-        return BASE_DIR + File.separator + "comprobantes-pago";
     }
 
     /**
@@ -72,20 +58,6 @@ public class FileUtils {
      */
     public static String generarNombreFactura(String codigo) {
         return "FAC-" + codigo + ".pdf";
-    }
-
-    /**
-     * Genera nombre de archivo estándar para orden de trabajo
-     */
-    public static String generarNombreOrdenTrabajo(String codigo) {
-        return "OT-" + codigo + ".pdf";
-    }
-
-    /**
-     * Genera nombre de archivo estándar para comprobante de pago
-     */
-    public static String generarNombreComprobante(Long id) {
-        return "PAG-" + id + ".pdf";
     }
 
     /**
@@ -108,12 +80,6 @@ public class FileUtils {
             case "FACTURA":
                 rutaBase = getRutaFacturas();
                 break;
-            case "ORDEN":
-                rutaBase = getRutaOrdenesTrabajo();
-                break;
-            case "PAGO":
-                rutaBase = getRutaComprobantes();
-                break;
             case "NOTIFICACION":
                 rutaBase = getRutaNotificaciones();
                 break;
@@ -131,15 +97,11 @@ public class FileUtils {
         crearDirectorioSiNoExiste(BASE_DIR);
         crearDirectorioSiNoExiste(getRutaCotizaciones());
         crearDirectorioSiNoExiste(getRutaFacturas());
-        crearDirectorioSiNoExiste(getRutaOrdenesTrabajo());
         crearDirectorioSiNoExiste(getRutaNotificaciones());
-        crearDirectorioSiNoExiste(getRutaComprobantes());
         
         System.out.println("📁 Directorios inicializados:");
         System.out.println("   📄 Cotizaciones: " + getRutaCotizaciones());
         System.out.println("   🧾 Facturas: " + getRutaFacturas());
-        System.out.println("   📋 Órdenes: " + getRutaOrdenesTrabajo());
         System.out.println("   📧 Notificaciones: " + getRutaNotificaciones());
-        System.out.println("   💰 Pagos: " + getRutaComprobantes());
     }
 }

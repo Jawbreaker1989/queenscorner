@@ -5,6 +5,10 @@ import com.uptc.queenscorner.models.dtos.requests.EstadoUpdateRequest;
 import com.uptc.queenscorner.models.dtos.responses.ApiResponse;
 import com.uptc.queenscorner.models.dtos.responses.NegocioResponse;
 import com.uptc.queenscorner.services.INegocioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +17,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/negocios")
+@Tag(name = "Negocios", description = "Gestión de negocios y proyectos")
 public class NegocioController {
 
     @Autowired
     private INegocioService negocioService;
 
     @GetMapping
+    @Operation(summary = "Listar todos los negocios", description = "Obtiene el listado completo de negocios del sistema")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de negocios obtenido exitosamente")
+    })
     public ResponseEntity<ApiResponse<List<NegocioResponse>>> getAll() {
         List<NegocioResponse> negocios = negocioService.findAll();
         ApiResponse<List<NegocioResponse>> response = new ApiResponse<>();
@@ -30,7 +39,13 @@ public class NegocioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<NegocioResponse>> getById(@PathVariable Long id) {
+    @Operation(summary = "Obtener negocio por ID", description = "Recupera los detalles de un negocio específico")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Negocio obtenido exitosamente"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Negocio no encontrado")
+    })
+    public ResponseEntity<ApiResponse<NegocioResponse>> getById(
+            @PathVariable @Parameter(description = "ID del negocio") Long id) {
         NegocioResponse negocio = negocioService.findById(id);
         ApiResponse<NegocioResponse> response = new ApiResponse<>();
         response.setSuccess(true);
@@ -41,7 +56,13 @@ public class NegocioController {
     }
 
     @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<ApiResponse<NegocioResponse>> getByCodigo(@PathVariable String codigo) {
+    @Operation(summary = "Obtener negocio por código", description = "Recupera un negocio usando su código único")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Negocio obtenido exitosamente"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Negocio no encontrado")
+    })
+    public ResponseEntity<ApiResponse<NegocioResponse>> getByCodigo(
+            @PathVariable @Parameter(description = "Código del negocio") String codigo) {
         NegocioResponse negocio = negocioService.findByCodigo(codigo);
         ApiResponse<NegocioResponse> response = new ApiResponse<>();
         response.setSuccess(true);

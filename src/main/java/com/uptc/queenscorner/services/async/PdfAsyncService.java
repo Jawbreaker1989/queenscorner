@@ -176,57 +176,103 @@ public class PdfAsyncService {
             // Encabezado de la factura
             document.add(new Paragraph("🧾 FACTURA #" + factura.getNumeroFactura())
                         .setBold().setFontSize(18));
-            document.add(new Paragraph("=".repeat(40)));
-            document.add(new Paragraph("EMISOR: Queen's Corner Gallery"));
+            document.add(new Paragraph("=".repeat(70)));
+            
+            // Información del emisor
+            document.add(new Paragraph("EMISOR: Queen's Corner Gallery").setBold());
             document.add(new Paragraph("NIT: 900.123.456-7"));
             document.add(new Paragraph("DIRECCIÓN: Av. Principal #123, Ciudad"));
             
+            // Información del cliente
             document.add(new Paragraph("\n"));
-            document.add(new Paragraph("CLIENTE: " + factura.getNegocio().getCotizacion().getCliente().getNombre()));
+            document.add(new Paragraph("CLIENTE: " + factura.getNegocio().getCotizacion().getCliente().getNombre()).setBold());
             document.add(new Paragraph("EMAIL: " + factura.getNegocio().getCotizacion().getCliente().getEmail()));
+            document.add(new Paragraph("TELÉFONO: " + (factura.getNegocio().getCotizacion().getCliente().getTelefono() != null ? 
+                factura.getNegocio().getCotizacion().getCliente().getTelefono() : "N/A")));
+            document.add(new Paragraph("DIRECCIÓN: " + (factura.getNegocio().getCotizacion().getCliente().getDireccion() != null ? 
+                factura.getNegocio().getCotizacion().getCliente().getDireccion() : "N/A")));
             
+            // Información de fechas
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("FECHA EMISIÓN: " + factura.getFechaEmision().format(formatoFecha)));
-            document.add(new Paragraph("FECHA VENCIMIENTO: " + factura.getFechaEmision().plusDays(14).format(formatoFecha)));
+            document.add(new Paragraph("FECHA VENCIMIENTO: " + factura.getFechaVencimiento().format(formatoFecha)));
             
+            // Detalles de la factura
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("REFERENCIA: Cotización #" + factura.getCotizacion().getCodigo()));
+            document.add(new Paragraph("NEGOCIO: " + factura.getNegocio().getCodigo()));
+            
+            // Detalle de items
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("DETALLE DE FACTURACIÓN:").setBold());
-            document.add(new Paragraph("-".repeat(25)));
-            document.add(new Paragraph("CANT.  DESCRIPCIÓN            PRECIO UNIT.   SUBTOTAL"));
-            document.add(new Paragraph("-".repeat(60)));
+            document.add(new Paragraph("=".repeat(70)));
+            document.add(new Paragraph(String.format("%-5s %-30s %-10s %-12s %-15s", 
+                "Nº", "DESCRIPCIÓN", "CANTIDAD", "PRECIO UNI.", "SUBTOTAL")));
+            document.add(new Paragraph("-".repeat(70)));
             
             // Obtener items de la cotización
             List<ItemCotizacionEntity> items = factura.getNegocio().getCotizacion().getItems();
             if (items != null && !items.isEmpty()) {
+                int contador = 1;
                 for (ItemCotizacionEntity item : items) {
-                    document.add(new Paragraph(String.format("%-6d %-20s $%-12s $%s",
-                        item.getCantidad(),
-                        truncarTexto(item.getDescripcion(), 20),
-                        formatearMonto(item.getPrecioUnitario()),
-                        formatearMonto(item.getSubtotal())
-                    )));
+                    if (item != null) {
+                        BigDecimal subtotal = item.getPrecioUnitario() != null ? 
+                            item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad() != null ? item.getCantidad() : 0)) :
+                            BigDecimal.ZERO;
+                        
+                        document.add(new Paragraph(String.format("%-5d %-30s %-10d $%-11s $%s",
+                            contador,
+                            truncarTexto(item.getDescripcion() != null ? item.getDescripcion() : "N/A", 30),
+                            item.getCantidad() != null ? item.getCantidad() : 0,
+                            formatearMonto(item.getPrecioUnitario() != null ? item.getPrecioUnitario() : BigDecimal.ZERO),
+                            formatearMonto(subtotal)
+                        )));
+                        contador++;
+                    }
                 }
             }
             
+            document.add(new Paragraph("=".repeat(70)));
+            
+            // Resumen financiero
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("RESUMEN FINANCIERO:").setBold());
-            document.add(new Paragraph("-".repeat(20)));
-            document.add(new Paragraph("Subtotal: $" + formatearMonto(factura.getSubtotalItems())));
-            document.add(new Paragraph("IVA (19%): $" + formatearMonto(factura.getIva19())));
-            document.add(new Paragraph("TOTAL A PAGAR: $" + formatearMonto(factura.getTotalAPagar())).setBold());
+            document.add(new Paragraph(String.format("%-45s %s", "Subtotal:", "$" + formatearMonto(factura.getSubtotalItems()))));
+            document.add(new Paragraph(String.format("%-45s %s", "Anticipo:", "$" + formatearMonto(factura.getAnticipo()))));
+            document.add(new Paragraph(String.format("%-45s %s", "Base Gravable:", "$" + formatearMonto(factura.getBaseGravable()))));
+            document.add(new Paragraph(String.format("%-45s %s", "IVA (19%):", "$" + formatearMonto(factura.getIva19()))));
+            document.add(new Paragraph(String.format("%-45s %s", "TOTAL A PAGAR:", "$" + formatearMonto(factura.getTotalAPagar()))).setBold());
             
+            // Información de pago
             document.add(new Paragraph("\n"));
-            document.add(new Paragraph("INFORMACIÓN DE PAGO:").setBold());
-            document.add(new Paragraph("-".repeat(20)));
-            document.add(new Paragraph("Banco: Banco Nacional"));
-            document.add(new Paragraph("Cuenta: 123-456789-01"));
-            document.add(new Paragraph("Tipo: Cuenta Corriente"));
-            document.add(new Paragraph("Referencia: " + factura.getNumeroFactura()));
+            document.add(new Paragraph("CONDICIONES DE PAGO:").setBold());
+            if (factura.getCondicionesPago() != null && !factura.getCondicionesPago().isEmpty()) {
+                document.add(new Paragraph(factura.getCondicionesPago()));
+            } else {
+                document.add(new Paragraph("• Plazo: 14 días desde la emisión"));
+                document.add(new Paragraph("• Medio de Pago: " + factura.getMedioPago().getDescripcion()));
+            }
             
+            // Estado de la factura
             document.add(new Paragraph("\n"));
             document.add(new Paragraph("ESTADO: " + factura.getEstado()).setBold());
             
+            if (factura.getNotas() != null && !factura.getNotas().isEmpty()) {
+                document.add(new Paragraph("\nNOTAS:"));
+                document.add(new Paragraph(factura.getNotas()));
+            }
+            
+            document.add(new Paragraph("\n\n"));
+            document.add(new Paragraph("_".repeat(70)));
+            document.add(new Paragraph("Autorizado por:     ___________________     Fecha: ___________________"));
+            document.add(new Paragraph("Cliente:            ___________________     Fecha: ___________________"));
+            
+            System.out.println("✓ PDF FACTURA generado exitosamente con " + 
+                (items != null ? items.size() : 0) + " items");
+            
         } catch (Exception e) {
+            System.err.println("✗ Error generando PDF de factura: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Error generando PDF de factura", e);
         }
     }

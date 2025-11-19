@@ -8,6 +8,10 @@ import com.uptc.queenscorner.services.ICotizacionService;
 import com.uptc.queenscorner.services.async.PdfAsyncService;
 import com.uptc.queenscorner.services.async.NotificacionAsyncService;
 import com.uptc.queenscorner.repositories.ICotizacionRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/cotizaciones")
+@Tag(name = "Cotizaciones", description = "Gestión de cotizaciones y presupuestos")
 public class CotizacionController {
 
     @Autowired
@@ -31,6 +36,10 @@ public class CotizacionController {
     private ICotizacionRepository cotizacionRepository;
 
     @GetMapping
+    @Operation(summary = "Listar todas las cotizaciones", description = "Obtiene el listado completo de cotizaciones del sistema")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado de cotizaciones obtenido exitosamente")
+    })
     public ResponseEntity<ApiResponse<List<CotizacionResponse>>> getAll() {
         List<CotizacionResponse> cotizaciones = cotizacionService.findAll();
         ApiResponse<List<CotizacionResponse>> response = new ApiResponse<>();
@@ -42,7 +51,13 @@ public class CotizacionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CotizacionResponse>> getById(@PathVariable Long id) {
+    @Operation(summary = "Obtener cotización por ID", description = "Recupera los detalles de una cotización específica")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cotización obtenida exitosamente"),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Cotización no encontrada")
+    })
+    public ResponseEntity<ApiResponse<CotizacionResponse>> getById(
+            @PathVariable @Parameter(description = "ID de la cotización") Long id) {
         CotizacionResponse cotizacion = cotizacionService.findById(id);
         ApiResponse<CotizacionResponse> response = new ApiResponse<>();
         response.setSuccess(true);
