@@ -15,7 +15,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
-            "clientes", "cotizaciones", "negocios", "ordenesTrabajo", "facturas", "catalogos"
+            "clientes", "cotizaciones", "negocios", "facturas", "catalogos"
         );
         cacheManager.setCaffeine(caffeineCacheBuilder());
         return cacheManager;

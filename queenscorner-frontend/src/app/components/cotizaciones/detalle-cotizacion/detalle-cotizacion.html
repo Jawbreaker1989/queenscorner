@@ -5,9 +5,6 @@
       <p class="subtitle">Ver y gestionar cotización</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-negocio" (click)="crearNegocio()" [disabled]="!cotizacion || cotizacion.estado !== 'APROBADA' || loading" [title]="cotizacion && cotizacion.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Crear Negocio'">
-        💼 Crear Negocio
-      </button>
       <button class="btn btn-pdf" (click)="generarPdf()" [disabled]="!cotizacion || cotizacion.estado !== 'APROBADA' || loading || pdfGenerando || pdfGenerado" [title]="pdfGenerado ? 'PDF ya generado' : pdfGenerando ? 'Generando PDF...' : cotizacion && cotizacion.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">
         📄 Generar PDF
       </button>

@@ -129,16 +129,6 @@ export class DetalleNegocioComponent implements OnInit {
     this.router.navigate(['/negocios/editar', this.negocio?.id]);
   }
 
-  crearOrden(): void {
-    if (this.negocio?.estado !== 'FINALIZADO') {
-      Swal.fire('Error', 'Solo se pueden crear órdenes desde negocios finalizados', 'error');
-      return;
-    }
-    this.router.navigate(['/ordenes-trabajo/crear'], {
-      queryParams: { negocioId: this.negocio?.id }
-    });
-  }
-
   formatearFecha(fecha?: string): string {
     if (!fecha) return '-';
     try {

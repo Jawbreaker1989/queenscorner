@@ -44,6 +44,7 @@ export interface NegocioResponse {
   fechaFinEstimada?: string;
   presupuestoAsignado?: number;
   anticipo?: number;
+  saldoPendiente?: number; // READ-ONLY: totalCotizacion - anticipo
   responsable?: string;
   descripcion: string;
   observaciones?: string;

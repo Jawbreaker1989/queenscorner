@@ -188,17 +188,12 @@ public class NotificacionAsyncService {
             resultado.append("• Hereda items y totales de la cotización\n");
             resultado.append("• Estado final: FINALIZADO → Continúa flujo\n\n");
             
-            resultado.append("🛠️ PASO 3: ORDEN TRABAJO\n");
-            resultado.append("• Estado inicial: EN_PROCESO (En taller/producción)\n");
-            resultado.append("• Usa items como guía de trabajo/producción\n");
-            resultado.append("• Estado final: FINALIZADA → Genera PDF + Notificación\n\n");
-            
-            resultado.append("🧾 PASO 4: FACTURA\n");
-            resultado.append("• Estado inicial: PENDIENTE (Generada, esperando pago)\n");
+            resultado.append("🧾 PASO 3: FACTURA\n");
+            resultado.append("• Estado inicial: BORRADOR (Generada automáticamente)\n");
             resultado.append("• Incluye items en el PDF generado async\n");
             resultado.append("• Estado final: PAGADA → Proceso completado\n\n");
             
-            resultado.append("💰 PASO 5: PAGO\n");
+            resultado.append("💰 PASO 4: PAGO\n");
             resultado.append("• Registrado - referencia a items facturados\n");
             resultado.append("• Genera comprobante de pago con detalle de items\n");
             resultado.append("• Marca la factura como PAGADA\n\n");

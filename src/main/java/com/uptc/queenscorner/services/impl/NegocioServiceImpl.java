@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,17 +58,9 @@ public class NegocioServiceImpl implements INegocioService {
         CotizacionEntity cotizacion = cotizacionRepository.findById(request.getCotizacionId())
                 .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
 
-        // APLICAR DEFAULTS INTELIGENTES
-        aplicarDefaultsInteligentesNegocio(request, cotizacion);
-
         NegocioEntity negocio = new NegocioEntity();
         negocio.setCotizacion(cotizacion);
         negocio.setCodigo(generarCodigoNegocio());
-        
-        // Asignar presupuesto desde la request (ya validado en aplicarDefaults)
-        if (request.getPresupuestoAsignado() != null) {
-            negocio.setPresupuestoAsignado(request.getPresupuestoAsignado());
-        }
         
         // POBLAR DATOS DESNORMALIZADOS DE COTIZACIÓN
         negocioMapper.populateDesnormalizedFields(negocio, cotizacion);
@@ -109,70 +100,6 @@ public class NegocioServiceImpl implements INegocioService {
         return create(request);
     }
 
-    private void aplicarDefaultsInteligentesNegocio(NegocioRequest request, CotizacionEntity cotizacion) {
-        // Si no hay descripción, usar la de la cotización
-        if (request.getDescripcion() == null || request.getDescripcion().trim().isEmpty()) {
-            String descCotizacion = cotizacion.getDescripcion() != null ? cotizacion.getDescripcion() : "Negocio";
-            request.setDescripcion("Negocio para: " + descCotizacion);
-        }
-
-        // Si no hay observaciones, crear básicas
-        if (request.getObservaciones() == null || request.getObservaciones().trim().isEmpty()) {
-            request.setObservaciones("Negocio iniciado correctamente");
-        }
-
-        // Si no hay fecha inicio, usar hoy
-        if (request.getFechaInicio() == null) {
-            request.setFechaInicio(LocalDate.now());
-        }
-
-        // Si no hay fecha fin estimada, poner 30 días
-        if (request.getFechaFinEstimada() == null) {
-            request.setFechaFinEstimada(LocalDate.now().plusDays(30));
-        }
-
-        // ANTICIPO: Es un campo exclusivo del Negocio (no viene de cotización)
-        // Si no se proporciona, se establece a 0
-        if (request.getAnticipo() == null) {
-            request.setAnticipo(BigDecimal.ZERO);
-        }
-
-        // Si no hay presupuesto asignado o es 0, usar el saldo disponible después de descontar anticipo
-        if (request.getPresupuestoAsignado() == null || 
-            request.getPresupuestoAsignado().compareTo(BigDecimal.ZERO) <= 0) {
-            BigDecimal totalCotizacion = cotizacion.getTotal() != null ? cotizacion.getTotal() : BigDecimal.ZERO;
-            BigDecimal anticipoEffectivo = request.getAnticipo() != null ? request.getAnticipo() : BigDecimal.ZERO;
-            // Presupuesto default = Total - Anticipo (todo lo disponible después del anticipo)
-            request.setPresupuestoAsignado(
-                    totalCotizacion.subtract(anticipoEffectivo)
-            );
-        } else {
-            // Si hay presupuesto asignado válido (> 0), validar que no exceda el límite
-            validarPresupuestoAsignado(request.getPresupuestoAsignado(), cotizacion.getTotal(), request.getAnticipo());
-        }
-    }
-
-    private void validarPresupuestoAsignado(BigDecimal presupuestoAsignado, BigDecimal totalCotizacion, BigDecimal anticipo) {
-        if (presupuestoAsignado == null || totalCotizacion == null) {
-            return;
-        }
-        
-        // El anticipo es el monto ya pagado/reservado
-        // El presupuesto asignado NO puede exceder: Total - Anticipo
-        BigDecimal anticipoEffectivo = anticipo != null ? anticipo : BigDecimal.ZERO;
-        BigDecimal limitePresupuesto = totalCotizacion.subtract(anticipoEffectivo);
-        
-        // Validar que no exceda el límite
-        if (presupuestoAsignado.compareTo(limitePresupuesto) > 0) {
-            throw new RuntimeException(
-                    "El presupuesto asignado no puede exceder el saldo disponible. " +
-                    "Máximo permitido: $" + limitePresupuesto.setScale(2, java.math.RoundingMode.HALF_UP) + 
-                    " (Total cotización: $" + totalCotizacion.setScale(2, java.math.RoundingMode.HALF_UP) + 
-                    " - Anticipo: $" + anticipoEffectivo.setScale(2, java.math.RoundingMode.HALF_UP) + ")"
-            );
-        }
-    }
-
     private String generarCodigoNegocio() {
         return "NEG-" + System.currentTimeMillis();
     }
@@ -182,12 +109,6 @@ public class NegocioServiceImpl implements INegocioService {
     public NegocioResponse update(Long id, NegocioRequest request) {
         NegocioEntity negocio = negocioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
-
-        // Validar presupuesto asignado si se está actualizando
-        if (request.getPresupuestoAsignado() != null) {
-            validarPresupuestoAsignado(request.getPresupuestoAsignado(), 
-                    negocio.getTotalCotizacion(), negocio.getAnticipo());
-        }
 
         negocioMapper.updateEntityFromRequest(request, negocio);
         negocio.setFechaActualizacion(LocalDateTime.now());

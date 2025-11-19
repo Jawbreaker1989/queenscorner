@@ -136,13 +136,11 @@
                 id="presupuestoAsignado"
                 [(ngModel)]="negocio.presupuestoAsignado"
                 name="presupuestoAsignado"
-                placeholder="Dejar vacío para usar 75% del total"
+                placeholder="Monto del presupuesto asignado"
                 step="0.01"
                 [disabled]="loading"
                 min="0" />
-              <small *ngIf="cotizacion">
-                Máximo permitido: ${{ (cotizacion.total - (negocio.anticipo || 0)) | number:'1.2-2' }} (Total: ${{ cotizacion.total | number:'1.2-2' }} - Anticipo: ${{ (negocio.anticipo || 0) | number:'1.2-2' }})
-              </small>
+              <small>Presupuesto disponible para el negocio</small>
             </div>
 
             <div class="form-group">
@@ -158,6 +156,19 @@
                 min="0"
                 value="0" />
               <small>Anticipo recibido por la cotización aprobada</small>
+            </div>
+
+            <div class="form-group">
+              <label for="saldoPendiente">Saldo Pendiente</label>
+              <input
+                type="number"
+                id="saldoPendiente"
+                [value]="(cotizacion?.total || 0) - (negocio.anticipo || 0)"
+                name="saldoPendiente"
+                step="0.01"
+                disabled
+                readonly />
+              <small>Monto pendiente (total cotización - anticipo)</small>
             </div>
           </div>
 

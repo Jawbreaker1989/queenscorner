@@ -5,9 +5,6 @@
       <p class="subtitle">Gestiona todos tus negocios desde cotizaciones aprobadas</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="crearNegocio()">
-        ➕ Nuevo Negocio
-      </button>
       <button class="btn btn-secondary" (click)="volver()">
         ← Volver
       </button>
@@ -28,7 +25,6 @@
     <div *ngIf="!loading && negocios.length === 0 && !error" class="vacio">
       <p>No hay negocios registrados</p>
       <p class="info-vacio">Los negocios se crean desde cotizaciones aprobadas</p>
-      <button class="btn btn-primary" (click)="crearNegocio()">Crear primer negocio</button>
     </div>
 
     <div *ngIf="!loading && negocios.length > 0" class="tabla-contenedor">
@@ -46,7 +42,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let negocio of negocios" class="fila">
+          <tr *ngFor="let negocio of negocios" class="fila" (dblclick)="verDetalle(negocio.id)">
             <td class="codigo">{{ negocio.codigo }}</td>
             <td class="cotizacion">
               <a href="#" (click)="$event.preventDefault()" title="Cotización de origen">
@@ -56,7 +52,7 @@
             <td class="cliente">{{ negocio.cliente.nombre }}</td>
             <td class="presupuesto">
               <span class="monto">${{ negocio.presupuestoAsignado | number: '1.2-2' }}</span>
-              <span class="disponible">(${{ (negocio.presupuestoAsignado || 0) - (negocio.anticipo || 0) | number: '1.2-2' }} disp.)</span>
+              <span class="saldo-pendiente">(${{ negocio.saldoPendiente | number: '1.2-2' }} saldo)</span>
             </td>
             <td class="estado">
               <span [ngClass]="getEstadoColor(negocio.estado)" class="badge">

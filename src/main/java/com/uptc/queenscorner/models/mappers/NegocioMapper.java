@@ -45,6 +45,14 @@ public class NegocioMapper {
         response.setPresupuestoAsignado(entity.getPresupuestoAsignado());
         // ANTICIPO: Es un campo exclusivo del Negocio (no viene de cotización)
         response.setAnticipo(entity.getAnticipo());
+        // SALDO PENDIENTE (READ-ONLY): totalCotizacion - anticipo
+        if (entity.getTotalCotizacion() != null && entity.getAnticipo() != null) {
+            response.setSaldoPendiente(entity.getTotalCotizacion().subtract(entity.getAnticipo()));
+        } else if (entity.getTotalCotizacion() != null) {
+            response.setSaldoPendiente(entity.getTotalCotizacion());
+        } else {
+            response.setSaldoPendiente(java.math.BigDecimal.ZERO);
+        }
         response.setDescripcion(entity.getDescripcion());
         response.setObservaciones(entity.getObservaciones());
         response.setResponsable(entity.getResponsable());

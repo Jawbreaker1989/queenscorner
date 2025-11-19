@@ -323,6 +323,18 @@
   color: #6c757d;
 }
 
+.form-group input[readonly] {
+  background-color: #f0f7ff;
+  cursor: not-allowed;
+  color: #0c5460;
+  border-color: #b8daff;
+}
+
+.form-group input[readonly]:focus {
+  border-color: #0c5460;
+  box-shadow: 0 0 0 3px rgba(12, 84, 96, 0.1);
+}
+
 .form-group small {
   display: block;
   margin-top: 5px;

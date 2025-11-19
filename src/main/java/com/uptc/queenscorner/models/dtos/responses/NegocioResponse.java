@@ -30,6 +30,7 @@ public class NegocioResponse {
     private String estado;
     private BigDecimal presupuestoAsignado;
     private BigDecimal anticipo;
+    private BigDecimal saldoPendiente; // READ-ONLY: totalCotizacion - anticipo
     private String responsable;
     private String descripcion;
     private String observaciones;
@@ -96,6 +97,9 @@ public class NegocioResponse {
     
     public BigDecimal getAnticipo() { return anticipo; }
     public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
+    
+    public BigDecimal getSaldoPendiente() { return saldoPendiente; }
+    public void setSaldoPendiente(BigDecimal saldoPendiente) { this.saldoPendiente = saldoPendiente; }
     
     public String getResponsable() { return responsable; }
     public void setResponsable(String responsable) { this.responsable = responsable; }

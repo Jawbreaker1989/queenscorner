@@ -10,7 +10,6 @@ import { CrearCotizacionComponent } from './components/cotizaciones/crear-cotiza
 import { EditarCotizacionComponent } from './components/cotizaciones/editar-cotizacion/editar-cotizacion';
 import { DetalleCotizacionComponent } from './components/cotizaciones/detalle-cotizacion/detalle-cotizacion';
 import { ListarNegociosComponent } from './components/negocios/listar-negocios/listar-negocios';
-import { CrearNegocioComponent } from './components/negocios/crear-negocio/crear-negocio';
 import { EditarNegocioComponent } from './components/negocios/editar-negocio/editar-negocio';
 import { DetalleNegocioComponent } from './components/negocios/detalle-negocio/detalle-negocio';
 import { ListarFacturasComponent } from './components/facturas/listar-facturas/listar-facturas';
@@ -47,7 +46,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: ListarNegociosComponent },
-      { path: 'crear', component: CrearNegocioComponent },
       { path: 'editar/:id', component: EditarNegocioComponent },
       { path: 'detalle/:id', component: DetalleNegocioComponent }
     ]

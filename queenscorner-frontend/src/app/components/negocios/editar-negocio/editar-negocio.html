@@ -65,12 +65,11 @@
                    id="presupuestoAsignado" 
                    [(ngModel)]="negocioForm.presupuestoAsignado" 
                    name="presupuestoAsignado"
+                   placeholder="Monto del presupuesto asignado"
                    step="0.01"
                    min="0"
                    [disabled]="procesando" />
-            <small *ngIf="negocio && negocio.totalCotizacion">
-              Máximo permitido: ${{ (negocio!.totalCotizacion - (negocioForm.anticipo || 0)) | number:'1.2-2' }} (Total: ${{ negocio!.totalCotizacion | number:'1.2-2' }} - Anticipo: ${{ (negocioForm.anticipo || 0) | number:'1.2-2' }})
-            </small>
+            <small>Presupuesto disponible para el negocio</small>
           </div>
 
           <div class="form-group">
@@ -84,6 +83,18 @@
                    placeholder="Monto del anticipo recibido"
                    [disabled]="procesando" />
             <small>Anticipo recibido por la cotización aprobada</small>
+          </div>
+
+          <div class="form-group">
+            <label for="saldoPendiente">Saldo Pendiente</label>
+            <input type="number" 
+                   id="saldoPendiente" 
+                   [value]="negocio.saldoPendiente || 0"
+                   name="saldoPendiente"
+                   step="0.01"
+                   disabled
+                   readonly />
+            <small>Monto pendiente (total cotización - anticipo)</small>
           </div>
         </div>
 

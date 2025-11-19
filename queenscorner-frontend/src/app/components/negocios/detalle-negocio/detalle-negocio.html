@@ -6,7 +6,14 @@
         <h1>💼 Detalle del Negocio</h1>
         <p class="subtitle">Código: <strong>{{ negocio?.codigo }}</strong></p>
       </div>
-      <button class="btn-volver" (click)="volver()">← Volver</button>
+      <div class="header-actions">
+        <button class="btn-editar-header" (click)="editar()" 
+                [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'"
+                [title]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO' ? 'No se puede editar en este estado' : 'Editar negocio'">
+          ✏️ Editar
+        </button>
+        <button class="btn-volver" (click)="volver()">← Volver</button>
+      </div>
     </div>
 
     <!-- SECCIÓN 1: COTIZACIÓN ORIGEN (READ-ONLY) -->
@@ -89,9 +96,9 @@
           <p>${{ negocio?.anticipo | number:'1.2-2' }}</p>
         </div>
         <div class="info-item">
-          <label>Disponible</label>
-          <p [ngClass]="{'warning': (negocio?.presupuestoAsignado! - (negocio?.anticipo || 0)) < 0}">
-            ${{ (negocio?.presupuestoAsignado || 0) - (negocio?.anticipo || 0) | number:'1.2-2' }}
+          <label>Saldo Pendiente</label>
+          <p [ngClass]="{'warning': (negocio?.saldoPendiente || 0) < 0}">
+            ${{ negocio?.saldoPendiente | number:'1.2-2' }}
           </p>
         </div>
         <div class="info-item">
@@ -150,18 +157,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- ACCIONES -->
-    <div class="acciones">
-      <button class="btn-primary" (click)="editar()" 
-              [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'">
-        ✏️ Editar Negocio
-      </button>
-      <button class="btn-success" (click)="crearOrden()" 
-              [disabled]="negocio?.estado !== 'FINALIZADO'">
-        📋 Crear Orden de Trabajo
-      </button>
     </div>
   </div>
 </div>

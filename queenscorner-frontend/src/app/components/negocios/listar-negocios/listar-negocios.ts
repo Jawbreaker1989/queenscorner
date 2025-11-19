@@ -46,10 +46,6 @@ export class ListarNegociosComponent implements OnInit {
     });
   }
 
-  crearNegocio() {
-    this.router.navigate(['/negocios/crear']);
-  }
-
   verDetalle(id: number) {
     this.router.navigate(['/negocios/detalle', id]);
   }

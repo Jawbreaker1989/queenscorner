@@ -25,6 +25,7 @@ export class CrearNegocioComponent implements OnInit {
     observaciones: '',
     fechaInicio: new Date().toISOString().split('T')[0],
     fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    presupuestoAsignado: 0,
     anticipo: 0
   };
 
@@ -121,6 +122,7 @@ export class CrearNegocioComponent implements OnInit {
       observaciones: '',
       fechaInicio: new Date().toISOString().split('T')[0],
       fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      presupuestoAsignado: 0,
       anticipo: 0
     };
   }
@@ -131,16 +133,12 @@ export class CrearNegocioComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    // Asegurar que anticipo tenga un valor válido (por defecto 0)
+    // Asegurar valores válidos
     if (this.negocio.anticipo === undefined || this.negocio.anticipo === null) {
       this.negocio.anticipo = 0;
     }
-
-    // Limpiar presupuestoAsignado si está vacío para usar el default del backend (75%)
-    if (this.negocio.presupuestoAsignado === undefined || 
-        this.negocio.presupuestoAsignado === null || 
-        this.negocio.presupuestoAsignado === 0) {
-      delete this.negocio.presupuestoAsignado;
+    if (this.negocio.presupuestoAsignado === undefined || this.negocio.presupuestoAsignado === null) {
+      this.negocio.presupuestoAsignado = 0;
     }
 
     this.negociosService.crearDesdeAprobada(this.cotizacionId, this.negocio).subscribe({
@@ -185,17 +183,6 @@ export class CrearNegocioComponent implements OnInit {
     if (fin <= inicio) {
       this.error = 'Fecha fin debe ser posterior a fecha inicio';
       return false;
-    }
-    
-    // Validar presupuesto asignado si se especificó
-    if (this.negocio.presupuestoAsignado && this.cotizacion) {
-      // Presupuesto máximo = Total - Anticipo (anticipo es lo ya pagado)
-      const anticipoActual = this.negocio.anticipo || 0;
-      const maxPresupuesto = this.cotizacion.total - anticipoActual;
-      if (this.negocio.presupuestoAsignado > maxPresupuesto) {
-        this.error = `Presupuesto asignado no puede exceder $${maxPresupuesto.toFixed(2)} (Total: $${this.cotizacion.total.toFixed(2)} - Anticipo: $${anticipoActual.toFixed(2)})`;
-        return false;
-      }
     }
     
     return true;
