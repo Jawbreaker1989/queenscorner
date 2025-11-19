@@ -2,14 +2,55 @@
   <div class="form-card">
     <div *ngIf="cargando" class="loading-center">
       <div class="spinner"></div>
-      <p>Cargando cotización...</p>
+      <p>Cargando cotizaciones...</p>
     </div>
 
     <div *ngIf="!cargando">
       <h1>📋 Crear Negocio desde Cotización</h1>
       <p class="subtitle">Genera un nuevo negocio a partir de una cotización aprobada</p>
 
-      <form (ngSubmit)="guardar()" class="formulario">
+      <!-- SECCIÓN: Seleccionar Cotización Aprobada -->
+      <div *ngIf="!cotizacionSeleccionada" class="seccion selection-section">
+        <div class="section-header">
+          <h3>✓ SELECCIONAR COTIZACIÓN APROBADA</h3>
+          <span class="info-label">(Paso 1 de 2)</span>
+        </div>
+
+        <div *ngIf="error" class="error-message">
+          <span class="error-icon">⚠️</span>
+          {{ error }}
+        </div>
+
+        <div *ngIf="cotizacionesAprobadas.length > 0" class="cotizaciones-grid">
+          <div
+            *ngFor="let cot of cotizacionesAprobadas"
+            class="cotizacion-card"
+            (click)="seleccionarCotizacion(cot.id)">
+            <div class="cotizacion-header">
+              <h4>{{ cot.codigo }}</h4>
+              <span class="badge badge-success">{{ cot.estado }}</span>
+            </div>
+            <div class="cotizacion-info">
+              <p><strong>Cliente:</strong> {{ cot.cliente.nombre }}</p>
+              <p><strong>Descripción:</strong> {{ cot.descripcion }}</p>
+              <p class="monto"><strong>Total:</strong> ${{ cot.total | number: '1.2-2' }}</p>
+            </div>
+            <div class="cotizacion-footer">
+              <small>Haz clic para seleccionar</small>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="cotizacionesAprobadas.length === 0" class="empty-state">
+          <p>📭 No hay cotizaciones aprobadas disponibles</p>
+          <button type="button" class="btn btn-secondary" (click)="cancelar()">
+            Volver a Cotizaciones
+          </button>
+        </div>
+      </div>
+
+      <!-- SECCIÓN: Formulario de Negocio (visible solo después de seleccionar cotización) -->
+      <form *ngIf="cotizacionSeleccionada" (ngSubmit)="guardar()" class="formulario">
         <!-- SECCIÓN 1: Información de la Cotización (READ-ONLY) -->
         <div class="seccion read-only-section">
           <div class="section-header">
@@ -48,13 +89,19 @@
             <label>Descripción</label>
             <p class="value">{{ cotizacion.descripcion }}</p>
           </div>
+
+          <div class="select-other-btn">
+            <button type="button" class="btn btn-link" (click)="cambiarCotizacion()">
+              ↪️ Seleccionar otra cotización
+            </button>
+          </div>
         </div>
 
         <!-- SECCIÓN 2: Datos del Negocio (EDITABLES) -->
         <div class="seccion editable-section">
           <div class="section-header">
             <h3>💼 DATOS DEL NEGOCIO</h3>
-            <span class="info-label">(Información a completar)</span>
+            <span class="info-label">(Paso 2 de 2 - Información a completar)</span>
           </div>
 
           <div class="form-row">

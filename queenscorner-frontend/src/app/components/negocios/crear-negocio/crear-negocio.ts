@@ -18,6 +18,7 @@ import Swal from 'sweetalert2';
 export class CrearNegocioComponent implements OnInit {
   cotizacionId: number = 0;
   cotizacion: CotizacionResponse | null = null;
+  cotizacionesAprobadas: CotizacionResponse[] = [];
   negocio: NegocioRequest = {
     cotizacionId: 0,
     descripcion: '',
@@ -30,6 +31,7 @@ export class CrearNegocioComponent implements OnInit {
   loading = false;
   cargando = true;
   error = '';
+  cotizacionSeleccionada = false;
 
   constructor(
     private negociosService: NegociosService,
@@ -44,8 +46,31 @@ export class CrearNegocioComponent implements OnInit {
     if (this.cotizacionId) {
       this.cargarCotizacion();
     } else {
-      this.cargando = false;
+      this.cargarCotizacionesAprobadas();
     }
+  }
+
+  cargarCotizacionesAprobadas() {
+    this.cargando = true;
+    this.cotizacionesService.obtenerTodas().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Filtrar solo cotizaciones con estado APROBADA
+          this.cotizacionesAprobadas = response.data.filter(
+            (cot) => cot.estado === 'APROBADA' || cot.estado === 'ACEPTADA'
+          );
+          
+          if (this.cotizacionesAprobadas.length === 0) {
+            this.error = 'No hay cotizaciones aprobadas disponibles. Por favor, aprueba una cotización primero.';
+          }
+        }
+        this.cargando = false;
+      },
+      error: () => {
+        this.error = 'Error al cargar cotizaciones aprobadas';
+        this.cargando = false;
+      }
+    });
   }
 
   cargarCotizacion() {
@@ -53,7 +78,7 @@ export class CrearNegocioComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           // Validar que la cotización esté aprobada
-          if (response.data.estado !== 'APROBADA') {
+          if (response.data.estado !== 'APROBADA' && response.data.estado !== 'ACEPTADA') {
             Swal.fire('No permitido', 'Solo se puede crear negocio desde cotización APROBADA', 'warning').then(() => {
               this.router.navigate(['/cotizaciones']);
             });
@@ -62,6 +87,7 @@ export class CrearNegocioComponent implements OnInit {
 
           this.cotizacion = response.data;
           this.negocio.cotizacionId = this.cotizacionId;
+          this.cotizacionSeleccionada = true;
           
           // Usar descripción de cotización como default
           if (!this.negocio.descripcion) {
@@ -77,6 +103,26 @@ export class CrearNegocioComponent implements OnInit {
         this.cargando = false;
       }
     });
+  }
+
+  seleccionarCotizacion(cotizacionId: number) {
+    this.cotizacionId = cotizacionId;
+    this.negocio.cotizacionId = cotizacionId;
+    this.cargarCotizacion();
+  }
+
+  cambiarCotizacion() {
+    this.cotizacionSeleccionada = false;
+    this.cotizacion = null;
+    this.error = '';
+    this.negocio = {
+      cotizacionId: 0,
+      descripcion: '',
+      observaciones: '',
+      fechaInicio: new Date().toISOString().split('T')[0],
+      fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      anticipo: 0
+    };
   }
 
   guardar() {
