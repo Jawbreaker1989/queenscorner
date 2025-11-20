@@ -39,12 +39,20 @@ docker login
 
 ## 🚀 Automatización con GitHub Actions
 
-El workflow `docker-publish.yml` se ejecuta automáticamente cuando:
+El workflow se ejecuta automáticamente cuando:
 
 - ✅ Haces push a `main`
 - ✅ Haces push a `feature/factura-creation`
 - ✅ Creas un tag (`git tag v1.0.1`)
 - ✅ Ejecutas manualmente desde Actions
+
+**Para activar el workflow:**
+1. Ve a tu repo → Settings
+2. Personal access tokens (bottom left) → Create new token
+3. Dale scope: `workflow`, `repo`, `write:packages`
+4. Copia el token
+5. En GitHub → Settings → Secrets → `GITHUB_TOKEN` = token copiado
+6. Copia el contenido de `GITHUB_ACTIONS_WORKFLOW.yml` a `.github/workflows/docker-publish.yml`
 
 ### Tagging automático
 
