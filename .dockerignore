@@ -1,0 +1,42 @@
+.dockerignore
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+dist
+build
+
+# Maven
+target
+.m2
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Test
+coverage
+.nyc_output
+
+# Others
+.env
+.env.local
+.env.*.local

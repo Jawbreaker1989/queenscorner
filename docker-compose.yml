@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: queenscorner-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 3856074
+      MYSQL_DATABASE: queens_corner_prod_v2
+      MYSQL_USER: queenscorner_user
+      MYSQL_PASSWORD: qc_pass_2024
+      TZ: America/Bogota
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./src/main/resources/db/migration:/docker-entrypoint-initdb.d
+    networks:
+      - queenscorner-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p3856074"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: queenscorner-api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/queens_corner_prod_v2?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 3856074
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - queenscorner-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (Angular)
+  frontend:
+    build:
+      context: ./queenscorner-frontend
+      dockerfile: Dockerfile
+    container_name: queenscorner-web
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - queenscorner-network
+    environment:
+      API_URL: http://backend:8080
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  queenscorner-network:
+    driver: bridge
