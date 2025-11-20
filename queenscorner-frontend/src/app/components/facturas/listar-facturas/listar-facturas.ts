@@ -72,11 +72,10 @@ export class ListarFacturasComponent implements OnInit {
 
   getEstadoColor(estado: string) {
     const colores: Record<string, string> = {
-      'BORRADOR': 'badge-warning',
+      'EN_REVISION': 'badge-warning',
       'ENVIADA': 'badge-info',
       'PAGADA': 'badge-success',
-      'ANULADA': 'badge-danger',
-      'EMITIDA': 'badge-info'
+      'ANULADA': 'badge-danger'
     };
     return colores[estado] || 'badge-secondary';
   }
@@ -86,20 +85,20 @@ export class ListarFacturasComponent implements OnInit {
   }
 
   emitirFactura(factura: Factura) {
-    if (factura.estado !== 'BORRADOR') {
-      alert('Solo se pueden emitir facturas en estado BORRADOR');
+    if (factura.estado !== 'EN_REVISION') {
+      alert('Solo se pueden enviar facturas en estado EN_REVISION');
       return;
     }
     
-    if (confirm(`¿Emitir factura ${factura.numeroFactura}?`)) {
+    if (confirm(`¿Enviar factura ${factura.numeroFactura}?`)) {
       this.facturaService.emitirFactura(factura.id).subscribe({
         next: () => {
-          alert('Factura emitida correctamente');
+          alert('Factura enviada correctamente');
           this.cargarFacturas();
         },
         error: (error: any) => {
-          console.error('Error al emitir factura', error);
-          alert('Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'));
+          console.error('Error al enviar factura', error);
+          alert('Error al enviar factura: ' + (error?.error?.message || 'Error desconocido'));
         }
       });
     }
@@ -148,14 +147,6 @@ export class ListarFacturasComponent implements OnInit {
       this.router.navigate(['/negocios/detalle', this.negocioId]);
     } else {
       this.router.navigate(['/dashboard']);
-    }
-  }
-
-  crearFactura() {
-    if (this.negocioId) {
-      this.router.navigate(['/facturas/crear'], { queryParams: { negocioId: this.negocioId, negocioNombre: this.negocioNombre } });
-    } else {
-      this.router.navigate(['/facturas/crear']);
     }
   }
 }

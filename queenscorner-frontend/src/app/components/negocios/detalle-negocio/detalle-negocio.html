@@ -8,10 +8,16 @@
       </div>
       <div class="header-actions">
         <button class="btn-facturas-header" 
+                (click)="crearFactura()"
+                *ngIf="negocio?.estado === 'FINALIZADO'"
+                title="Crear factura para este negocio">
+          📋 Nueva Factura
+        </button>
+        <button class="btn-facturas-header" 
                 (click)="irAFacturas()"
                 *ngIf="negocio?.estado === 'FINALIZADO'"
                 title="Ver facturas de este negocio">
-          📄 Facturas
+          📄 Ver Facturas
         </button>
         <button class="btn-editar-header" (click)="editar()" 
                 [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'"

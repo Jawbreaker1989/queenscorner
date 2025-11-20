@@ -133,6 +133,26 @@ export class DetalleNegocioComponent implements OnInit {
     this.router.navigate(['/facturas'], { queryParams: { negocioId: this.negocio?.id, negocioNombre: this.negocio?.codigo } });
   }
 
+  crearFactura(): void {
+    if (!this.negocio) {
+      Swal.fire('Error', 'Negocio no disponible', 'error');
+      return;
+    }
+
+    if (this.negocio.estado !== 'FINALIZADO') {
+      Swal.fire('Error', 'Solo se pueden crear facturas para negocios FINALIZADOS', 'error');
+      return;
+    }
+
+    // Navegar al formulario de crear factura con datos del negocio
+    this.router.navigate(['/facturas/crear'], { 
+      queryParams: { 
+        negocioId: this.negocio.id,
+        negocioNombre: this.negocio.codigo
+      }
+    });
+  }
+
   formatearFecha(fecha?: string): string {
     if (!fecha) return '-';
     try {

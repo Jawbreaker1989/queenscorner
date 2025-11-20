@@ -47,11 +47,10 @@ export class DetalleFacturaComponent implements OnInit {
 
   getEstadoColor(estado: string) {
     const colores: Record<string, string> = {
-      'BORRADOR': 'badge-warning',
+      'EN_REVISION': 'badge-warning',
       'ENVIADA': 'badge-info',
       'PAGADA': 'badge-success',
-      'ANULADA': 'badge-danger',
-      'EMITIDA': 'badge-info'
+      'ANULADA': 'badge-danger'
     };
     return colores[estado] || 'badge-secondary';
   }
@@ -85,20 +84,20 @@ export class DetalleFacturaComponent implements OnInit {
   emitirFactura() {
     if (!this.factura) return;
     
-    if (this.factura.estado !== 'BORRADOR') {
-      alert('Solo se pueden emitir facturas en estado BORRADOR');
+    if (this.factura.estado !== 'EN_REVISION') {
+      alert('Solo se pueden enviar facturas en estado EN_REVISION');
       return;
     }
 
-    if (confirm(`¿Emitir factura ${this.factura.numeroFactura}?`)) {
+    if (confirm(`¿Enviar factura ${this.factura.numeroFactura}?`)) {
       this.facturaService.emitirFactura(this.factura.id).subscribe({
         next: (response: ApiResponse<Factura>) => {
           this.factura = response.data;
-          alert('Factura emitida correctamente');
+          alert('Factura enviada correctamente');
         },
         error: (error: any) => {
-          console.error('Error al emitir factura', error);
-          alert('Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'));
+          console.error('Error al enviar factura', error);
+          alert('Error al enviar factura: ' + (error?.error?.message || 'Error desconocido'));
         }
       });
     }

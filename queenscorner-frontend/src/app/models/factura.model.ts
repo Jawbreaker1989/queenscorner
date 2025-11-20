@@ -34,8 +34,7 @@ export interface LineaFactura {
 }
 
 export enum EstadoFactura {
-  BORRADOR = 'BORRADOR',
-  EMITIDA = 'EMITIDA',
+  EN_REVISION = 'EN_REVISION',
   ENVIADA = 'ENVIADA',
   PAGADA = 'PAGADA',
   ANULADA = 'ANULADA'

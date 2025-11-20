@@ -71,7 +71,7 @@ public class FacturaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoFactura estado = EstadoFactura.BORRADOR;
+    private EstadoFactura estado = EstadoFactura.EN_REVISION;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "medio_pago", nullable = false)
@@ -90,7 +90,7 @@ public class FacturaEntity {
     private String pathPdf;
 
     public enum EstadoFactura {
-        BORRADOR, EMITIDA, ENVIADA, PAGADA, ANULADA
+        EN_REVISION, ENVIADA, PAGADA, ANULADA
     }
 
     public enum MedioPago {
@@ -102,7 +102,7 @@ public class FacturaEntity {
         this.fechaEmision = LocalDateTime.now();
         this.fechaVencimiento = java.time.LocalDate.now();
         this.codigo = "COD-" + System.currentTimeMillis();
-        this.estado = EstadoFactura.BORRADOR;
+        this.estado = EstadoFactura.EN_REVISION;
         this.medioPago = MedioPago.EFECTIVO;
         this.subtotal = BigDecimal.ZERO;
         this.iva = BigDecimal.ZERO;
@@ -133,7 +133,7 @@ public class FacturaEntity {
     }
 
     public boolean puedeSerEnviada() {
-        return this.estado == EstadoFactura.BORRADOR 
+        return this.estado == EstadoFactura.EN_REVISION 
             && !this.lineas.isEmpty() 
             && this.negocio != null;
     }

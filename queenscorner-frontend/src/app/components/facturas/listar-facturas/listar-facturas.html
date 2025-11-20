@@ -8,12 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button *ngIf="!negocioId" class="btn btn-primary" (click)="crearFactura()">
-        ➕ Nueva Factura
-      </button>
-      <button *ngIf="negocioId" class="btn btn-primary" (click)="crearFactura()">
-        ➕ Crear Factura
-      </button>
       <button class="btn btn-secondary" (click)="volver()">
         ← Volver
       </button>
@@ -34,7 +28,7 @@
     <div *ngIf="!loading && facturas.length === 0 && !error" class="vacio">
       <p>No hay facturas registradas</p>
       <p class="info-vacio">
-        <span *ngIf="negocioId">Crea una nueva factura para este negocio</span>
+        <span *ngIf="negocioId">Crea una nueva factura para este negocio desde su detalle</span>
         <span *ngIf="!negocioId">Accede a un negocio para crear facturas</span>
       </p>
     </div>

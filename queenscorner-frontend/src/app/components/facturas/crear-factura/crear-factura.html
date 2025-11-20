@@ -12,18 +12,32 @@
     ✗ {{ error }}
   </div>
 
+  <!-- INDICADOR DE PASOS -->
+  <div class="steps-indicator" *ngIf="paso > 1">
+    <div class="step" [class.active]="paso === 2">
+      <div class="step-number">1</div>
+      <div class="step-label">Información</div>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" [class.active]="paso === 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Items</div>
+    </div>
+  </div>
+
   <form [formGroup]="form" (ngSubmit)="crearFactura()" class="form-container">
-    <!-- SECCIÓN 1: DATOS BÁSICOS -->
-    <div class="form-section">
+    <!-- SECCIÓN 1: DATOS BÁSICOS (NO EDITABLE si viene de queryParams) -->
+    <div class="form-section" *ngIf="paso === 1 || !negocioSeleccionado">
       <h2>Información de la Factura</h2>
 
-      <div class="form-row">
+      <!-- Si NO hay negocio seleccionado, mostrar selector -->
+      <div *ngIf="!negocioSeleccionado" class="form-row">
         <div class="form-group">
           <label for="negocio">Negocio *</label>
           <select 
             id="negocio" 
             formControlName="negocioId"
-            (ngModelChange)="onNegocioChange($event)"
+            (change)="onNegocioChange(form.get('negocioId')?.value)"
             required>
             <option value="">-- Selecciona un negocio --</option>
             <option *ngFor="let negocio of negocios" [value]="negocio.id">
@@ -31,17 +45,45 @@
             </option>
           </select>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label for="cotizacion">Cotización *</label>
-          <input 
-            id="cotizacion" 
-            type="text"
-            [value]="cotizacion?.codigo || 'No seleccionada'"
-            disabled>
+      <!-- Si hay negocio seleccionado, mostrar información NO EDITABLE -->
+      <div *ngIf="negocioSeleccionado" class="negocio-info">
+        <div class="info-box">
+          <div class="info-row">
+            <div class="info-group">
+              <label>Negocio:</label>
+              <p>{{ negocioSeleccionado.codigo }}</p>
+            </div>
+            <div class="info-group">
+              <label>Cliente:</label>
+              <p>{{ negocioSeleccionado.cliente.nombre }}</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-group">
+              <label>Correo:</label>
+              <p>{{ negocioSeleccionado.cliente.email }}</p>
+            </div>
+            <div class="info-group">
+              <label>Teléfono:</label>
+              <p>{{ negocioSeleccionado.cliente.telefono }}</p>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-group">
+              <label>Cotización:</label>
+              <p>{{ cotizacion?.codigo || 'Sin cotización' }}</p>
+            </div>
+            <div class="info-group">
+              <label>Estado:</label>
+              <p class="badge">{{ negocioSeleccionado.estado }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- Campos editables -->
       <div class="form-row">
         <div class="form-group">
           <label for="fechaVencimiento">Fecha de Vencimiento *</label>
@@ -98,10 +140,20 @@
             placeholder="Ej: Pago dentro de 30 días, 50% anticipo, etc."></textarea>
         </div>
       </div>
+
+      <!-- Botón para continuar -->
+      <div class="form-actions" *ngIf="negocioSeleccionado">
+        <button 
+          type="button"
+          (click)="paso = 2"
+          class="btn btn-primary">
+          Continuar →
+        </button>
+      </div>
     </div>
 
     <!-- SECCIÓN 2: LÍNEAS DE FACTURA -->
-    <div class="form-section">
+    <div class="form-section" *ngIf="paso === 2 && negocioSeleccionado">
       <div class="section-header">
         <h2>Líneas de Factura</h2>
         <button type="button" (click)="agregarLinea()" class="btn-secondary">+ Agregar Línea</button>
@@ -162,42 +214,49 @@
           </tbody>
         </table>
       </div>
-    </div>
 
-    <!-- SECCIÓN 3: TOTALES -->
-    <div class="form-section totales-section">
-      <div class="totales-box">
-        <div class="total-row">
-          <span class="label">Subtotal:</span>
-          <span class="value">$ {{ calcularSubtotal() | number: '1.0-2' }}</span>
-        </div>
-        <div class="total-row">
-          <span class="label">IVA 19%:</span>
-          <span class="value">$ {{ calcularIva() | number: '1.0-2' }}</span>
-        </div>
-        <div class="total-row total-final">
-          <span class="label">TOTAL A PAGAR:</span>
-          <span class="value">$ {{ calcularTotal() | number: '1.0-2' }}</span>
+      <!-- SECCIÓN 3: TOTALES -->
+      <div class="form-section totales-section">
+        <div class="totales-box">
+          <div class="total-row">
+            <span class="label">Subtotal:</span>
+            <span class="value">$ {{ calcularSubtotal() | number: '1.0-2' }}</span>
+          </div>
+          <div class="total-row">
+            <span class="label">IVA 19%:</span>
+            <span class="value">$ {{ calcularIva() | number: '1.0-2' }}</span>
+          </div>
+          <div class="total-row total-final">
+            <span class="label">TOTAL A PAGAR:</span>
+            <span class="value">$ {{ calcularTotal() | number: '1.0-2' }}</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- SECCIÓN 4: BOTONES DE ACCIÓN -->
-    <div class="form-actions">
-      <button 
-        type="button" 
-        (click)="cancelar()"
-        class="btn btn-secondary"
-        [disabled]="loading">
-        Cancelar
-      </button>
-      <button 
-        type="submit"
-        class="btn btn-primary"
-        [disabled]="!form.valid || lineas.length === 0 || loading">
-        <span *ngIf="loading">Creando...</span>
-        <span *ngIf="!loading">Crear Factura</span>
-      </button>
+      <!-- SECCIÓN 4: BOTONES DE ACCIÓN -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          (click)="paso = 1"
+          class="btn btn-secondary"
+          [disabled]="loading">
+          ← Atrás
+        </button>
+        <button 
+          type="button" 
+          (click)="cancelar()"
+          class="btn btn-secondary"
+          [disabled]="loading">
+          Cancelar
+        </button>
+        <button 
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!form.valid || lineas.length === 0 || loading">
+          <span *ngIf="loading">Creando...</span>
+          <span *ngIf="!loading">✓ Crear Factura</span>
+        </button>
+      </div>
     </div>
   </form>
 </div>

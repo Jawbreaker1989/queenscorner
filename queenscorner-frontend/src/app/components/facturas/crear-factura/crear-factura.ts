@@ -23,8 +23,11 @@ export class CrearFacturaComponent implements OnInit {
   success = false;
 
   negocios: NegocioResponse[] = [];
+  negocioSeleccionado: NegocioResponse | null = null;
   cotizacion: CotizacionResponse | null = null;
   lineas: LineaFacturaRequest[] = [];
+  
+  paso: number = 1; // 1: Datos básicos (NO editable), 2: Agregar items, 3: Confirmación
 
   medioPagoOptions = [
     { value: 'TRANSFERENCIA', label: 'Transferencia Bancaria' },
@@ -63,7 +66,11 @@ export class CrearFacturaComponent implements OnInit {
         setTimeout(() => {
           this.form.patchValue({ negocioId: negocioId });
           this.onNegocioChange(negocioId);
-        }, 500); // Wait for negocios to load
+          
+          // Deshabilitar campos de negocio una vez cargado
+          this.form.get('negocioId')?.disable();
+          this.paso = 2; // Ir al paso de agregar items
+        }, 500);
       }
     });
   }
@@ -85,12 +92,19 @@ export class CrearFacturaComponent implements OnInit {
     if (!id) {
       this.cotizacion = null;
       this.lineas = [];
+      this.negocioSeleccionado = null;
       return;
     }
 
-    // Get negocios's cotización
+    // Get negocio's data and cotización
     const negocio = this.negocios.find(n => n.id === id);
-    if (negocio && negocio.cotizacionId) {
+    if (!negocio) {
+      return;
+    }
+    
+    this.negocioSeleccionado = negocio;
+    
+    if (negocio.cotizacionId) {
       this.cotizacionesService.obtenerPorId(negocio.cotizacionId).subscribe({
         next: (response: any) => {
           this.cotizacion = response.data;

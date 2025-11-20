@@ -41,8 +41,8 @@ public class FacturaValidationService {
             throw new RuntimeException("Factura no encontrada");
         }
 
-        if (factura.getEstado() != FacturaEntity.EstadoFactura.BORRADOR) {
-            throw new RuntimeException("Solo facturas en estado BORRADOR pueden ser enviadas. Estado actual: " + factura.getEstado());
+        if (factura.getEstado() != FacturaEntity.EstadoFactura.EN_REVISION) {
+            throw new RuntimeException("Solo facturas en estado EN_REVISION pueden ser enviadas. Estado actual: " + factura.getEstado());
         }
 
         if (factura.getLineas() == null || factura.getLineas().isEmpty()) {
@@ -64,8 +64,8 @@ public class FacturaValidationService {
             throw new RuntimeException("Factura no encontrada");
         }
 
-        if (factura.getEstado() != FacturaEntity.EstadoFactura.BORRADOR) {
-            throw new RuntimeException("No se pueden agregar líneas a factura que no está en BORRADOR. Estado actual: " + factura.getEstado());
+        if (factura.getEstado() != FacturaEntity.EstadoFactura.EN_REVISION) {
+            throw new RuntimeException("No se pueden agregar líneas a factura que no está en EN_REVISION. Estado actual: " + factura.getEstado());
         }
     }
 
