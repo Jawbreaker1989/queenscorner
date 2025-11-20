@@ -8,6 +8,12 @@
       </p>
     </div>
     <div class="header-actions">
+      <button *ngIf="!negocioId" class="btn btn-primary" (click)="crearFactura()">
+        ➕ Nueva Factura
+      </button>
+      <button *ngIf="negocioId" class="btn btn-primary" (click)="crearFactura()">
+        ➕ Crear Factura
+      </button>
       <button class="btn btn-secondary" (click)="volver()">
         ← Volver
       </button>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { NegociosService } from '../../../services/negocios';
 import { CotizacionesService } from '../../../services/cotizaciones';
@@ -39,7 +39,8 @@ export class CrearFacturaComponent implements OnInit {
     private facturaService: FacturaService,
     private negociosService: NegociosService,
     private cotizacionesService: CotizacionesService,
-    private router: Router
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {
     this.form = this.fb.group({
       negocioId: [null, Validators.required],
@@ -54,6 +55,17 @@ export class CrearFacturaComponent implements OnInit {
 
   ngOnInit() {
     this.cargarNegocios();
+    
+    // Check if negocioId is passed as query param
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['negocioId']) {
+        const negocioId = parseInt(params['negocioId'], 10);
+        setTimeout(() => {
+          this.form.patchValue({ negocioId: negocioId });
+          this.onNegocioChange(negocioId);
+        }, 500); // Wait for negocios to load
+      }
+    });
   }
 
   cargarNegocios() {

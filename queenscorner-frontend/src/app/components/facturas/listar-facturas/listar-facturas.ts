@@ -152,6 +152,10 @@ export class ListarFacturasComponent implements OnInit {
   }
 
   crearFactura() {
-    this.router.navigate(['/facturas/crear'], { queryParams: { negocioId: this.negocioId } });
+    if (this.negocioId) {
+      this.router.navigate(['/facturas/crear'], { queryParams: { negocioId: this.negocioId, negocioNombre: this.negocioNombre } });
+    } else {
+      this.router.navigate(['/facturas/crear']);
+    }
   }
 }
