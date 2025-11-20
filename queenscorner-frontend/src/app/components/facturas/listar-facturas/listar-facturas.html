@@ -1,63 +1,82 @@
-<div class="container">
+<div class="contenedor">
   <div class="header">
-    <h1>Facturas</h1>
-    <a routerLink="/facturas/crear" class="btn-create">+ Nueva Factura</a>
+    <div class="header-content">
+      <h1>📄 Facturas</h1>
+      <p class="subtitle">
+        <span *ngIf="negocioId">Facturas del negocio</span>
+        <span *ngIf="!negocioId">Todas las facturas emitidas</span>
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="volver()">
+        ← Volver
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="loading">
-    Cargando facturas...
-  </div>
+  <div class="contenido">
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando facturas...</p>
+    </div>
 
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
+    <div *ngIf="error && !loading" class="error">
+      <span class="icon">⚠️</span>
+      {{ error }}
+    </div>
 
-  <table *ngIf="!loading && facturas.length > 0" class="table">
-    <thead>
-      <tr>
-        <th>Número</th>
-        <th>Cliente</th>
-        <th>Fecha</th>
-        <th>Total</th>
-        <th>Estado</th>
-        <th>PDF</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let factura of facturas">
-        <td>{{ factura.numeroFactura }}</td>
-        <td>{{ factura.nombreCliente }}</td>
-        <td>{{ factura.fechaEmision | date:'short' }}</td>
-        <td>{{ factura.totalAPagar | currency }}</td>
-        <td>
-          <span [ngClass]="'estado-' + factura.estado.toLowerCase()">
-            {{ factura.estado }}
-          </span>
-        </td>
-        <td>
-          <button *ngIf="factura.pdfGenerado" 
-                  (click)="descargarPdf(factura.rutaPdf)"
-                  class="btn-small">
-            Descargar
-          </button>
-          <span *ngIf="!factura.pdfGenerado" class="text-muted">
-            Generando...
-          </span>
-        </td>
-        <td>
-          <a [routerLink]="['/facturas/detalle', factura.id]" class="btn-small">Ver</a>
-          <button *ngIf="factura.estado === 'BORRADOR'" 
-                  (click)="anularFactura(factura.id)"
-                  class="btn-small btn-danger">
-            Anular
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+    <div *ngIf="!loading && facturas.length === 0 && !error" class="vacio">
+      <p>No hay facturas registradas</p>
+      <p class="info-vacio">
+        <span *ngIf="negocioId">Crea una nueva factura para este negocio</span>
+        <span *ngIf="!negocioId">Accede a un negocio para crear facturas</span>
+      </p>
+    </div>
 
-  <div *ngIf="!loading && facturas.length === 0" class="empty-state">
-    No hay facturas registradas
+    <div *ngIf="!loading && facturas.length > 0" class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Factura</th>
+            <th>Negocio</th>
+            <th>Cliente</th>
+            <th>Subtotal</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let factura of facturas" class="fila" (dblclick)="verDetalle(factura.id)">
+            <td class="codigo">{{ factura.numeroFactura }}</td>
+            <td class="negocio">{{ factura.nombreNegocio || '-' }}</td>
+            <td class="cliente">{{ factura.nombreCliente }}</td>
+            <td class="monto">${{ factura.subtotalItems | number: '1.2-2' }}</td>
+            <td class="monto-total" [style.font-weight]="'600'">${{ factura.totalAPagar | number: '1.2-2' }}</td>
+            <td class="estado">
+              <span [ngClass]="getEstadoColor(factura.estado)" class="badge">
+                {{ factura.estado }}
+              </span>
+            </td>
+            <td class="fecha">{{ factura.fechaEmision | date: 'dd/MM/yy' }}</td>
+            <td class="acciones">
+              <button class="btn-accion btn-detalle" (click)="verDetalle(factura.id)" title="Ver detalles">
+                👁️
+              </button>
+              <button *ngIf="factura.estado === 'BORRADOR'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
+                📤
+              </button>
+              <button *ngIf="factura.rutaPdf" class="btn-accion btn-descargar" (click)="descargarPdf(factura)" title="Descargar PDF">
+                📥
+              </button>
+              <button class="btn-accion btn-eliminar" (click)="anularFactura(factura.id, factura.numeroFactura)" title="Anular">
+                ❌
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

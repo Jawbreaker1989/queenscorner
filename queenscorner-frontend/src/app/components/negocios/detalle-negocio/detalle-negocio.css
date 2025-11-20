@@ -49,6 +49,25 @@
   padding: 10px 18px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-facturas-header {
+  background: #0066cc;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.btn-facturas-header:hover:not(:disabled) {
+  background: #0052a3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 14px;

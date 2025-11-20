@@ -122,8 +122,28 @@ public class NegocioServiceImpl implements INegocioService {
         NegocioEntity negocio = negocioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Negocio no encontrado"));
 
-        negocio.setEstado(NegocioEntity.EstadoNegocio.valueOf(estado));
-        negocio.setFechaActualizacion(LocalDateTime.now());
+        NegocioEntity.EstadoNegocio nuevoEstado = NegocioEntity.EstadoNegocio.valueOf(estado);
+        
+        // VALIDACIÓN: Solo desde EN_REVISION se puede ir a FINALIZADO o CANCELADO
+        if (negocio.getEstado() == NegocioEntity.EstadoNegocio.EN_REVISION) {
+            if (nuevoEstado != NegocioEntity.EstadoNegocio.FINALIZADO && 
+                nuevoEstado != NegocioEntity.EstadoNegocio.CANCELADO) {
+                throw new RuntimeException("Desde EN_REVISION solo se puede cambiar a FINALIZADO o CANCELADO");
+            }
+        }
+        
+        // VALIDACIÓN: Un negocio FINALIZADO no puede volver a cambiar de estado
+        if (negocio.getEstado() == NegocioEntity.EstadoNegocio.FINALIZADO) {
+            throw new RuntimeException("Un negocio FINALIZADO no puede cambiar de estado. Es necesario crear un nuevo negocio.");
+        }
+        
+        // VALIDACIÓN: Un negocio CANCELADO no puede volver a cambiar de estado
+        if (negocio.getEstado() == NegocioEntity.EstadoNegocio.CANCELADO) {
+            throw new RuntimeException("Un negocio CANCELADO no puede cambiar de estado.");
+        }
+        
+        negocio.setEstado(nuevoEstado);
+        negocio.setFechaActualizacion(java.time.LocalDateTime.now());
         NegocioEntity updated = negocioRepository.save(negocio);
         return negocioMapper.toResponse(updated);
     }

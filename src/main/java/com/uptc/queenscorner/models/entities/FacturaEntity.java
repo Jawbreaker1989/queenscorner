@@ -2,17 +2,16 @@ package com.uptc.queenscorner.models.entities;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "facturas", indexes = {
-    @Index(name = "idx_negocio_id", columnList = "negocio_id"),
-    @Index(name = "idx_cotizacion_id", columnList = "cotizacion_id"),
-    @Index(name = "idx_numero_factura", columnList = "numero_factura"),
-    @Index(name = "idx_estado", columnList = "estado")
+    @Index(name = "idx_facturas_negocio_id", columnList = "negocio_id"),
+    @Index(name = "idx_facturas_numero", columnList = "numero_factura"),
+    @Index(name = "idx_facturas_estado", columnList = "estado"),
+    @Index(name = "idx_facturas_fecha_creacion", columnList = "fecha_creacion")
 })
 public class FacturaEntity {
 
@@ -20,231 +19,191 @@ public class FacturaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false, length = 50)
+    private String numeroFactura;
+
+    @Column(nullable = false, length = 255)
+    private String codigo = "";
+
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now();
+
+    @Column(name = "fecha_emision", nullable = false)
+    private LocalDateTime fechaEmision = LocalDateTime.now();
+
+    @Column(name = "fecha_vencimiento", nullable = false)
+    private java.time.LocalDate fechaVencimiento = java.time.LocalDate.now();
+
+    @Column(name = "fecha_envio")
+    private LocalDateTime fechaEnvio;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "negocio_id", nullable = false)
     private NegocioEntity negocio;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cotizacion_id", nullable = false)
+    @JoinColumn(name = "cotizacion_id")
     private CotizacionEntity cotizacion;
 
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<LineaFacturaEntity> lineas = new ArrayList<>();
 
-    @Column(unique = true, nullable = false, length = 50)
-    private String numeroFactura;
+    @Column(name = "subtotal_items", precision = 15, scale = 2, nullable = false)
+    private BigDecimal subtotalItems = BigDecimal.ZERO;
 
-    @Column(name = "fecha_emision", nullable = false)
-    private LocalDateTime fechaEmision;
-
-    @Column(name = "fecha_vencimiento", nullable = false)
-    private LocalDate fechaVencimiento;
+    @Column(name = "anticipo", precision = 15, scale = 2, nullable = false)
+    private BigDecimal anticipo = BigDecimal.ZERO;
 
     @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal anticipo;
+    private BigDecimal subtotal = BigDecimal.ZERO;
 
-    @Column(name = "subtotal_items", precision = 15, scale = 2, nullable = false)
-    private BigDecimal subtotalItems;
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal iva = BigDecimal.ZERO;
 
-    @Column(insertable = false, updatable = false, precision = 15, scale = 2)
-    private BigDecimal baseGravable;
-
-    @Column(name = "iva_19", insertable = false, updatable = false, precision = 15, scale = 2)
+    @Column(name = "iva_19", precision = 15, scale = 2)
     private BigDecimal iva19;
 
-    @Column(name = "total_a_pagar", insertable = false, updatable = false, precision = 15, scale = 2)
+    @Column(name = "total_a_pagar", precision = 15, scale = 2)
     private BigDecimal totalAPagar;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "medio_pago", nullable = false)
-    private MedioPago medioPago;
-
-    @Column(name = "referencia_pago", length = 255)
-    private String referenciaPago;
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal total = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoFactura estado = EstadoFactura.BORRADOR;
 
-    @Column(name = "ruta_pdf", length = 500)
-    private String rutaPdf;
-
-    @Column(name = "pdf_generado")
-    private Boolean pdfGenerado = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "medio_pago", nullable = false)
+    private MedioPago medioPago = MedioPago.EFECTIVO;
 
     @Column(columnDefinition = "TEXT")
-    private String notas;
-
-    @Column(name = "condiciones_pago", length = 255)
-    private String condicionesPago;
+    private String observaciones;
 
     @Column(name = "usuario_creacion", length = 100)
     private String usuarioCreacion;
 
-    @Column(name = "usuario_emision", length = 100)
-    private String usuarioEmision;
+    @Column(name = "usuario_envio", length = 100)
+    private String usuarioEnvio;
 
-    @Column(name = "fecha_emision_real")
-    private LocalDateTime fechaEmisionReal;
-
-    @Column(name = "usuario_pago", length = 100)
-    private String usuarioPago;
-
-    @Column(name = "fecha_pago")
-    private LocalDateTime fechaPago;
-
-    @Column(name = "fecha_ultima_modificacion")
-    private LocalDateTime fechaUltimaModificacion;
-
-    public enum MedioPago {
-        TRANSFERENCIA("Transferencia Bancaria"),
-        EFECTIVO("Efectivo"),
-        CHEQUE("Cheque"),
-        TARJETA("Tarjeta de Crédito"),
-        OTRO("Otro medio de pago");
-
-        private final String descripcion;
-
-        MedioPago(String descripcion) {
-            this.descripcion = descripcion;
-        }
-
-        public String getDescripcion() {
-            return descripcion;
-        }
-    }
+    @Column(name = "path_pdf", length = 500)
+    private String pathPdf;
 
     public enum EstadoFactura {
-        BORRADOR,
-        EMITIDA,
-        ENVIADA,
-        PAGADA,
-        ANULADA
+        BORRADOR, EMITIDA, ENVIADA, PAGADA, ANULADA
+    }
+
+    public enum MedioPago {
+        EFECTIVO, TRANSFERENCIA, CHEQUE, TARJETA, OTRO
     }
 
     public FacturaEntity() {
+        this.fechaCreacion = LocalDateTime.now();
         this.fechaEmision = LocalDateTime.now();
+        this.fechaVencimiento = java.time.LocalDate.now();
+        this.codigo = "COD-" + System.currentTimeMillis();
         this.estado = EstadoFactura.BORRADOR;
-        this.pdfGenerado = false;
+        this.medioPago = MedioPago.EFECTIVO;
+        this.subtotal = BigDecimal.ZERO;
+        this.iva = BigDecimal.ZERO;
+        this.total = BigDecimal.ZERO;
+        this.anticipo = BigDecimal.ZERO;
+        this.subtotalItems = BigDecimal.ZERO;
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (this.fechaUltimaModificacion == null) {
-            this.fechaUltimaModificacion = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.fechaUltimaModificacion = LocalDateTime.now();
+    public void calcularTotales() {
+        BigDecimal subtotalCalculado = lineas.stream()
+            .map(LineaFacturaEntity::calcularTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        this.subtotal = subtotalCalculado;
+        this.iva = subtotalCalculado.multiply(BigDecimal.valueOf(0.19));
+        this.total = subtotalCalculado.add(this.iva);
     }
 
     public void generarNumeroFactura(long consecutivo) {
-        int anio = fechaEmision.getYear();
+        int anio = this.fechaCreacion.getYear();
         this.numeroFactura = String.format("FAC-%d-%06d", anio, consecutivo);
     }
 
-    public void cambiarEstado(EstadoFactura nuevoEstado, String usuario) {
-        this.estado = nuevoEstado;
-        if (nuevoEstado == EstadoFactura.EMITIDA && this.usuarioEmision == null) {
-            this.usuarioEmision = usuario;
-            this.fechaEmisionReal = LocalDateTime.now();
-        }
-        if (nuevoEstado == EstadoFactura.PAGADA) {
-            this.usuarioPago = usuario;
-            this.fechaPago = LocalDateTime.now();
-        }
+    public void cambiarAEnviada(String usuario) {
+        this.estado = EstadoFactura.ENVIADA;
+        this.usuarioEnvio = usuario;
+        this.fechaEnvio = LocalDateTime.now();
     }
 
-    public boolean puedeEmitirse() {
+    public boolean puedeSerEnviada() {
         return this.estado == EstadoFactura.BORRADOR 
-            && !lineas.isEmpty() 
-            && this.negocio != null 
-            && this.cotizacion != null;
-    }
-
-    public BigDecimal calcularBaseGravable() {
-        return this.subtotalItems.subtract(this.anticipo);
-    }
-
-    public BigDecimal calcularIva() {
-        return calcularBaseGravable().multiply(BigDecimal.valueOf(0.19));
-    }
-
-    public BigDecimal calcularTotal() {
-        return calcularBaseGravable().add(calcularIva());
+            && !this.lineas.isEmpty() 
+            && this.negocio != null;
     }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    public String getNumeroFactura() { return numeroFactura; }
+    public void setNumeroFactura(String numeroFactura) { this.numeroFactura = numeroFactura; }
+
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+
+    public LocalDateTime getFechaEnvio() { return fechaEnvio; }
+    public void setFechaEnvio(LocalDateTime fechaEnvio) { this.fechaEnvio = fechaEnvio; }
+
     public NegocioEntity getNegocio() { return negocio; }
     public void setNegocio(NegocioEntity negocio) { this.negocio = negocio; }
-
-    public CotizacionEntity getCotizacion() { return cotizacion; }
-    public void setCotizacion(CotizacionEntity cotizacion) { this.cotizacion = cotizacion; }
 
     public List<LineaFacturaEntity> getLineas() { return lineas; }
     public void setLineas(List<LineaFacturaEntity> lineas) { this.lineas = lineas; }
 
-    public String getNumeroFactura() { return numeroFactura; }
-    public void setNumeroFactura(String numeroFactura) { this.numeroFactura = numeroFactura; }
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
 
-    public LocalDateTime getFechaEmision() { return fechaEmision; }
-    public void setFechaEmision(LocalDateTime fechaEmision) { this.fechaEmision = fechaEmision; }
+    public BigDecimal getIva() { return iva; }
+    public void setIva(BigDecimal iva) { this.iva = iva; }
 
-    public LocalDate getFechaVencimiento() { return fechaVencimiento; }
-    public void setFechaVencimiento(LocalDate fechaVencimiento) { this.fechaVencimiento = fechaVencimiento; }
-
-    public BigDecimal getAnticipo() { return anticipo; }
-    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
-
-    public BigDecimal getSubtotalItems() { return subtotalItems; }
-    public void setSubtotalItems(BigDecimal subtotalItems) { this.subtotalItems = subtotalItems; }
-
-    public BigDecimal getBaseGravable() { return baseGravable; }
-    public BigDecimal getIva19() { return iva19; }
-    public BigDecimal getTotalAPagar() { return totalAPagar; }
-
-    public MedioPago getMedioPago() { return medioPago; }
-    public void setMedioPago(MedioPago medioPago) { this.medioPago = medioPago; }
-
-    public String getReferenciaPago() { return referenciaPago; }
-    public void setReferenciaPago(String referenciaPago) { this.referenciaPago = referenciaPago; }
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
 
     public EstadoFactura getEstado() { return estado; }
     public void setEstado(EstadoFactura estado) { this.estado = estado; }
 
-    public String getRutaPdf() { return rutaPdf; }
-    public void setRutaPdf(String rutaPdf) { this.rutaPdf = rutaPdf; }
-
-    public Boolean getPdfGenerado() { return pdfGenerado; }
-    public void setPdfGenerado(Boolean pdfGenerado) { this.pdfGenerado = pdfGenerado; }
-
-    public String getNotas() { return notas; }
-    public void setNotas(String notas) { this.notas = notas; }
-
-    public String getCondicionesPago() { return condicionesPago; }
-    public void setCondicionesPago(String condicionesPago) { this.condicionesPago = condicionesPago; }
+    public String getObservaciones() { return observaciones; }
+    public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
 
     public String getUsuarioCreacion() { return usuarioCreacion; }
     public void setUsuarioCreacion(String usuarioCreacion) { this.usuarioCreacion = usuarioCreacion; }
 
-    public String getUsuarioEmision() { return usuarioEmision; }
-    public void setUsuarioEmision(String usuarioEmision) { this.usuarioEmision = usuarioEmision; }
+    public String getUsuarioEnvio() { return usuarioEnvio; }
+    public void setUsuarioEnvio(String usuarioEnvio) { this.usuarioEnvio = usuarioEnvio; }
 
-    public LocalDateTime getFechaEmisionReal() { return fechaEmisionReal; }
-    public void setFechaEmisionReal(LocalDateTime fechaEmisionReal) { this.fechaEmisionReal = fechaEmisionReal; }
+    public String getPathPdf() { return pathPdf; }
+    public void setPathPdf(String pathPdf) { this.pathPdf = pathPdf; }
 
-    public String getUsuarioPago() { return usuarioPago; }
-    public void setUsuarioPago(String usuarioPago) { this.usuarioPago = usuarioPago; }
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
 
-    public LocalDateTime getFechaPago() { return fechaPago; }
-    public void setFechaPago(LocalDateTime fechaPago) { this.fechaPago = fechaPago; }
+    public LocalDateTime getFechaEmision() { return fechaEmision; }
+    public void setFechaEmision(LocalDateTime fechaEmision) { this.fechaEmision = fechaEmision; }
 
-    public LocalDateTime getFechaUltimaModificacion() { return fechaUltimaModificacion; }
-    public void setFechaUltimaModificacion(LocalDateTime fechaUltimaModificacion) { 
-        this.fechaUltimaModificacion = fechaUltimaModificacion; 
-    }
+    public java.time.LocalDate getFechaVencimiento() { return fechaVencimiento; }
+    public void setFechaVencimiento(java.time.LocalDate fechaVencimiento) { this.fechaVencimiento = fechaVencimiento; }
+
+    public CotizacionEntity getCotizacion() { return cotizacion; }
+    public void setCotizacion(CotizacionEntity cotizacion) { this.cotizacion = cotizacion; }
+
+    public BigDecimal getSubtotalItems() { return subtotalItems; }
+    public void setSubtotalItems(BigDecimal subtotalItems) { this.subtotalItems = subtotalItems; }
+
+    public BigDecimal getAnticipo() { return anticipo; }
+    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
+
+    public BigDecimal getIva19() { return iva19; }
+    public void setIva19(BigDecimal iva19) { this.iva19 = iva19; }
+
+    public BigDecimal getTotalAPagar() { return totalAPagar; }
+    public void setTotalAPagar(BigDecimal totalAPagar) { this.totalAPagar = totalAPagar; }
+
+    public MedioPago getMedioPago() { return medioPago; }
+    public void setMedioPago(MedioPago medioPago) { this.medioPago = medioPago; }
 }

@@ -82,9 +82,7 @@ public class NotificacionAsyncService {
         try {
             System.out.println("🔄 Procesando cotización APROBADA: " + cotizacion.getCodigo());
             
-            // Generar PDF de la cotización aprobada
-            CompletableFuture<String> pdfCotizacion = pdfAsyncService.generarPdfCotizacion(cotizacion);
-            pdfCotizacion.get();
+            pdfAsyncService.generarPdfCotizacion(cotizacion);
             
             System.out.println("✅ Cotización " + cotizacion.getCodigo() + " procesada exitosamente");
             return CompletableFuture.completedFuture(true);
@@ -95,20 +93,14 @@ public class NotificacionAsyncService {
         }
     }
 
-    /**
-     * Procesa una factura creada generando PDF
-     */
     @Async
     public CompletableFuture<Boolean> procesarFacturaCreada(FacturaEntity factura) {
         try {
             System.out.println("🔄 Procesando factura: " + factura.getNumeroFactura());
             
-            // Generar PDF de la factura con items incluidos
-            CompletableFuture<String> pdfFactura = pdfAsyncService.generarFacturaPdfAsync(factura);
-            String rutaPdf = pdfFactura.get();
+            pdfAsyncService.generarPdfFacturaAsync(factura);
             
             System.out.println("✅ Factura " + factura.getNumeroFactura() + " procesada exitosamente");
-            System.out.println("📄 PDF generado: " + rutaPdf);
             
             return CompletableFuture.completedFuture(true);
             

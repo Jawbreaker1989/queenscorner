@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { Factura, ApiResponse } from '../../../models/factura.model';
 
@@ -18,6 +18,7 @@ export class DetalleFacturaComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private facturaService: FacturaService
   ) { }
 
@@ -29,48 +30,85 @@ export class DetalleFacturaComponent implements OnInit {
   }
 
   cargarFactura(id: number) {
+    this.loading = true;
+    this.error = null;
     this.facturaService.obtenerFactura(id).subscribe({
       next: (response: ApiResponse<Factura>) => {
         this.factura = response.data;
         this.loading = false;
       },
       error: (error: any) => {
-        this.error = 'Error al cargar factura';
+        this.error = 'Error al cargar factura: ' + (error?.error?.message || 'Error desconocido');
         this.loading = false;
         console.error(error);
       }
     });
   }
 
+  getEstadoColor(estado: string) {
+    const colores: Record<string, string> = {
+      'BORRADOR': 'badge-warning',
+      'ENVIADA': 'badge-info',
+      'PAGADA': 'badge-success',
+      'ANULADA': 'badge-danger',
+      'EMITIDA': 'badge-info'
+    };
+    return colores[estado] || 'badge-secondary';
+  }
+
   descargarPdf() {
-    if (this.factura?.rutaPdf) {
-      window.open(this.factura.rutaPdf, '_blank');
+    if (!this.factura) return;
+    
+    if (!this.factura.rutaPdf) {
+      alert('PDF aún no disponible');
+      return;
     }
+
+    this.facturaService.descargarPdf(this.factura.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Factura_${this.factura!.numeroFactura}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error: any) => {
+        console.error('Error descargando PDF', error);
+        alert('Error al descargar PDF');
+      }
+    });
   }
 
   emitirFactura() {
-    if (this.factura) {
+    if (!this.factura) return;
+    
+    if (this.factura.estado !== 'BORRADOR') {
+      alert('Solo se pueden emitir facturas en estado BORRADOR');
+      return;
+    }
+
+    if (confirm(`¿Emitir factura ${this.factura.numeroFactura}?`)) {
       this.facturaService.emitirFactura(this.factura.id).subscribe({
         next: (response: ApiResponse<Factura>) => {
           this.factura = response.data;
+          alert('Factura emitida correctamente');
         },
         error: (error: any) => {
           console.error('Error al emitir factura', error);
+          alert('Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'));
         }
       });
     }
   }
 
-  cambiarEstado(estado: string) {
-    if (this.factura) {
-      this.facturaService.cambiarEstado(this.factura.id, estado).subscribe({
-        next: (response: ApiResponse<Factura>) => {
-          this.factura = response.data;
-        },
-        error: (error: any) => {
-          console.error('Error al cambiar estado', error);
-        }
-      });
+  volver() {
+    if (this.factura?.negocioId) {
+      this.router.navigate(['/facturas'], { queryParams: { negocioId: this.factura.negocioId } });
+    } else {
+      this.router.navigate(['/facturas']);
     }
   }
 }

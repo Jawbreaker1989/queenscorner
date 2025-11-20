@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { Factura, ApiResponse } from '../../../models/factura.model';
 
 @Component({
   selector: 'app-listar-facturas',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './listar-facturas.html',
   styleUrls: ['./listar-facturas.css']
 })
@@ -16,18 +16,33 @@ export class ListarFacturasComponent implements OnInit {
   facturas: Factura[] = [];
   loading = true;
   error: string | null = null;
+  negocioId: number | null = null;
+  negocioNombre: string | null = null;
 
-  constructor(private facturaService: FacturaService) { }
+  constructor(
+    private facturaService: FacturaService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute
+  ) { }
 
   ngOnInit() {
-    this.cargarFacturas();
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['negocioId']) {
+        this.negocioId = params['negocioId'];
+        this.negocioNombre = params['negocioNombre'] || null;
+        this.cargarFacturasPorNegocio();
+      } else {
+        this.cargarFacturas();
+      }
+    });
   }
 
   cargarFacturas() {
     this.loading = true;
+    this.error = null;
     this.facturaService.listarFacturas().subscribe({
       next: (response: ApiResponse<Factura[]>) => {
-        this.facturas = response.data;
+        this.facturas = response.data || [];
         this.loading = false;
       },
       error: (error: any) => {
@@ -38,22 +53,105 @@ export class ListarFacturasComponent implements OnInit {
     });
   }
 
-  anularFactura(id: number) {
-    if (confirm('¿Desea anular esta factura?')) {
-      this.facturaService.anularFactura(id).subscribe({
+  cargarFacturasPorNegocio() {
+    if (!this.negocioId) return;
+    this.loading = true;
+    this.error = null;
+    this.facturaService.listarPorNegocio(this.negocioId).subscribe({
+      next: (response: ApiResponse<Factura[]>) => {
+        this.facturas = response.data || [];
+        this.loading = false;
+      },
+      error: (error: any) => {
+        this.error = 'Error al cargar facturas del negocio';
+        this.loading = false;
+        console.error(error);
+      }
+    });
+  }
+
+  getEstadoColor(estado: string) {
+    const colores: Record<string, string> = {
+      'BORRADOR': 'badge-warning',
+      'ENVIADA': 'badge-info',
+      'PAGADA': 'badge-success',
+      'ANULADA': 'badge-danger',
+      'EMITIDA': 'badge-info'
+    };
+    return colores[estado] || 'badge-secondary';
+  }
+
+  verDetalle(id: number) {
+    this.router.navigate(['/facturas/detalle', id]);
+  }
+
+  emitirFactura(factura: Factura) {
+    if (factura.estado !== 'BORRADOR') {
+      alert('Solo se pueden emitir facturas en estado BORRADOR');
+      return;
+    }
+    
+    if (confirm(`¿Emitir factura ${factura.numeroFactura}?`)) {
+      this.facturaService.emitirFactura(factura.id).subscribe({
         next: () => {
+          alert('Factura emitida correctamente');
           this.cargarFacturas();
         },
         error: (error: any) => {
-          console.error('Error al anular factura', error);
+          console.error('Error al emitir factura', error);
+          alert('Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'));
         }
       });
     }
   }
 
-  descargarPdf(rutaPdf: string) {
-    if (rutaPdf) {
-      window.open(rutaPdf, '_blank');
+  anularFactura(id: number, numeroFactura: string) {
+    if (confirm(`¿Anular factura ${numeroFactura}?`)) {
+      this.facturaService.anularFactura(id).subscribe({
+        next: () => {
+          alert('Factura anulada correctamente');
+          this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
+        },
+        error: (error: any) => {
+          console.error('Error al anular factura', error);
+          alert('Error al anular factura: ' + (error?.error?.message || 'Error desconocido'));
+        }
+      });
     }
+  }
+
+  descargarPdf(factura: Factura) {
+    if (!factura.rutaPdf) {
+      alert('PDF aún no disponible');
+      return;
+    }
+    this.facturaService.descargarPdf(factura.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Factura_${factura.numeroFactura}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error: any) => {
+        console.error('Error descargando PDF', error);
+        alert('Error al descargar PDF');
+      }
+    });
+  }
+
+  volver() {
+    if (this.negocioId) {
+      this.router.navigate(['/negocios/detalle', this.negocioId]);
+    } else {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
+  crearFactura() {
+    this.router.navigate(['/facturas/crear'], { queryParams: { negocioId: this.negocioId } });
   }
 }
