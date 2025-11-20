@@ -1,0 +1,76 @@
+version: '3.8'
+
+# Compose para usar imágenes de Docker Hub (PRODUCCIÓN)
+# Uso: docker-compose -f docker-compose.prod.yml up
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: queenscorner-db-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: 3856074
+      MYSQL_DATABASE: queens_corner_prod_v2
+      MYSQL_USER: queenscorner_user
+      MYSQL_PASSWORD: qc_pass_2024
+      TZ: America/Bogota
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+    networks:
+      - queenscorner-network-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p3856074"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend - desde Docker Hub
+  backend:
+    image: jawbreaker1989/queenscorner-backend:latest
+    container_name: queenscorner-api-prod
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/queens_corner_prod_v2?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 3856074
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: "true"
+      JAVA_TOOL_OPTIONS: "-Xmx512m -Xms256m"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - queenscorner-network-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend - desde Docker Hub
+  frontend:
+    image: jawbreaker1989/queenscorner-frontend:latest
+    container_name: queenscorner-web-prod
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - queenscorner-network-prod
+    restart: unless-stopped
+    environment:
+      API_URL: http://backend:8080
+
+volumes:
+  mysql_data_prod:
+    driver: local
+
+networks:
+  queenscorner-network-prod:
+    driver: bridge
