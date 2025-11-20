@@ -153,7 +153,7 @@
         <button *ngIf="factura.rutaPdf" class="btn btn-descargar" (click)="descargarPdf()">
           📥 Descargar PDF
         </button>
-        <button *ngIf="factura.estado === 'BORRADOR'" class="btn btn-emitir" (click)="emitirFactura()">
+        <button *ngIf="factura.estado === 'EN_REVISION'" class="btn btn-emitir" (click)="emitirFactura()">
           📤 Emitir Factura
         </button>
       </div>

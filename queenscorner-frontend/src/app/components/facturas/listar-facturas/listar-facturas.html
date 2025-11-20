@@ -64,7 +64,7 @@
               <button class="btn-accion btn-detalle" (click)="verDetalle(factura.id)" title="Ver detalles">
                 👁️
               </button>
-              <button *ngIf="factura.estado === 'BORRADOR'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
+              <button *ngIf="factura.estado === 'EN_REVISION'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
                 📤
               </button>
               <button *ngIf="factura.rutaPdf" class="btn-accion btn-descargar" (click)="descargarPdf(factura)" title="Descargar PDF">
