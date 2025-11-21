@@ -1,8 +1,8 @@
 package com.uptc.queenscorner.services;
 
-import com.uptc.queenscorner.dtos.AgregarLineaRequest;
-import com.uptc.queenscorner.dtos.CrearFacturaRequest;
-import com.uptc.queenscorner.dtos.FacturaResponse;
+import com.uptc.queenscorner.models.dtos.requests.AgregarLineaRequest;
+import com.uptc.queenscorner.models.dtos.requests.CrearFacturaRequest;
+import com.uptc.queenscorner.models.dtos.responses.FacturaResponse;
 
 import java.util.List;
 

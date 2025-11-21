@@ -1,4 +1,4 @@
-package com.uptc.queenscorner.dtos;
+package com.uptc.queenscorner.models.dtos.responses;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -65,4 +65,4 @@ public class FacturaResponse {
     
     public List<LineaFacturaResponse> getLineas() { return lineas; }
     public void setLineas(List<LineaFacturaResponse> lineas) { this.lineas = lineas; }
-} 
+}

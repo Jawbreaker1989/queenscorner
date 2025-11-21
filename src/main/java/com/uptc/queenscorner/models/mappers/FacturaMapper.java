@@ -1,6 +1,9 @@
-package com.uptc.queenscorner.mappers;
+package com.uptc.queenscorner.models.mappers;
 
-import com.uptc.queenscorner.dtos.*;
+import com.uptc.queenscorner.models.dtos.responses.FacturaResponse;
+import com.uptc.queenscorner.models.dtos.responses.LineaFacturaResponse;
+import com.uptc.queenscorner.models.dtos.responses.NegocioInfoResponse;
+import com.uptc.queenscorner.models.dtos.responses.ClienteInfoResponse;
 import com.uptc.queenscorner.models.entities.*;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;

@@ -1,35 +1,42 @@
 package com.uptc.queenscorner.models.dtos.responses;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class NegocioInfoResponse {
+    
     private Long id;
-    private String codigo;
-    private String descripcion;
+    private String numero;
+    private LocalDateTime fechaCreacion;
+    private String proyecto;
+    private BigDecimal totalCotizacion;
+    private BigDecimal anticipo;
+    private BigDecimal saldoPendiente;
     private ClienteInfoResponse cliente;
-    private BigDecimal presupuestoAsignado;
-
-    public NegocioInfoResponse() {
-    }
-
-    public NegocioInfoResponse(Long id, String codigo, String descripcion) {
-        this.id = id;
-        this.codigo = codigo;
-        this.descripcion = descripcion;
-    }
-
+    
+    public NegocioInfoResponse() {}
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public String getCodigo() { return codigo; }
-    public void setCodigo(String codigo) { this.codigo = codigo; }
-
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-
+    
+    public String getNumero() { return numero; }
+    public void setNumero(String numero) { this.numero = numero; }
+    
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+    public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    
+    public String getProyecto() { return proyecto; }
+    public void setProyecto(String proyecto) { this.proyecto = proyecto; }
+    
+    public BigDecimal getTotalCotizacion() { return totalCotizacion; }
+    public void setTotalCotizacion(BigDecimal totalCotizacion) { this.totalCotizacion = totalCotizacion; }
+    
+    public BigDecimal getAnticipo() { return anticipo; }
+    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
+    
+    public BigDecimal getSaldoPendiente() { return saldoPendiente; }
+    public void setSaldoPendiente(BigDecimal saldoPendiente) { this.saldoPendiente = saldoPendiente; }
+    
     public ClienteInfoResponse getCliente() { return cliente; }
     public void setCliente(ClienteInfoResponse cliente) { this.cliente = cliente; }
-
-    public BigDecimal getPresupuestoAsignado() { return presupuestoAsignado; }
-    public void setPresupuestoAsignado(BigDecimal presupuestoAsignado) { this.presupuestoAsignado = presupuestoAsignado; }
 } 

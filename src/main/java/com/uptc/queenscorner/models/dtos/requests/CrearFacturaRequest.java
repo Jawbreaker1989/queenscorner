@@ -1,4 +1,4 @@
-package com.uptc.queenscorner.dtos;
+package com.uptc.queenscorner.models.dtos.requests;
 
 import java.util.List;
 
@@ -23,4 +23,4 @@ public class CrearFacturaRequest {
     
     public List<AgregarLineaRequest> getLineas() { return lineas; }
     public void setLineas(List<AgregarLineaRequest> lineas) { this.lineas = lineas; }
-} 
+}

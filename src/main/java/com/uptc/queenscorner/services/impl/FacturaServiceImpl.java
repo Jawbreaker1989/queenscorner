@@ -1,7 +1,9 @@
 package com.uptc.queenscorner.services.impl;
 
-import com.uptc.queenscorner.dtos.*;
-import com.uptc.queenscorner.mappers.FacturaMapper;
+import com.uptc.queenscorner.models.dtos.requests.AgregarLineaRequest;
+import com.uptc.queenscorner.models.dtos.requests.CrearFacturaRequest;
+import com.uptc.queenscorner.models.dtos.responses.FacturaResponse;
+import com.uptc.queenscorner.models.mappers.FacturaMapper;
 import com.uptc.queenscorner.models.entities.*;
 import com.uptc.queenscorner.repositories.*;
 import com.uptc.queenscorner.services.IFacturaService;
