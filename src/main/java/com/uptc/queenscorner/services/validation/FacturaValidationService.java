@@ -21,9 +21,9 @@ public class FacturaValidationService {
             throw new RuntimeException("Negocio no encontrado");
         }
 
-        if (negocio.getEstado() != NegocioEntity.EstadoNegocio.FINALIZADO) {
-            throw new RuntimeException("El negocio debe estar en estado FINALIZADO para crear una factura. " +
-                    "Estado actual: " + negocio.getEstado());
+        // El negocio puede estar en EN_REVISION o FINALIZADO, pero no CANCELADO
+        if (negocio.getEstado() == NegocioEntity.EstadoNegocio.CANCELADO) {
+            throw new RuntimeException("No se puede crear una factura para un negocio cancelado");
         }
 
         if (negocio.getCotizacion() == null) {
