@@ -39,13 +39,17 @@ public class CotizacionMapper {
         response.setTotal(entity.getTotal());
         response.setObservaciones(entity.getObservaciones());
         
-      
+        // CRÍTICO: Siempre usar la lista de items más fresca de BD
+        // Primero intentar con items de la entidad si fueron cargados recientemente
         if (entity.getId() != null) {
+            // Query a BD para garantizar items actualizados (eliminaciones/inserciones)
             response.setItems(
                 itemCotizacionRepository.findByCotizacionId(entity.getId()).stream()
                     .map(itemCotizacionMapper::toResponse)
                     .collect(Collectors.toList())
             );
+        } else {
+            response.setItems(java.util.Collections.emptyList());
         }
         
         return response;
