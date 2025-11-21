@@ -167,6 +167,18 @@ export class EditarCotizacionComponent implements OnInit {
           this.cotizacionOriginal = response.data;
           this.estadoActual = response.data.estado;
           
+          // CRÍTICO: Recargar items desde la respuesta del servidor
+          // para asegurar que eliminaciones/inserciones se reflejan
+          const itemsActualizados = (response.data.items || []).map(item => ({
+            id: item.id,
+            descripcion: item.descripcion,
+            cantidad: item.cantidad,
+            precioUnitario: item.precioUnitario,
+            subtotal: item.subtotal
+          }));
+          
+          this.cotizacion.items = itemsActualizados;
+          
           // Si se cambió el estado, aplicarlo después
           if (this.nuevoEstado && this.nuevoEstado !== this.estadoActual) {
             this.aplicarCambioEstado();

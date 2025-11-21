@@ -39,25 +39,16 @@ public class CotizacionMapper {
         response.setTotal(entity.getTotal());
         response.setObservaciones(entity.getObservaciones());
         
-        // CRÍTICO: Usar los items de la entidad cargada
-        // Si entity.items está inicializado (desde fetch con EAGER), usar ese
-        // Si no, hacer query a BD como fallback
-        if (entity.getItems() != null && !entity.getItems().isEmpty()) {
-            // Items ya están cargados (EAGER fetch o asignados en update)
-            response.setItems(
-                entity.getItems().stream()
-                    .map(itemCotizacionMapper::toResponse)
-                    .collect(Collectors.toList())
-            );
-        } else if (entity.getId() != null) {
-            // Fallback: hacer query a BD solo si items está vacío
+        // CRÍTICO: Siempre usar la lista de items más fresca de BD
+        // Primero intentar con items de la entidad si fueron cargados recientemente
+        if (entity.getId() != null) {
+            // Query a BD para garantizar items actualizados (eliminaciones/inserciones)
             response.setItems(
                 itemCotizacionRepository.findByCotizacionId(entity.getId()).stream()
                     .map(itemCotizacionMapper::toResponse)
                     .collect(Collectors.toList())
             );
         } else {
-            // Nueva entidad sin ID aún
             response.setItems(java.util.Collections.emptyList());
         }
         

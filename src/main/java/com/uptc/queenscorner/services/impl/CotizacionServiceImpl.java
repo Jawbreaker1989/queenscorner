@@ -170,12 +170,18 @@ public class CotizacionServiceImpl implements ICotizacionService {
                 .map(ItemCotizacionRequest::getId)
                 .collect(Collectors.toList());
 
-        // PASO 1: Eliminar items que NO están en el request (fueron removidos)
-        itemsExistentes.forEach(itemExistente -> {
-            if (!idsItemsRequest.contains(itemExistente.getId())) {
-                itemCotizacionRepository.delete(itemExistente);
-            }
-        });
+        // PASO 1: Identificar y eliminar items que NO están en el request (fueron removidos)
+        // CRÍTICO: Crear lista de items a eliminar PRIMERO antes de iterar
+        List<ItemCotizacionEntity> itemsAEliminar = itemsExistentes.stream()
+                .filter(itemExistente -> !idsItemsRequest.contains(itemExistente.getId()))
+                .collect(Collectors.toList());
+        
+        // Eliminar items de la BD de forma explícita
+        if (!itemsAEliminar.isEmpty()) {
+            itemCotizacionRepository.deleteAll(itemsAEliminar);
+            // Flush para asegurar que los deletes se ejecutan en BD
+            itemCotizacionRepository.flush();
+        }
 
         // PASO 2: Procesar items del request (actualizar existentes o crear nuevos)
         List<ItemCotizacionEntity> itemsActualizados = request.getItems().stream()
