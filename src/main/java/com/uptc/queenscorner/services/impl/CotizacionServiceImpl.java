@@ -163,38 +163,36 @@ public class CotizacionServiceImpl implements ICotizacionService {
         // Obtener items existentes de la base de datos
         List<ItemCotizacionEntity> itemsExistentes = itemCotizacionRepository.findByCotizacionId(cotizacionId);
 
-        // PASO 1: Construir nueva lista de items actualizados/nuevos
-        List<ItemCotizacionEntity> itemsActualizados = request.getItems().stream()
-                .map(itemRequest -> {
-                    if (itemRequest.getId() != null) {
-                        // Actualizar item existente
-                        ItemCotizacionEntity itemExistente = itemsExistentes.stream()
-                                .filter(i -> i.getId().equals(itemRequest.getId()))
-                                .findFirst()
-                                .orElseThrow(() -> new RuntimeException("Item no encontrado: " + itemRequest.getId()));
-                        
-                        itemExistente.setDescripcion(itemRequest.getDescripcion());
-                        itemExistente.setCantidad(itemRequest.getCantidad());
-                        itemExistente.setPrecioUnitario(itemRequest.getPrecioUnitario());
-                        itemExistente.setSubtotal(itemRequest.getPrecioUnitario()
-                                .multiply(BigDecimal.valueOf(itemRequest.getCantidad())));
-                        
-                        return itemExistente;
-                    } else {
-                        // Nuevo item
-                        ItemCotizacionEntity nuevoItem = itemCotizacionMapper.toEntity(itemRequest);
-                        nuevoItem.setCotizacion(cotizacion);
-                        return nuevoItem;
-                    }
-                })
-                .collect(Collectors.toList());
-
-        // PASO 2: Usar orphanRemoval - remover items de la lista de la entidad
-        // Los items que no están en itemsActualizados serán eliminados automáticamente
-        cotizacion.setItems(itemsActualizados);
+        // PASO 1: Procesar items del request (actualizar existentes o crear nuevos)
+        List<ItemCotizacionEntity> itemsActualizados = new java.util.ArrayList<>();
         
-        // PASO 3: Guardar la cotización (cascada PERSIST actualiza nuevos items)
-        itemCotizacionRepository.saveAll(itemsActualizados);
+        for (var itemRequest : request.getItems()) {
+            if (itemRequest.getId() != null) {
+                // Actualizar item existente
+                ItemCotizacionEntity itemExistente = itemsExistentes.stream()
+                        .filter(i -> i.getId().equals(itemRequest.getId()))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Item no encontrado: " + itemRequest.getId()));
+                
+                itemExistente.setDescripcion(itemRequest.getDescripcion());
+                itemExistente.setCantidad(itemRequest.getCantidad());
+                itemExistente.setPrecioUnitario(itemRequest.getPrecioUnitario());
+                itemExistente.setSubtotal(itemRequest.getPrecioUnitario()
+                        .multiply(BigDecimal.valueOf(itemRequest.getCantidad())));
+                
+                itemsActualizados.add(itemExistente);
+            } else {
+                // Nuevo item
+                ItemCotizacionEntity nuevoItem = itemCotizacionMapper.toEntity(itemRequest);
+                nuevoItem.setCotizacion(cotizacion);
+                itemsActualizados.add(nuevoItem);
+            }
+        }
+
+        // PASO 2: Limpiar lista actual y asignar nueva lista
+        // Esto activará orphanRemoval para items no incluidos
+        cotizacion.getItems().clear();
+        cotizacion.getItems().addAll(itemsActualizados);
     }
 
     @Override
