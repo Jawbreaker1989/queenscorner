@@ -1,8 +1,4 @@
--- Renombrar presupuesto_utilizado a anticipo en tabla negocios
--- El anticipo es el monto pagado/reservado para el negocio (campo exclusivo del negocio, no de cotización)
+-- Eliminar presupuesto_utilizado de tabla negocios (anticipo ya existe)
+-- El anticipo es el monto pagado/reservado para el negocio
 
-ALTER TABLE negocios 
-CHANGE COLUMN presupuesto_utilizado anticipo DECIMAL(15, 2) DEFAULT 0.00;
-
--- Actualizar índices si existen referencias
--- (El nombre de la columna no afecta los índices existentes)
+ALTER TABLE negocios DROP COLUMN presupuesto_utilizado;
