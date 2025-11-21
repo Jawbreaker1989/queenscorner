@@ -10,6 +10,7 @@ export interface Factura {
   emailCliente: string;
   telefonoCliente: string;
   anticipo: number;
+  saldoPendiente: number;
   subtotalItems: number;
   baseGravable: number;
   iva19: number;

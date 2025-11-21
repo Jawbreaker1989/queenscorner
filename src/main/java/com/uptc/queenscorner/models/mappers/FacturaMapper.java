@@ -23,11 +23,20 @@ public class FacturaMapper {
         response.setSubtotal(entity.getSubtotal());
         response.setIva(entity.getIva());
         response.setTotal(entity.getTotal());
+        response.setAnticipo(entity.getAnticipo());
         response.setObservaciones(entity.getObservaciones());
         response.setUsuarioCreacion(entity.getUsuarioCreacion());
         response.setUsuarioEnvio(entity.getUsuarioEnvio());
         response.setPathPdf(entity.getPathPdf());
         response.setNegocio(toNegocioInfo(entity.getNegocio()));
+        
+        // Calcular saldo pendiente: total - anticipo
+        if (entity.getTotal() != null && entity.getAnticipo() != null) {
+            BigDecimal saldoPendiente = entity.getTotal().subtract(entity.getAnticipo());
+            response.setSaldoPendiente(saldoPendiente);
+        } else if (entity.getTotal() != null) {
+            response.setSaldoPendiente(entity.getTotal());
+        }
         
         if (entity.getLineas() != null) {
             entity.getLineas().forEach(linea -> 

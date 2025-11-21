@@ -33,12 +33,12 @@
           </div>
           <div class="info-row">
             <span class="label">Fecha Emisión:</span>
-            <span class="value">{{ factura.fechaEmision | date: 'dd/MM/yyyy' }}</span>
+            <span class="value">{{ (factura.fechaCreacion || factura.fechaEmision) | date: 'dd/MM/yyyy' }}</span>
           </div>
           <div class="info-row">
             <span class="label">Estado:</span>
             <span [ngClass]="getEstadoColor(factura.estado)" class="badge">
-              {{ factura.estado }}
+              {{ getEstadoLabel(factura.estado) }}
             </span>
           </div>
         </div>
@@ -122,31 +122,26 @@
 
             <div class="payment-item subtotal">
               <span class="label">Subtotal Factura:</span>
-              <span class="value">${{ factura.subtotalItems | number: '1.2-2' }}</span>
-            </div>
-
-            <div class="payment-item">
-              <span class="label">Base Gravable:</span>
-              <span class="value">${{ factura.baseGravable | number: '1.2-2' }}</span>
+              <span class="value">${{ (factura.subtotalItems || factura.subtotal) | number: '1.2-2' }}</span>
             </div>
 
             <div class="payment-item impuestos">
               <span class="label">Impuestos (IVA 19%):</span>
-              <span class="value">${{ factura.iva19 | number: '1.2-2' }}</span>
+              <span class="value">${{ (factura.iva19 || factura.iva) | number: '1.2-2' }}</span>
             </div>
 
             <div class="divider-thick"></div>
 
             <div class="payment-item total-pagar">
               <span class="label">TOTAL A PAGAR:</span>
-              <span class="value total"><strong>${{ factura.totalAPagar | number: '1.2-2' }}</strong></span>
+              <span class="value total"><strong>${{ (factura.totalAPagar || factura.total) | number: '1.2-2' }}</strong></span>
             </div>
 
             <div class="divider"></div>
 
             <div class="payment-item saldo">
               <span class="label">Saldo Pendiente:</span>
-              <span class="value pendiente">${{ (factura.totalAPagar - factura.anticipo) | number: '1.2-2' }}</span>
+              <span class="value pendiente">${{ (factura.saldoPendiente || (factura.totalAPagar - factura.anticipo)) | number: '1.2-2' }}</span>
             </div>
           </div>
         </div>
@@ -172,33 +167,8 @@
           </button>
         </div>
         <div class="acciones-right">
-          <button 
-            *ngIf="factura.estado === 'EN_REVISION' && !generandoPdf" 
-            class="btn btn-generar-pdf" 
-            (click)="generarPdf()"
-            title="Generar PDF de la factura">
-            📄 Generar PDF
-          </button>
-          <button 
-            *ngIf="generandoPdf" 
-            class="btn btn-generar-pdf loading" 
-            disabled
-            title="Generando PDF...">
-            ⏳ Generando PDF...
-          </button>
-          <button 
-            *ngIf="factura.rutaPdf || factura.pathPdf" 
-            class="btn btn-descargar" 
-            (click)="descargarPdf()"
-            title="Descargar PDF">
-            📥 Descargar PDF
-          </button>
-          <button 
-            *ngIf="factura.estado === 'EN_REVISION'" 
-            class="btn btn-emitir" 
-            (click)="emitirFactura()"
-            title="Enviar factura">
-            📤 Emitir Factura
+          <button class="btn btn-primary" (click)="iraDashboard()">
+            📊 Ir a Dashboard
           </button>
         </div>
       </div>

@@ -12,10 +12,16 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/facturas")
@@ -110,5 +116,19 @@ public class FacturaController {
         pdfAsyncService.generarPdfFacturaAsync(factura);
         return ResponseEntity.accepted().body(response);
     }
+
+    @GetMapping("/{id}/pdf")
+    @Operation(summary = "Descargar PDF de factura")
+    public ResponseEntity<byte[]> descargarPdf(
+            @PathVariable Long id) throws IOException {
+        FacturaResponse factura = facturaService.obtenerFactura(id);
+        Path pdfPath = Paths.get(factura.getPathPdf());
+        byte[] pdfContent = Files.readAllBytes(pdfPath);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", pdfPath.getFileName().toString());
+        
+        return ResponseEntity.ok().headers(headers).body(pdfContent);
+    }
 }
- 

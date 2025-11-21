@@ -19,6 +19,7 @@ export class DetalleNegocioComponent implements OnInit {
   nuevoEstado: string = '';
   mostrarCambioEstado: boolean = false;
   procesando: boolean = false;
+  bloqueadoFactura: boolean = false;
 
   constructor(
     private negociosService: NegociosService,
@@ -139,6 +140,9 @@ export class DetalleNegocioComponent implements OnInit {
       Swal.fire('Error', 'Solo se pueden crear facturas para negocios FINALIZADOS', 'error');
       return;
     }
+
+    // Bloquear el botón
+    this.bloqueadoFactura = true;
 
     // Navegar al formulario de crear factura con datos del negocio
     this.router.navigate(['/facturas/crear'], { 

@@ -15,6 +15,8 @@ public class FacturaResponse {
     private BigDecimal subtotal;
     private BigDecimal iva;
     private BigDecimal total;
+    private BigDecimal anticipo;
+    private BigDecimal saldoPendiente;
     private String observaciones;
     private String usuarioCreacion;
     private String usuarioEnvio;
@@ -47,6 +49,12 @@ public class FacturaResponse {
     
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
+    
+    public BigDecimal getAnticipo() { return anticipo; }
+    public void setAnticipo(BigDecimal anticipo) { this.anticipo = anticipo; }
+    
+    public BigDecimal getSaldoPendiente() { return saldoPendiente; }
+    public void setSaldoPendiente(BigDecimal saldoPendiente) { this.saldoPendiente = saldoPendiente; }
     
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }

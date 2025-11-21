@@ -52,7 +52,7 @@
             <td class="monto-total" [style.font-weight]="'600'">${{ (factura.total || factura.totalAPagar || 0) | number: '1.2-2' }}</td>
             <td class="estado">
               <span [ngClass]="getEstadoColor(factura.estado || 'ENVIADA')" class="badge">
-                {{ factura.estado || 'ENVIADA' }}
+                {{ getEstadoLabel(factura.estado || 'ENVIADA') }}
               </span>
             </td>
             <td class="fecha">{{ (factura.fechaCreacion || factura.fechaEmision) | date: 'dd/MM/yy' }}</td>
@@ -63,11 +63,8 @@
               <button *ngIf="factura.estado === 'EN_REVISION'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
                 📤
               </button>
-              <button *ngIf="!factura.pathPdf && !factura.rutaPdf" class="btn-accion btn-generar" (click)="generarPdf(factura)" title="Generar PDF">
+              <button class="btn-accion btn-generar" (click)="generarPdf(factura)" [disabled]="pdfGenerando[factura.id] || pdfGenerados[factura.id]" [title]="pdfGenerados[factura.id] ? 'PDF ya generado' : 'Generar PDF'">
                 🖨️
-              </button>
-              <button *ngIf="factura.pathPdf || factura.rutaPdf" class="btn-accion btn-descargar" (click)="descargarPdf(factura)" title="Descargar PDF">
-                📥
               </button>
             </td>
           </tr>

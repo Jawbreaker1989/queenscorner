@@ -10,8 +10,9 @@
         <button class="btn-facturas-header" 
                 (click)="crearFactura()"
                 *ngIf="negocio?.estado === 'FINALIZADO'"
-                title="Crear factura para este negocio">
-          📋 Nueva Factura
+                [disabled]="bloqueadoFactura"
+                title="Ir a facturación para este negocio">
+          📋 {{ bloqueadoFactura ? 'Emitiendo...' : 'Ir a Facturación' }}
         </button>
         <button class="btn-editar-header" (click)="editar()" 
                 [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'"

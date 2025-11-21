@@ -208,9 +208,10 @@
         <button 
           type="submit"
           class="btn btn-primary"
-          [disabled]="!negocioSeleccionado || lineas.length === 0 || loading">
+          [disabled]="!negocioSeleccionado || lineas.length === 0 || loading || facturaEmitida">
           <span *ngIf="loading">Emitiendo...</span>
-          <span *ngIf="!loading">✓ Emitir Factura</span>
+          <span *ngIf="!loading && !facturaEmitida">✓ Emitir Factura</span>
+          <span *ngIf="!loading && facturaEmitida">✓ Factura Emitida</span>
         </button>
       </div>
     </div>

@@ -18,6 +18,8 @@ export class ListarFacturasComponent implements OnInit {
   error: string | null = null;
   negocioId: number | null = null;
   negocioNombre: string | null = null;
+  pdfGenerando: { [key: number]: boolean } = {};
+  pdfGenerados: { [key: number]: boolean } = {};
 
   constructor(
     private facturaService: FacturaService,
@@ -35,6 +37,8 @@ export class ListarFacturasComponent implements OnInit {
         this.cargarFacturas();
       }
     });
+    // Verificar PDFs generados desde localStorage
+    this.verificarPdfsGenerados();
   }
 
   cargarFacturas() {
@@ -50,6 +54,7 @@ export class ListarFacturasComponent implements OnInit {
         } else {
           this.facturas = [];
         }
+        this.verificarPdfsGenerados();
         this.loading = false;
       },
       error: (error: any) => {
@@ -67,12 +72,23 @@ export class ListarFacturasComponent implements OnInit {
     this.facturaService.listarPorNegocio(this.negocioId).subscribe({
       next: (response: ApiResponse<Factura[]>) => {
         this.facturas = response.data || [];
+        this.verificarPdfsGenerados();
         this.loading = false;
       },
       error: (error: any) => {
         this.error = 'Error al cargar facturas del negocio';
         this.loading = false;
         console.error(error);
+      }
+    });
+  }
+
+  verificarPdfsGenerados() {
+    // Revisar localStorage para cada factura y marcar si PDF fue generado
+    this.facturas.forEach(factura => {
+      const pdfKey = `pdf_generado_factura_${factura.id}`;
+      if (localStorage.getItem(pdfKey)) {
+        this.pdfGenerados[factura.id] = true;
       }
     });
   }
@@ -85,6 +101,13 @@ export class ListarFacturasComponent implements OnInit {
       'ANULADA': 'badge-danger'
     };
     return colores[estado] || 'badge-secondary';
+  }
+
+  getEstadoLabel(estado: string): string {
+    const etiquetas: Record<string, string> = {
+      'ENVIADA': 'Emitida'
+    };
+    return etiquetas[estado] || estado;
   }
 
   verDetalle(id: number) {
@@ -126,39 +149,28 @@ export class ListarFacturasComponent implements OnInit {
     }
   }
 
-  descargarPdf(factura: Factura) {
-    if (!factura.rutaPdf && !factura.pathPdf) {
-      alert('PDF aún no disponible');
+  generarPdf(factura: Factura) {
+    if (this.pdfGenerados[factura.id]) {
+      alert('El PDF para esta factura ya fue generado');
       return;
     }
-    this.facturaService.descargarPdf(factura.id).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `Factura_${factura.numeroFactura}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      },
-      error: (error: any) => {
-        console.error('Error descargando PDF', error);
-        alert('Error al descargar PDF');
-      }
-    });
-  }
 
-  generarPdf(factura: Factura) {
     if (confirm(`¿Generar PDF para la factura ${factura.numeroFactura}?`)) {
+      this.pdfGenerando[factura.id] = true;
       this.facturaService.generarPdf(factura.id).subscribe({
         next: () => {
+          // Marcar como generado en localStorage
+          const pdfKey = `pdf_generado_factura_${factura.id}`;
+          localStorage.setItem(pdfKey, 'true');
+          this.pdfGenerados[factura.id] = true;
+
           alert('PDF generado correctamente');
           this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
         },
         error: (error: any) => {
           console.error('Error al generar PDF', error);
           alert('Error al generar PDF: ' + (error?.error?.message || 'Error desconocido'));
+          this.pdfGenerando[factura.id] = false;
         }
       });
     }

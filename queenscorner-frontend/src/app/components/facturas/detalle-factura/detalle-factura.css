@@ -95,6 +95,15 @@
   background-color: #545b62;
 }
 
+.btn-primary {
+  background-color: #667eea;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #5568d3;
+}
+
 .btn-descargar {
   background-color: #27ae60;
   color: white;
@@ -111,6 +120,31 @@
 
 .btn-emitir:hover {
   background-color: #0056b3;
+}
+
+.btn-generar {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-generar:hover {
+  background-color: #f57c00;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-info:disabled {
+  background-color: #ccc;
+  color: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .contenido {
@@ -506,17 +540,8 @@
 .acciones-footer {
   display: flex;
   gap: 10px;
-  justify-content: flex-start;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 2px solid #e2e3e5;
-  flex-wrap: wrap;
-}
-
-.acciones-footer {
-  display: flex;
-  gap: 10px;
   justify-content: space-between;
+  align-items: center;
   margin-top: 30px;
   padding-top: 20px;
   border-top: 2px solid #e2e3e5;
@@ -531,8 +556,6 @@
 .acciones-right {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
 @media (max-width: 768px) {
@@ -582,24 +605,18 @@
 
   .acciones-footer {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .acciones-footer .btn,
   .acciones-left,
   .acciones-right {
     width: 100%;
-  }
-
-  .acciones-left,
-  .acciones-right {
-    display: flex;
-    flex-direction: column;
+    justify-content: center !important;
   }
 
   .acciones-left .btn,
   .acciones-right .btn {
     width: 100%;
-    text-align: center;
   }
 
   .payment-item {

@@ -21,6 +21,7 @@ export class CrearFacturaComponent implements OnInit {
   loading = false;
   error: string | null = null;
   success = false;
+  facturaEmitida = false;
 
   negocios: NegocioResponse[] = [];
   negocioSeleccionado: NegocioResponse | null = null;
@@ -60,7 +61,7 @@ export class CrearFacturaComponent implements OnInit {
             
             // Deshabilitar campos de negocio una vez cargado
             this.form.get('negocioId')?.disable();
-            this.paso = 2; // Ir al paso de agregar items
+            // Keep paso = 1 to show información section first
             this.cdr.markForCheck();
           } else {
             // Reintentar en 200ms si los negocios no se han cargado
@@ -224,6 +225,7 @@ export class CrearFacturaComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.success = true;
+        this.facturaEmitida = true;
         // Handle both ApiResponse<Factura> and direct FacturaResponse
         const facturaId = response.data?.id || response.id;
         if (facturaId) {
