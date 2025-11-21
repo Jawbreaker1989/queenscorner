@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { CotizacionesService } from '../../../services/cotizaciones';
 import { NegociosService } from '../../../services/negocios';
 import { CommonModule } from '@angular/common';
@@ -41,9 +41,16 @@ export class DetalleCotizacionComponent implements OnInit {
     }
     this.cargarCotizacion();
     
-    // Recargar cuando vuelve desde editar
-    this.route.queryParams.subscribe(() => {
-      this.cargarCotizacion();
+    // Recargar SIEMPRE cuando se retorna a esta vista (desde editar u otra ruta)
+    // NavigationEnd detecta cuando la navegación se completa
+    this.router.events.subscribe((event: any) => {
+      if (event.constructor.name === 'NavigationEnd') {
+        // Verificar que seguimos en la misma cotización
+        const idActual = Number(this.route.snapshot.paramMap.get('id'));
+        if (idActual === this.cotizacionId) {
+          this.cargarCotizacion();
+        }
+      }
     });
   }
 

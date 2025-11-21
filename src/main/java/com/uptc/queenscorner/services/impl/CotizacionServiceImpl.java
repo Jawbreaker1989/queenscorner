@@ -147,17 +147,37 @@ public class CotizacionServiceImpl implements ICotizacionService {
         // Recalcular totales basado en los items actualizados
         calcularTotales(cotizacion, request);
 
-        // Guardar cotización con los nuevos totales
+        // CRÍTICO: Guardar cotización primero para asegurar que se persisten los cambios
         CotizacionEntity updated = cotizacionRepository.save(cotizacion);
         
-        return cotizacionMapper.toResponse(updated);
+        // CRÍTICO: Refrescar la entidad desde BD para garantizar que items están sincronizados
+        cotizacionRepository.flush();
+        
+        // Recargar entidad con items frescos desde BD (con EAGER fetch)
+        CotizacionEntity refreshed = cotizacionRepository.findById(updated.getId())
+                .orElseThrow(() -> new RuntimeException("Error al refrescar cotización"));
+        
+        return cotizacionMapper.toResponse(refreshed);
     }
 
     private void sincronizarItems(Long cotizacionId, CotizacionRequest request, CotizacionEntity cotizacion) {
         // Obtener items existentes de la base de datos
         List<ItemCotizacionEntity> itemsExistentes = itemCotizacionRepository.findByCotizacionId(cotizacionId);
 
-        // Procesar items del request
+        // IDs de items en el request (solo los que tienen ID, son existentes)
+        List<Long> idsItemsRequest = request.getItems().stream()
+                .filter(i -> i.getId() != null)
+                .map(ItemCotizacionRequest::getId)
+                .collect(Collectors.toList());
+
+        // PASO 1: Eliminar items que NO están en el request (fueron removidos)
+        itemsExistentes.forEach(itemExistente -> {
+            if (!idsItemsRequest.contains(itemExistente.getId())) {
+                itemCotizacionRepository.delete(itemExistente);
+            }
+        });
+
+        // PASO 2: Procesar items del request (actualizar existentes o crear nuevos)
         List<ItemCotizacionEntity> itemsActualizados = request.getItems().stream()
                 .map(itemRequest -> {
                     if (itemRequest.getId() != null) {
@@ -183,22 +203,10 @@ public class CotizacionServiceImpl implements ICotizacionService {
                 })
                 .collect(Collectors.toList());
 
-        // Eliminar items que no están en el request
-        List<Long> idsItemsRequest = request.getItems().stream()
-                .filter(i -> i.getId() != null)
-                .map(ItemCotizacionRequest::getId)
-                .collect(Collectors.toList());
-
-        itemsExistentes.forEach(itemExistente -> {
-            if (!idsItemsRequest.contains(itemExistente.getId())) {
-                itemCotizacionRepository.delete(itemExistente);
-            }
-        });
-
-        // Guardar o actualizar todos los items
+        // PASO 3: Guardar o actualizar todos los items procesados
         itemCotizacionRepository.saveAll(itemsActualizados);
-
-        // Actualizar la lista de items en la entidad
+        
+        // PASO 4: Actualizar la lista de items en la entidad
         cotizacion.setItems(itemsActualizados);
     }
 
