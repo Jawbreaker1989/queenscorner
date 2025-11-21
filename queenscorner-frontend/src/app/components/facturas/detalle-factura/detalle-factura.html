@@ -13,7 +13,7 @@
     <div class="header">
       <div class="header-content">
         <h1>📄 Factura {{ factura.numeroFactura }}</h1>
-        <p class="subtitle">{{ factura.nombreCliente }}</p>
+        <p class="subtitle">{{ factura.nombreCliente || factura.negocio?.cliente?.nombre }}</p>
       </div>
       <div class="header-actions">
         <button class="btn btn-secondary" (click)="volver()">
@@ -32,6 +32,10 @@
             <span class="value codigo">{{ factura.numeroFactura }}</span>
           </div>
           <div class="info-row">
+            <span class="label">Fecha Emisión:</span>
+            <span class="value">{{ factura.fechaEmision | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-row">
             <span class="label">Estado:</span>
             <span [ngClass]="getEstadoColor(factura.estado)" class="badge">
               {{ factura.estado }}
@@ -43,24 +47,43 @@
           <h3>👤 Información Cliente</h3>
           <div class="info-row">
             <span class="label">Nombre:</span>
-            <span class="value">{{ factura.negocio?.cliente?.nombre }}</span>
+            <span class="value">{{ factura.nombreCliente || factura.negocio?.cliente?.nombre }}</span>
           </div>
           <div class="info-row">
             <span class="label">Email:</span>
-            <span class="value">{{ factura.negocio?.cliente?.email || factura.emailCliente }}</span>
+            <span class="value">{{ factura.emailCliente || factura.negocio?.cliente?.email || 'N/A' }}</span>
           </div>
           <div class="info-row">
             <span class="label">Teléfono:</span>
-            <span class="value">{{ factura.negocio?.cliente?.telefono || factura.telefonoCliente }}</span>
+            <span class="value">{{ factura.telefonoCliente || factura.negocio?.cliente?.telefono || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Dirección:</span>
+            <span class="value">{{ factura.negocio?.cliente?.direccion || 'N/A' }}</span>
           </div>
         </div>
       </div>
 
+      <!-- Información del Negocio -->
+      <div class="info-box">
+        <h3>💼 Información del Negocio</h3>
+        <div class="info-row">
+          <span class="label">Negocio:</span>
+          <span class="value">{{ factura.nombreNegocio || factura.negocio?.numero }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total Cotización:</span>
+          <span class="value">${{ factura.negocio?.totalCotizacion | number: '1.2-2' }}</span>
+        </div>
+      </div>
 
       <!-- Líneas de Factura -->
       <div class="lineas-section">
         <h3>📦 Líneas de Factura</h3>
-        <div class="tabla-contenedor">
+        <div *ngIf="!factura.lineas || factura.lineas.length === 0" class="empty-state">
+          <p>No hay líneas registradas en esta factura</p>
+        </div>
+        <div *ngIf="factura.lineas && factura.lineas.length > 0" class="tabla-contenedor">
           <table class="tabla">
             <thead>
               <tr>
@@ -68,7 +91,7 @@
                 <th>Descripción</th>
                 <th>Cantidad</th>
                 <th>V. Unitario</th>
-                <th>Total</th>
+                <th>Total Línea</th>
               </tr>
             </thead>
             <tbody>
@@ -77,35 +100,55 @@
                 <td class="descripcion">{{ linea.descripcion }}</td>
                 <td class="cantidad">{{ linea.cantidad }}</td>
                 <td class="monto">${{ linea.valorUnitario | number: '1.2-2' }}</td>
-                <td class="monto-total">${{ linea.total | number: '1.2-2' }}</td>
+                <td class="monto-total"><strong>${{ linea.total | number: '1.2-2' }}</strong></td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Totales -->
-      <div class="totales-section">
-        <h3>💰 Totales</h3>
-        <div class="total-item">
-          <span class="label">Anticipo:</span>
-          <span class="value">${{ factura.anticipo | number: '1.2-2' }}</span>
-        </div>
-        <div class="total-item">
-          <span class="label">Subtotal:</span>
-          <span class="value">${{ factura.subtotalItems | number: '1.2-2' }}</span>
-        </div>
-        <div class="total-item">
-          <span class="label">Base Gravable:</span>
-          <span class="value">${{ factura.baseGravable | number: '1.2-2' }}</span>
-        </div>
-        <div class="total-item">
-          <span class="label">IVA 19%:</span>
-          <span class="value">${{ factura.iva19 | number: '1.2-2' }}</span>
-        </div>
-        <div class="total-item total">
-          <span class="label">TOTAL A PAGAR:</span>
-          <span class="value">${{ factura.totalAPagar | number: '1.2-2' }}</span>
+      <!-- Resumen de Pagos y Totales -->
+      <div class="resumen-pagos-section">
+        <div class="resumen-box">
+          <h3>💰 Resumen de Pagos</h3>
+          
+          <div class="payment-summary">
+            <div class="payment-item anticipo">
+              <span class="label">Anticipo Pagado:</span>
+              <span class="value">${{ factura.anticipo | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="payment-item subtotal">
+              <span class="label">Subtotal Factura:</span>
+              <span class="value">${{ factura.subtotalItems | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="payment-item">
+              <span class="label">Base Gravable:</span>
+              <span class="value">${{ factura.baseGravable | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="payment-item impuestos">
+              <span class="label">Impuestos (IVA 19%):</span>
+              <span class="value">${{ factura.iva19 | number: '1.2-2' }}</span>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <div class="payment-item total-pagar">
+              <span class="label">TOTAL A PAGAR:</span>
+              <span class="value total"><strong>${{ factura.totalAPagar | number: '1.2-2' }}</strong></span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="payment-item saldo">
+              <span class="label">Saldo Pendiente:</span>
+              <span class="value pendiente">${{ (factura.totalAPagar - factura.anticipo) | number: '1.2-2' }}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -123,15 +166,41 @@
 
       <!-- Acciones -->
       <div class="acciones-footer">
-        <button class="btn btn-secondary" (click)="volver()">
-          ← Volver
-        </button>
-        <button *ngIf="factura.rutaPdf" class="btn btn-descargar" (click)="descargarPdf()">
-          📥 Descargar PDF
-        </button>
-        <button *ngIf="factura.estado === 'EN_REVISION'" class="btn btn-emitir" (click)="emitirFactura()">
-          📤 Emitir Factura
-        </button>
+        <div class="acciones-left">
+          <button class="btn btn-secondary" (click)="volver()">
+            ← Volver
+          </button>
+        </div>
+        <div class="acciones-right">
+          <button 
+            *ngIf="factura.estado === 'EN_REVISION' && !generandoPdf" 
+            class="btn btn-generar-pdf" 
+            (click)="generarPdf()"
+            title="Generar PDF de la factura">
+            📄 Generar PDF
+          </button>
+          <button 
+            *ngIf="generandoPdf" 
+            class="btn btn-generar-pdf loading" 
+            disabled
+            title="Generando PDF...">
+            ⏳ Generando PDF...
+          </button>
+          <button 
+            *ngIf="factura.rutaPdf || factura.pathPdf" 
+            class="btn btn-descargar" 
+            (click)="descargarPdf()"
+            title="Descargar PDF">
+            📥 Descargar PDF
+          </button>
+          <button 
+            *ngIf="factura.estado === 'EN_REVISION'" 
+            class="btn btn-emitir" 
+            (click)="emitirFactura()"
+            title="Enviar factura">
+            📤 Emitir Factura
+          </button>
+        </div>
       </div>
     </div>
   </div>

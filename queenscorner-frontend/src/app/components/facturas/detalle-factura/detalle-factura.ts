@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { Factura, ApiResponse } from '../../../models/factura.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-detalle-factura',
@@ -15,6 +16,7 @@ export class DetalleFacturaComponent implements OnInit {
   factura: Factura | null = null;
   loading = true;
   error: string | null = null;
+  generandoPdf = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -41,6 +43,7 @@ export class DetalleFacturaComponent implements OnInit {
           this.factura = response;
         }
         this.loading = false;
+        console.log('Factura cargada:', this.factura);
       },
       error: (error: any) => {
         this.error = 'Error al cargar factura: ' + (error?.error?.message || 'Error desconocido');
@@ -60,11 +63,38 @@ export class DetalleFacturaComponent implements OnInit {
     return colores[estado] || 'badge-secondary';
   }
 
+  generarPdf() {
+    if (!this.factura) return;
+    
+    if (this.factura.estado !== 'EN_REVISION') {
+      Swal.fire('Error', 'Solo se pueden generar PDFs para facturas en estado EN_REVISION', 'error');
+      return;
+    }
+
+    this.generandoPdf = true;
+    
+    this.facturaService.generarPdf(this.factura.id).subscribe({
+      next: (response: ApiResponse<Factura>) => {
+        this.generandoPdf = false;
+        this.factura = response.data;
+        Swal.fire('Éxito', 'PDF generado correctamente', 'success');
+        // Recargar la factura para obtener la ruta del PDF actualizada
+        this.cargarFactura(this.factura.id);
+      },
+      error: (error: any) => {
+        this.generandoPdf = false;
+        const mensaje = error?.error?.message || 'Error desconocido';
+        console.error('Error generando PDF:', error);
+        Swal.fire('Error', `Error al generar PDF: ${mensaje}`, 'error');
+      }
+    });
+  }
+
   descargarPdf() {
     if (!this.factura) return;
     
-    if (!this.factura.rutaPdf) {
-      alert('PDF aún no disponible');
+    if (!this.factura.rutaPdf && !this.factura.pathPdf) {
+      Swal.fire('Información', 'PDF aún no disponible. Genera el PDF primero.', 'info');
       return;
     }
 
@@ -81,7 +111,7 @@ export class DetalleFacturaComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error descargando PDF', error);
-        alert('Error al descargar PDF');
+        Swal.fire('Error', 'Error al descargar PDF', 'error');
       }
     });
   }
@@ -90,22 +120,31 @@ export class DetalleFacturaComponent implements OnInit {
     if (!this.factura) return;
     
     if (this.factura.estado !== 'EN_REVISION') {
-      alert('Solo se pueden enviar facturas en estado EN_REVISION');
+      Swal.fire('Error', 'Solo se pueden enviar facturas en estado EN_REVISION', 'error');
       return;
     }
 
-    if (confirm(`¿Enviar factura ${this.factura.numeroFactura}?`)) {
-      this.facturaService.emitirFactura(this.factura.id).subscribe({
-        next: (response: ApiResponse<Factura>) => {
-          this.factura = response.data;
-          alert('Factura enviada correctamente');
-        },
-        error: (error: any) => {
-          console.error('Error al enviar factura', error);
-          alert('Error al enviar factura: ' + (error?.error?.message || 'Error desconocido'));
-        }
-      });
-    }
+    Swal.fire({
+      title: '¿Emitir factura?',
+      text: `¿Desea emitir la factura ${this.factura.numeroFactura}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, emitir',
+      cancelButtonText: 'Cancelar'
+    }).then(result => {
+      if (result.isConfirmed) {
+        this.facturaService.emitirFactura(this.factura!.id).subscribe({
+          next: (response: ApiResponse<Factura>) => {
+            this.factura = response.data;
+            Swal.fire('Éxito', 'Factura emitida correctamente', 'success');
+          },
+          error: (error: any) => {
+            console.error('Error al emitir factura', error);
+            Swal.fire('Error', 'Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'), 'error');
+          }
+        });
+      }
+    });
   }
 
   volver() {

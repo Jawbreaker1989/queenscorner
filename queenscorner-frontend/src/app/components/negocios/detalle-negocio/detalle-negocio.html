@@ -13,12 +13,6 @@
                 title="Crear factura para este negocio">
           📋 Nueva Factura
         </button>
-        <button class="btn-facturas-header" 
-                (click)="irAFacturas()"
-                *ngIf="negocio?.estado === 'FINALIZADO'"
-                title="Ver facturas de este negocio">
-          📄 Ver Facturas
-        </button>
         <button class="btn-editar-header" (click)="editar()" 
                 [disabled]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO'"
                 [title]="negocio?.estado === 'FINALIZADO' || negocio?.estado === 'CANCELADO' ? 'No se puede editar en este estado' : 'Editar negocio'">

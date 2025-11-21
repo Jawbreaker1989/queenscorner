@@ -129,10 +129,6 @@ export class DetalleNegocioComponent implements OnInit {
     this.router.navigate(['/negocios/editar', this.negocio?.id]);
   }
 
-  irAFacturas(): void {
-    this.router.navigate(['/facturas'], { queryParams: { negocioId: this.negocio?.id, negocioNombre: this.negocio?.codigo } });
-  }
-
   crearFactura(): void {
     if (!this.negocio) {
       Swal.fire('Error', 'Negocio no disponible', 'error');

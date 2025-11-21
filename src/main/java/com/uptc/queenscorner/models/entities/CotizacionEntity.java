@@ -1,6 +1,8 @@
 package com.uptc.queenscorner.models.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +22,8 @@ public class CotizacionEntity {
     @Column(name = "numero_cotizacion", unique = true, nullable = false)
     private String numeroCotizacion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "cliente_id", nullable = false)
     private ClienteEntity cliente;
 

@@ -12,18 +12,7 @@
     ✗ {{ error }}
   </div>
 
-  <!-- INDICADOR DE PASOS -->
-  <div class="steps-indicator" *ngIf="paso > 1">
-    <div class="step" [class.active]="paso === 2">
-      <div class="step-number">1</div>
-      <div class="step-label">Información</div>
-    </div>
-    <div class="step-line"></div>
-    <div class="step" [class.active]="paso === 2">
-      <div class="step-number">2</div>
-      <div class="step-label">Items</div>
-    </div>
-  </div>
+
 
   <form [formGroup]="form" (ngSubmit)="crearFactura()" class="form-container">
     <!-- SECCIÓN 1: DATOS BÁSICOS (NO EDITABLE si viene de queryParams) -->
@@ -41,7 +30,7 @@
             required>
             <option value="">-- Selecciona un negocio --</option>
             <option *ngFor="let negocio of negocios" [value]="negocio.id">
-              {{ negocio.codigo }} - {{ negocio.cliente.nombre }}
+              {{ negocio.codigo }} - {{ negocio.cliente?.nombre }}
             </option>
           </select>
         </div>
@@ -63,11 +52,21 @@
           <div class="info-row" *ngIf="negocioSeleccionado.cliente">
             <div class="info-group">
               <label>Correo:</label>
-              <p>{{ negocioSeleccionado.cliente?.email || 'N/A' }}</p>
+              <p>{{ negocioSeleccionado.cliente.email || 'N/A' }}</p>
             </div>
             <div class="info-group">
               <label>Teléfono:</label>
-              <p>{{ negocioSeleccionado.cliente?.telefono || 'N/A' }}</p>
+              <p>{{ negocioSeleccionado.cliente.telefono || 'N/A' }}</p>
+            </div>
+          </div>
+          <div class="info-row" *ngIf="negocioSeleccionado.cliente">
+            <div class="info-group">
+              <label>Dirección:</label>
+              <p>{{ negocioSeleccionado.cliente.direccion || 'N/A' }}</p>
+            </div>
+            <div class="info-group">
+              <label>Ciudad:</label>
+              <p>{{ negocioSeleccionado.cliente.ciudad || 'N/A' }}</p>
             </div>
           </div>
           <div class="info-row">

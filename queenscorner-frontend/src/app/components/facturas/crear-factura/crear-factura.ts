@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -35,7 +35,8 @@ export class CrearFacturaComponent implements OnInit {
     private negociosService: NegociosService,
     private cotizacionesService: CotizacionesService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       negocioId: [null],
@@ -50,14 +51,24 @@ export class CrearFacturaComponent implements OnInit {
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['negocioId']) {
         const negocioId = parseInt(params['negocioId'], 10);
-        setTimeout(() => {
-          this.form.patchValue({ negocioId: negocioId });
-          this.onNegocioChange(negocioId);
-          
-          // Deshabilitar campos de negocio una vez cargado
-          this.form.get('negocioId')?.disable();
-          this.paso = 2; // Ir al paso de agregar items
-        }, 500);
+        
+        // Esperar a que se carguen los negocios, luego seleccionar
+        const checkAndSelect = () => {
+          if (this.negocios.length > 0) {
+            this.form.patchValue({ negocioId: negocioId });
+            this.onNegocioChange(negocioId);
+            
+            // Deshabilitar campos de negocio una vez cargado
+            this.form.get('negocioId')?.disable();
+            this.paso = 2; // Ir al paso de agregar items
+            this.cdr.markForCheck();
+          } else {
+            // Reintentar en 200ms si los negocios no se han cargado
+            setTimeout(checkAndSelect, 200);
+          }
+        };
+        
+        checkAndSelect();
       }
     });
   }
@@ -66,6 +77,17 @@ export class CrearFacturaComponent implements OnInit {
     this.negociosService.obtenerTodos().subscribe({
       next: (response: ApiResponse<NegocioResponse[]>) => {
         this.negocios = response.data || [];
+        console.log('Negocios cargados:', this.negocios);
+        // Log cada negocio para debugging
+        this.negocios.forEach(neg => {
+          console.log(`Negocio ${neg.codigo}:`, {
+            id: neg.id,
+            codigo: neg.codigo,
+            cliente: neg.cliente,
+            cotizacionId: neg.cotizacionId,
+            cotizacion: neg.cotizacion
+          });
+        });
       },
       error: (err: any) => {
         this.error = 'Error al cargar negocios';
@@ -80,6 +102,7 @@ export class CrearFacturaComponent implements OnInit {
       this.cotizacion = null;
       this.lineas = [];
       this.negocioSeleccionado = null;
+      this.cdr.markForCheck();
       return;
     }
 
@@ -90,6 +113,11 @@ export class CrearFacturaComponent implements OnInit {
     }
     
     this.negocioSeleccionado = negocio;
+    
+    // Log para debugging
+    console.log('Negocio seleccionado:', this.negocioSeleccionado);
+    console.log('Cliente del negocio:', this.negocioSeleccionado.cliente);
+    console.log('Cliente nombre:', this.negocioSeleccionado.cliente?.nombre);
     
     // Usar la cotización que viene en el negocio (ahora incluida en la respuesta)
     if (negocio.cotizacion) {
@@ -126,6 +154,7 @@ export class CrearFacturaComponent implements OnInit {
           } else {
             this.lineas = [];
           }
+          this.cdr.markForCheck();
         },
         error: (err: any) => {
           this.error = 'Error al cargar cotización';
@@ -137,6 +166,9 @@ export class CrearFacturaComponent implements OnInit {
       this.cotizacion = null;
       this.lineas = [];
     }
+    
+    // Forzar detección de cambios
+    this.cdr.markForCheck();
   }
 
   agregarLinea() {

@@ -287,6 +287,179 @@
   font-size: 18px;
 }
 
+/* Nuevo estilo para resumen de pagos */
+.resumen-pagos-section {
+  margin-bottom: 30px;
+}
+
+.resumen-box {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 25px;
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.resumen-box h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 700;
+  text-align: center;
+}
+
+.payment-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: white;
+  border-bottom: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.payment-item:last-child {
+  border-bottom: none;
+  border-radius: 0 0 6px 6px;
+}
+
+.payment-item:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.payment-item .label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.payment-item .value {
+  font-weight: 700;
+  font-size: 15px;
+  color: #212529;
+}
+
+.payment-item.anticipo {
+  background-color: #e7f3ff;
+  border-bottom: 2px solid #b3d9ff;
+}
+
+.payment-item.anticipo .value {
+  color: #0056b3;
+}
+
+.payment-item.subtotal {
+  background-color: #fff3e0;
+  border-bottom: 1px solid #ffe0b2;
+}
+
+.payment-item.subtotal .value {
+  color: #e65100;
+}
+
+.payment-item.impuestos {
+  background-color: #f3e5f5;
+  border-bottom: 1px solid #e1bee7;
+}
+
+.payment-item.impuestos .value {
+  color: #6a1b9a;
+}
+
+.payment-item.total-pagar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.payment-item.total-pagar .label {
+  color: white;
+  font-size: 16px;
+}
+
+.payment-item.total-pagar .value.total {
+  color: #fff;
+  font-size: 22px;
+}
+
+.payment-item.saldo {
+  background-color: #f0f7f4;
+  border-radius: 6px;
+  margin-top: 10px;
+  border: 2px solid #a8d5ba;
+}
+
+.payment-item.saldo .value.pendiente {
+  color: #1b5e20;
+  font-size: 16px;
+}
+
+.divider {
+  height: 1px;
+  background-color: #dee2e6;
+  margin: 5px 0;
+}
+
+.divider-thick {
+  height: 2px;
+  background-color: #667eea;
+  margin: 8px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.btn-generar-pdf {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-generar-pdf:hover {
+  background-color: #f57c00;
+}
+
+.btn-generar-pdf.loading {
+  background-color: #bdbdbd;
+  cursor: not-allowed;
+}
+
+.acciones-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e3e5;
+  flex-wrap: wrap;
+}
+
+.acciones-left {
+  display: flex;
+  gap: 10px;
+}
+
+.acciones-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .notas,
 .condiciones {
   margin: 0;
@@ -340,6 +513,28 @@
   flex-wrap: wrap;
 }
 
+.acciones-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e2e3e5;
+  flex-wrap: wrap;
+}
+
+.acciones-left {
+  display: flex;
+  gap: 10px;
+}
+
+.acciones-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 @media (max-width: 768px) {
   .contenedor {
     padding: 10px;
@@ -389,8 +584,39 @@
     flex-direction: column;
   }
 
-  .acciones-footer .btn {
+  .acciones-footer .btn,
+  .acciones-left,
+  .acciones-right {
+    width: 100%;
+  }
+
+  .acciones-left,
+  .acciones-right {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .acciones-left .btn,
+  .acciones-right .btn {
     width: 100%;
     text-align: center;
+  }
+
+  .payment-item {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .payment-item .label,
+  .payment-item .value {
+    font-size: 13px;
+  }
+
+  .payment-item.total-pagar {
+    padding: 12px;
+  }
+
+  .payment-item.total-pagar .value.total {
+    font-size: 18px;
   }
 }

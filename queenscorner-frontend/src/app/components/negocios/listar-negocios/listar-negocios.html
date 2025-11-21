@@ -49,7 +49,7 @@
                 {{ negocio.codigoCotizacion || '-' }}
               </a>
             </td>
-            <td class="cliente">{{ negocio.cliente.nombre }}</td>
+            <td class="cliente">{{ negocio.cliente?.nombre }}</td>
             <td class="presupuesto">
               <span class="monto">${{ negocio.presupuestoAsignado | number: '1.2-2' }}</span>
               <span class="saldo-pendiente">(${{ negocio.saldoPendiente | number: '1.2-2' }} saldo)</span>

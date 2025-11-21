@@ -60,11 +60,15 @@ public class NegocioMapper {
         
         // Extraer cotización ID, cliente y COTIZACIÓN COMPLETA de la cotización
         if (entity.getCotizacion() != null) {
-            response.setCotizacionId(entity.getCotizacion().getId());
+            CotizacionEntity cotizacion = entity.getCotizacion();
+            response.setCotizacionId(cotizacion.getId());
             // Mapear la cotización completa con sus items
-            response.setCotizacion(cotizacionMapper.toResponse(entity.getCotizacion()));
-            if (entity.getCotizacion().getCliente() != null) {
-                ClienteResponse cliente = clienteMapper.toResponse(entity.getCotizacion().getCliente());
+            response.setCotizacion(cotizacionMapper.toResponse(cotizacion));
+            
+            // SIEMPRE extraer el cliente de la cotización
+            // El cliente es mandatorio en cotizacion
+            if (cotizacion.getCliente() != null) {
+                ClienteResponse cliente = clienteMapper.toResponse(cotizacion.getCliente());
                 response.setCliente(cliente);
             }
         }

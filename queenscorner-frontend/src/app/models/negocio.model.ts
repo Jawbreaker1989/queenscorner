@@ -1,5 +1,16 @@
 export type EstadoNegocio = 'EN_REVISION' | 'CANCELADO' | 'FINALIZADO';
 
+export interface ClienteInfoNegocio {
+  id: number;
+  nombre: string;
+  email: string;
+  telefono: string;
+  direccion: string;
+  ciudad: string;
+  fechaCreacion?: string;
+  estado?: string;
+}
+
 export interface NegocioRequest {
   cotizacionId: number;
   descripcion: string;
@@ -16,14 +27,7 @@ export interface NegocioResponse {
   id: number;
   cotizacionId: number;
   codigo: string;
-  cliente: {
-    id: number;
-    nombre: string;
-    email: string;
-    telefono: string;
-    direccion: string;
-    ciudad: string;
-  };
+  cliente?: ClienteInfoNegocio;
   estado: EstadoNegocio;
   fechaCreacion: string;
   fechaActualizacion?: string;
