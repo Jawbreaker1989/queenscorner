@@ -41,10 +41,6 @@ public class FacturaValidationService {
             throw new RuntimeException("Factura no encontrada");
         }
 
-        if (factura.getEstado() != FacturaEntity.EstadoFactura.EN_REVISION) {
-            throw new RuntimeException("Solo facturas en estado EN_REVISION pueden ser enviadas. Estado actual: " + factura.getEstado());
-        }
-
         if (factura.getLineas() == null || factura.getLineas().isEmpty()) {
             throw new RuntimeException("La factura debe tener al menos una línea para ser enviada");
         }
@@ -62,10 +58,6 @@ public class FacturaValidationService {
     public void validarFacturaParaAgregarLinea(FacturaEntity factura) {
         if (factura == null) {
             throw new RuntimeException("Factura no encontrada");
-        }
-
-        if (factura.getEstado() != FacturaEntity.EstadoFactura.EN_REVISION) {
-            throw new RuntimeException("No se pueden agregar líneas a factura que no está en EN_REVISION. Estado actual: " + factura.getEstado());
         }
     }
 

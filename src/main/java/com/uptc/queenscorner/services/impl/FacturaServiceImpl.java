@@ -51,7 +51,7 @@ public class FacturaServiceImpl implements IFacturaService {
         factura.setNegocio(negocio);
         factura.setCotizacion(cotizacion);
         factura.setUsuarioCreacion(usuario);
-        factura.setEstado(FacturaEntity.EstadoFactura.EN_REVISION);
+        factura.setEstado("ENVIADA");
         factura.setNumeroFactura("FAC-" + System.currentTimeMillis());
         
         // Copiar anticipo del negocio

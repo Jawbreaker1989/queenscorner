@@ -66,9 +66,8 @@ public class FacturaEntity {
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal total = BigDecimal.ZERO;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EstadoFactura estado = EstadoFactura.EN_REVISION;
+    @Column(nullable = false, length = 50)
+    private String estado = "ENVIADA";
 
     @Column(columnDefinition = "TEXT")
     private String observaciones;
@@ -82,15 +81,11 @@ public class FacturaEntity {
     @Column(name = "path_pdf", length = 500)
     private String pathPdf;
 
-    public enum EstadoFactura {
-        EN_REVISION, ENVIADA, PAGADA, ANULADA
-    }
-
     public FacturaEntity() {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaEmision = LocalDateTime.now();
         this.codigo = "COD-" + System.currentTimeMillis();
-        this.estado = EstadoFactura.EN_REVISION;
+        this.estado = "ENVIADA";
         this.subtotal = BigDecimal.ZERO;
         this.iva = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
@@ -114,15 +109,12 @@ public class FacturaEntity {
     }
 
     public void cambiarAEnviada(String usuario) {
-        this.estado = EstadoFactura.ENVIADA;
         this.usuarioEnvio = usuario;
         this.fechaEnvio = LocalDateTime.now();
     }
 
     public boolean puedeSerEnviada() {
-        return this.estado == EstadoFactura.EN_REVISION 
-            && !this.lineas.isEmpty() 
-            && this.negocio != null;
+        return !this.lineas.isEmpty() && this.negocio != null;
     }
 
     public Long getId() { return id; }
@@ -152,8 +144,8 @@ public class FacturaEntity {
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
 
-    public EstadoFactura getEstado() { return estado; }
-    public void setEstado(EstadoFactura estado) { this.estado = estado; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
 
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }

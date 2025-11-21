@@ -13,6 +13,4 @@ public interface IFacturaRepository extends JpaRepository<FacturaEntity, Long> {
     Optional<FacturaEntity> findByNumeroFactura(String numeroFactura);
     
     List<FacturaEntity> findByNegocioId(Long negocioId);
-    
-    List<FacturaEntity> findByEstado(FacturaEntity.EstadoFactura estado);
 }
