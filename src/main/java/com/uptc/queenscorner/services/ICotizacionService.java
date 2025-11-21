@@ -12,4 +12,4 @@ public interface ICotizacionService {
     CotizacionResponse update(Long id, CotizacionRequest request);
     CotizacionResponse cambiarEstado(Long id, String estado);
     void delete(Long id);
-}
+} 

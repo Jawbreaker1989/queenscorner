@@ -179,4 +179,4 @@ public class FacturaEntity {
 
     public BigDecimal getTotalAPagar() { return totalAPagar; }
     public void setTotalAPagar(BigDecimal totalAPagar) { this.totalAPagar = totalAPagar; }
-}
+} 

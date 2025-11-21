@@ -16,7 +16,6 @@ public class FacturaMapper {
         response.setNumeroFactura(entity.getNumeroFactura());
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setFechaEnvio(entity.getFechaEnvio());
-        // Estado es ahora String, no enum
         response.setEstado(entity.getEstado() != null ? entity.getEstado() : "ENVIADA");
         response.setSubtotal(entity.getSubtotal());
         response.setIva(entity.getIva());
@@ -84,4 +83,4 @@ public class FacturaMapper {
         
         return response;
     }
-}
+} 

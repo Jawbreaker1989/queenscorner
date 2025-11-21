@@ -14,4 +14,4 @@ public interface INegocioRepository extends JpaRepository<NegocioEntity, Long> {
     Optional<NegocioEntity> findByCotizacion(CotizacionEntity cotizacion);
     List<NegocioEntity> findByEstado(NegocioEntity.EstadoNegocio estado);
     boolean existsByCodigo(String codigo);
-}
+} 

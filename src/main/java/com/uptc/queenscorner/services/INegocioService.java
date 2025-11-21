@@ -13,4 +13,4 @@ public interface INegocioService {
     NegocioResponse update(Long id, NegocioRequest request);
     NegocioResponse cambiarEstado(Long id, String estado);
     List<NegocioResponse> findByEstado(String estado);
-}
+} 

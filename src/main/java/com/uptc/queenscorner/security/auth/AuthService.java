@@ -22,4 +22,4 @@ public class AuthService {
     private boolean validarCredenciales(String username, String password) {
         return "admin".equals(username) && "admin123".equals(password);
     }
-}
+} 

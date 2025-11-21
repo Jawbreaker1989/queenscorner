@@ -5,16 +5,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class NegocioResponse {
-    // ===== DATOS DEL NEGOCIO =====
+
     private Long id;
     private String codigo;
     private Long cotizacionId;
-    private CotizacionResponse cotizacion; // NUEVA: Cotización completa con items
+    private CotizacionResponse cotizacion; 
     private ClienteResponse cliente;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
 
-    // ===== DATOS DESNORMALIZADOS DE COTIZACIÓN (READ-ONLY) =====
     private String codigoCotizacion;
     private String estadoCotizacion;
     private LocalDateTime fechaCotizacion;
@@ -25,18 +24,18 @@ public class NegocioResponse {
     private BigDecimal totalCotizacion;
     private String observacionesCotizacion;
 
-    // ===== DATOS EDITABLES DEL NEGOCIO =====
+ 
     private LocalDate fechaInicio;
     private LocalDate fechaFinEstimada;
     private String estado;
     private BigDecimal presupuestoAsignado;
     private BigDecimal anticipo;
-    private BigDecimal saldoPendiente; // READ-ONLY: totalCotizacion - anticipo
+    private BigDecimal saldoPendiente; 
     private String responsable;
     private String descripcion;
     private String observaciones;
 
-    // Getters y Setters - Datos Negocio Base
+   
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -58,7 +57,7 @@ public class NegocioResponse {
     public LocalDateTime getFechaActualizacion() { return fechaActualizacion; }
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
 
-    // Getters y Setters - Datos Desnormalizados Cotización
+    
     public String getCodigoCotizacion() { return codigoCotizacion; }
     public void setCodigoCotizacion(String codigoCotizacion) { this.codigoCotizacion = codigoCotizacion; }
     
@@ -86,7 +85,6 @@ public class NegocioResponse {
     public String getObservacionesCotizacion() { return observacionesCotizacion; }
     public void setObservacionesCotizacion(String observacionesCotizacion) { this.observacionesCotizacion = observacionesCotizacion; }
 
-    // Getters y Setters - Datos Editables Negocio
     public LocalDate getFechaInicio() { return fechaInicio; }
     public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
     

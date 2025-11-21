@@ -43,4 +43,4 @@ public class CotizacionResponse {
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
     public List<ItemCotizacionResponse> getItems() { return items; }
     public void setItems(List<ItemCotizacionResponse> items) { this.items = items; }
-}
+} 

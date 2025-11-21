@@ -164,4 +164,4 @@ public class FacturaServiceImpl implements IFacturaService {
     public FacturaResponse obtenerResumen(Long facturaId) {
         return obtenerFactura(facturaId);
     }
-}
+} 

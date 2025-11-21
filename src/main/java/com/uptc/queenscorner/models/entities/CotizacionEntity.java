@@ -82,4 +82,4 @@ public class CotizacionEntity {
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
     public List<ItemCotizacionEntity> getItems() { return items; }
     public void setItems(List<ItemCotizacionEntity> items) { this.items = items; }
-}
+} 

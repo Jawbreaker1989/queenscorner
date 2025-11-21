@@ -25,3 +25,4 @@ public class AgregarLineaRequest {
     public BigDecimal getValorUnitario() { return valorUnitario; }
     public void setValorUnitario(BigDecimal valorUnitario) { this.valorUnitario = valorUnitario; }
 }
+ 

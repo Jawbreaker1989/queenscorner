@@ -45,4 +45,4 @@ public class GlobalExceptionHandler {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-}
+} 

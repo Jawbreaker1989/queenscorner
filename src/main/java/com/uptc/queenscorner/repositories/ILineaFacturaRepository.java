@@ -9,4 +9,4 @@ import java.util.List;
 @Repository
 public interface ILineaFacturaRepository extends JpaRepository<LineaFacturaEntity, Long> {
     List<LineaFacturaEntity> findByFacturaId(Long facturaId);
-}
+} 

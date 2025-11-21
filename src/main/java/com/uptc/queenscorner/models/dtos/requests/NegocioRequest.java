@@ -32,4 +32,4 @@ public class NegocioRequest {
     public void setResponsable(String responsable) { this.responsable = responsable; }
     public String getObservaciones() { return observaciones; }
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
-}
+} 

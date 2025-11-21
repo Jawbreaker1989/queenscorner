@@ -3,7 +3,6 @@ package com.uptc.queenscorner.models.mappers;
 import com.uptc.queenscorner.models.dtos.requests.NegocioRequest;
 import com.uptc.queenscorner.models.dtos.responses.ClienteResponse;
 import com.uptc.queenscorner.models.dtos.responses.NegocioResponse;
-import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.NegocioEntity;
 import com.uptc.queenscorner.models.entities.CotizacionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +24,13 @@ public class NegocioMapper {
         
         NegocioResponse response = new NegocioResponse();
         
-        // ===== DATOS DEL NEGOCIO =====
+   
         response.setId(entity.getId());
         response.setCodigo(entity.getCodigo());
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setFechaActualizacion(entity.getFechaActualizacion());
         
-        // ===== DATOS DESNORMALIZADOS DE COTIZACIÓN =====
+        // DATOS  DE COTIZACION 
         response.setCodigoCotizacion(entity.getCodigoCotizacion());
         response.setEstadoCotizacion(entity.getEstadoCotizacion());
         response.setFechaCotizacion(entity.getFechaCotizacion());
@@ -42,14 +41,12 @@ public class NegocioMapper {
         response.setTotalCotizacion(entity.getTotalCotizacion());
         response.setObservacionesCotizacion(entity.getObservacionesCotizacion());
         
-        // ===== DATOS EDITABLES DEL NEGOCIO =====
+        // DATOS EDITABLES DEL NEGOCIO 
         response.setFechaInicio(entity.getFechaInicio());
         response.setFechaFinEstimada(entity.getFechaFinEstimada());
         response.setEstado(entity.getEstado() != null ? entity.getEstado().name() : "EN_REVISION");
         response.setPresupuestoAsignado(entity.getPresupuestoAsignado());
-        // ANTICIPO: Es un campo exclusivo del Negocio (no viene de cotización)
         response.setAnticipo(entity.getAnticipo());
-        // SALDO PENDIENTE (READ-ONLY): totalCotizacion - anticipo
         if (entity.getTotalCotizacion() != null && entity.getAnticipo() != null) {
             response.setSaldoPendiente(entity.getTotalCotizacion().subtract(entity.getAnticipo()));
         } else if (entity.getTotalCotizacion() != null) {

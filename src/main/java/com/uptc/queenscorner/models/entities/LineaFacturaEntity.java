@@ -58,4 +58,4 @@ public class LineaFacturaEntity {
     public void setValorUnitario(BigDecimal valorUnitario) { this.valorUnitario = valorUnitario; }
 
     public BigDecimal getTotal() { return total; }
-}
+} 

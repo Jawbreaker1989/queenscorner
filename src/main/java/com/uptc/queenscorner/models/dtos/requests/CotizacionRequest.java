@@ -20,4 +20,4 @@ public class CotizacionRequest {
     public void setObservaciones(String observaciones) { this.observaciones = observaciones; }
     public List<ItemCotizacionRequest> getItems() { return items; }
     public void setItems(List<ItemCotizacionRequest> items) { this.items = items; }
-}
+} 

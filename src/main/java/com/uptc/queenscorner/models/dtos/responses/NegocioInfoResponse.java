@@ -32,4 +32,4 @@ public class NegocioInfoResponse {
 
     public BigDecimal getPresupuestoAsignado() { return presupuestoAsignado; }
     public void setPresupuestoAsignado(BigDecimal presupuestoAsignado) { this.presupuestoAsignado = presupuestoAsignado; }
-}
+} 

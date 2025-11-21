@@ -62,7 +62,7 @@ public class NegocioServiceImpl implements INegocioService {
         negocio.setCotizacion(cotizacion);
         negocio.setCodigo(generarCodigoNegocio());
         
-        // POBLAR DATOS DESNORMALIZADOS DE COTIZACIÓN
+        // POBLAR DATOS DE COTIZACIÓN
         negocioMapper.populateDesnormalizedFields(negocio, cotizacion);
         
         // Actualizar con datos del request

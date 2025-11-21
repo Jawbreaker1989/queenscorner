@@ -41,4 +41,4 @@ public class SwaggerConfig {
                                         .bearerFormat("JWT")
                                         .description("JWT token para autenticación")));
     }
-}
+} 

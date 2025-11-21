@@ -39,4 +39,4 @@ public class NegocioInfoResponse {
     
     public ClienteInfoResponse getCliente() { return cliente; }
     public void setCliente(ClienteInfoResponse cliente) { this.cliente = cliente; }
-}
+} 

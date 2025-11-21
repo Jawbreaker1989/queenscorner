@@ -12,4 +12,4 @@ public interface ICotizacionRepository extends JpaRepository<CotizacionEntity, L
     List<CotizacionEntity> findByEstado(CotizacionEntity.EstadoCotizacion estado);
     List<CotizacionEntity> findByClienteId(Long clienteId);
     boolean existsByCodigo(String codigo);
-}
+} 

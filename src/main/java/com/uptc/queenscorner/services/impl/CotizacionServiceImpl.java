@@ -67,7 +67,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
         ClienteEntity cliente = clienteRepository.findById(request.getClienteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
-        // APLICAR DEFAULTS INTELIGENTES
+        // APLICAR DEFAULTS 
         aplicarDefaultsInteligentes(request);
 
         CotizacionEntity cotizacion = new CotizacionEntity();
@@ -224,4 +224,4 @@ public class CotizacionServiceImpl implements ICotizacionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
         cotizacionRepository.delete(cotizacion);
     }
-}
+} 

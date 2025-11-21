@@ -65,4 +65,4 @@ public class FacturaResponse {
     
     public List<LineaFacturaResponse> getLineas() { return lineas; }
     public void setLineas(List<LineaFacturaResponse> lineas) { this.lineas = lineas; }
-}
+} 

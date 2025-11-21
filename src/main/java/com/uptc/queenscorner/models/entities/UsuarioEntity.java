@@ -52,4 +52,4 @@ public class UsuarioEntity {
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) { this.fechaActualizacion = fechaActualizacion; }
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
-}
+} 

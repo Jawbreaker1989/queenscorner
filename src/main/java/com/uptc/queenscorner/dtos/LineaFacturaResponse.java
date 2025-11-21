@@ -40,4 +40,4 @@ public class LineaFacturaResponse {
     
     public BigDecimal getTotal() { return total; }
     public void setTotal(BigDecimal total) { this.total = total; }
-}
+} 

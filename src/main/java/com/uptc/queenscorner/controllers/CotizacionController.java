@@ -6,7 +6,6 @@ import com.uptc.queenscorner.models.dtos.responses.ApiResponse;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.services.ICotizacionService;
 import com.uptc.queenscorner.services.async.PdfAsyncService;
-import com.uptc.queenscorner.services.async.NotificacionAsyncService;
 import com.uptc.queenscorner.repositories.ICotizacionRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,9 +27,6 @@ public class CotizacionController {
 
     @Autowired
     private PdfAsyncService pdfAsyncService;
-
-    @Autowired
-    private NotificacionAsyncService notificacionAsyncService;
 
     @Autowired
     private ICotizacionRepository cotizacionRepository;
@@ -111,14 +107,12 @@ public class CotizacionController {
         
         // PROCESOS SEGÚN ESTADO
         if ("ENVIADA".equals(request.getEstado())) {
-            // Enviar notificación asincrónica al cliente
-            notificacionAsyncService.enviarCotizacionAlCliente(cotizacionEntity);
-            response.setMessage("Estado actualizado a ENVIADA y notificación en proceso (SMS/WhatsApp)");
+            response.setMessage("Estado actualizado a ENVIADA");
         } 
         else if ("APROBADA".equals(request.getEstado())) {
             // Generar PDF de aprobación en hilo separado
             pdfAsyncService.generarPdfCotizacion(cotizacionEntity);
-            response.setMessage("Estado actualizado a APROBADA y PDF en generación (proceso asincrónico)");
+            response.setMessage("Estado actualizado a APROBADA");
         }
         else if ("RECHAZADA".equals(request.getEstado())) {
             response.setMessage("Estado actualizado a RECHAZADA");

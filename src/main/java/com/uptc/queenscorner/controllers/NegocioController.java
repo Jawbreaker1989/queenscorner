@@ -127,4 +127,4 @@ public class NegocioController {
         response.setStatus(HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
-}
+} 

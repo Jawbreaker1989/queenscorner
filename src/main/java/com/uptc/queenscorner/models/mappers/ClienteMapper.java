@@ -38,4 +38,4 @@ public class ClienteMapper {
         if (request.getDireccion() != null) entity.setDireccion(request.getDireccion());
         if (request.getCiudad() != null) entity.setCiudad(request.getCiudad());
     }
-}
+} 

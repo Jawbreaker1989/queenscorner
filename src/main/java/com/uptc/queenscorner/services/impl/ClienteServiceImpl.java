@@ -66,4 +66,4 @@ public class ClienteServiceImpl implements IClienteService {
         cliente.setActivo(false);
         clienteRepository.save(cliente);
     }
-}
+} 

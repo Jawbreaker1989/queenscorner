@@ -53,7 +53,7 @@ public class NegocioEntity {
     @Column(name = "observaciones_cotizacion")
     private String observacionesCotizacion;
 
-    // ===== DATOS DEL NEGOCIO (EDITABLES) =====
+   
     @Column(name = "fecha_inicio")
     private LocalDate fechaInicio;
 
@@ -93,7 +93,7 @@ public class NegocioEntity {
         EN_REVISION, CANCELADO, FINALIZADO
     }
 
-    // Getters y Setters
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -106,7 +106,7 @@ public class NegocioEntity {
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 
-    // DESNORMALIZADOS DE COTIZACIÓN
+    
     public String getCodigoCotizacion() { return codigoCotizacion; }
     public void setCodigoCotizacion(String codigoCotizacion) { this.codigoCotizacion = codigoCotizacion; }
     
@@ -134,7 +134,7 @@ public class NegocioEntity {
     public String getObservacionesCotizacion() { return observacionesCotizacion; }
     public void setObservacionesCotizacion(String observacionesCotizacion) { this.observacionesCotizacion = observacionesCotizacion; }
 
-    // DATOS DEL NEGOCIO
+  
     public LocalDate getFechaInicio() { return fechaInicio; }
     public void setFechaInicio(LocalDate fechaInicio) { this.fechaInicio = fechaInicio; }
     

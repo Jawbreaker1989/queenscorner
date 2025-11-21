@@ -12,4 +12,4 @@ public interface IClienteRepository extends JpaRepository<ClienteEntity, Long> {
     Optional<ClienteEntity> findByIdAndActivoTrue(Long id);
     boolean existsByEmail(String email);
     List<ClienteEntity> findByNombreContainingIgnoreCase(String nombre);
-}
+} 

@@ -9,4 +9,4 @@ import java.util.List;
 public interface IItemCotizacionRepository extends JpaRepository<ItemCotizacionEntity, Long> {
     List<ItemCotizacionEntity> findByCotizacionId(Long cotizacionId);
     void deleteByCotizacionId(Long cotizacionId);
-}
+} 

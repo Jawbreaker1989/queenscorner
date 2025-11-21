@@ -16,4 +16,4 @@ public class ItemCotizacionRequest {
     public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
     public BigDecimal getPrecioUnitario() { return precioUnitario; }
     public void setPrecioUnitario(BigDecimal precioUnitario) { this.precioUnitario = precioUnitario; }
-}
+} 

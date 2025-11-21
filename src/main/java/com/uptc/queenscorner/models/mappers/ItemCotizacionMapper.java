@@ -32,4 +32,4 @@ public class ItemCotizacionMapper {
         response.setSubtotal(entity.getSubtotal());
         return response;
     }
-}
+}  

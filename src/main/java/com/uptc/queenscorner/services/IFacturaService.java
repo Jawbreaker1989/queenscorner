@@ -15,4 +15,4 @@ public interface IFacturaService {
     List<FacturaResponse> listarFacturas();
     List<FacturaResponse> listarPorNegocio(Long negocioId);
     FacturaResponse obtenerResumen(Long facturaId);
-}
+} 

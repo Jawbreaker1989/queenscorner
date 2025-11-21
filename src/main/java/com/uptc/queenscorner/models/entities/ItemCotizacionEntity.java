@@ -51,4 +51,4 @@ public class ItemCotizacionEntity {
     public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
-}
+} 
