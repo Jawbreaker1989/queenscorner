@@ -1,7 +1,5 @@
 -- Force drop payment columns from facturas table
--- Using ALTER IGNORE to skip errors if columns don't exist
+-- Note: IF NOT EXISTS not supported in MySQL, columns already removed in V004
 
-ALTER TABLE facturas DROP COLUMN IF EXISTS fecha_vencimiento;
-ALTER TABLE facturas DROP COLUMN IF EXISTS medio_pago;
-ALTER TABLE facturas DROP COLUMN IF EXISTS referencia_pago;
-ALTER TABLE facturas DROP COLUMN IF EXISTS condiciones_pago;
+-- Payment columns were removed during schema redesign
+-- No action needed in this migration
