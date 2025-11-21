@@ -37,7 +37,7 @@ public class CotizacionEntity {
     private String observaciones;
 
     // Relación con items de cotización
-    @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemCotizacionEntity> items;
 
     public CotizacionEntity() {

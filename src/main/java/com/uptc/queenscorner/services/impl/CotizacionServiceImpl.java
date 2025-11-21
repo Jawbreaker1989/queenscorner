@@ -1,7 +1,6 @@
 package com.uptc.queenscorner.services.impl;
 
 import com.uptc.queenscorner.models.dtos.requests.CotizacionRequest;
-import com.uptc.queenscorner.models.dtos.requests.ItemCotizacionRequest;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.ClienteEntity;
 import com.uptc.queenscorner.models.entities.CotizacionEntity;
@@ -164,26 +163,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
         // Obtener items existentes de la base de datos
         List<ItemCotizacionEntity> itemsExistentes = itemCotizacionRepository.findByCotizacionId(cotizacionId);
 
-        // IDs de items en el request (solo los que tienen ID, son existentes)
-        List<Long> idsItemsRequest = request.getItems().stream()
-                .filter(i -> i.getId() != null)
-                .map(ItemCotizacionRequest::getId)
-                .collect(Collectors.toList());
-
-        // PASO 1: Identificar y eliminar items que NO están en el request (fueron removidos)
-        // CRÍTICO: Crear lista de items a eliminar PRIMERO antes de iterar
-        List<ItemCotizacionEntity> itemsAEliminar = itemsExistentes.stream()
-                .filter(itemExistente -> !idsItemsRequest.contains(itemExistente.getId()))
-                .collect(Collectors.toList());
-        
-        // Eliminar items de la BD de forma explícita
-        if (!itemsAEliminar.isEmpty()) {
-            itemCotizacionRepository.deleteAll(itemsAEliminar);
-            // Flush para asegurar que los deletes se ejecutan en BD
-            itemCotizacionRepository.flush();
-        }
-
-        // PASO 2: Procesar items del request (actualizar existentes o crear nuevos)
+        // PASO 1: Construir nueva lista de items actualizados/nuevos
         List<ItemCotizacionEntity> itemsActualizados = request.getItems().stream()
                 .map(itemRequest -> {
                     if (itemRequest.getId() != null) {
@@ -209,11 +189,12 @@ public class CotizacionServiceImpl implements ICotizacionService {
                 })
                 .collect(Collectors.toList());
 
-        // PASO 3: Guardar o actualizar todos los items procesados
-        itemCotizacionRepository.saveAll(itemsActualizados);
-        
-        // PASO 4: Actualizar la lista de items en la entidad
+        // PASO 2: Usar orphanRemoval - remover items de la lista de la entidad
+        // Los items que no están en itemsActualizados serán eliminados automáticamente
         cotizacion.setItems(itemsActualizados);
+        
+        // PASO 3: Guardar la cotización (cascada PERSIST actualiza nuevos items)
+        itemCotizacionRepository.saveAll(itemsActualizados);
     }
 
     @Override
