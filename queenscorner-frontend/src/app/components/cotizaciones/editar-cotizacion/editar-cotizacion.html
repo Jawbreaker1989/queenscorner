@@ -132,6 +132,16 @@
                   </td>
                 </tr>
                 <tr class="total-row">
+                  <td colspan="3" class="right"><strong>Subtotal:</strong></td>
+                  <td class="right"><strong>${{ getSubtotal() | number: '1.2-2' }}</strong></td>
+                  <td></td>
+                </tr>
+                <tr class="total-row">
+                  <td colspan="3" class="right"><strong>Impuestos (19%):</strong></td>
+                  <td class="right"><strong>${{ getImpuestos() | number: '1.2-2' }}</strong></td>
+                  <td></td>
+                </tr>
+                <tr class="total-row" style="background-color: #f0f0f0; font-weight: bold;">
                   <td colspan="3" class="right"><strong>Total:</strong></td>
                   <td class="right"><strong>${{ getTotal() | number: '1.2-2' }}</strong></td>
                   <td></td>

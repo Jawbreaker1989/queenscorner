@@ -87,6 +87,9 @@ export class EditarCotizacionComponent implements OnInit {
             observaciones: response.data.observaciones || '',
             items: itemsConId
           };
+          
+          // Recalcular totales después de cargar datos
+          this.recalcularTotales();
         } else {
           this.error = 'No se pudo cargar la cotización';
         }
@@ -144,14 +147,47 @@ export class EditarCotizacionComponent implements OnInit {
       precioUnitario: 0
     };
     this.error = '';
+    
+    // Recalcular totales después de agregar
+    this.recalcularTotales();
   }
 
   eliminarItem(index: number) {
     this.cotizacion.items.splice(index, 1);
+    // Recalcular totales después de eliminar
+    this.recalcularTotales();
+  }
+
+  recalcularTotales() {
+    // Calcular subtotal desde los items
+    const subtotal = this.cotizacion.items.reduce((sum: number, item: ItemCotizacion) => {
+      const itemTotal = (item.cantidad || 1) * (item.precioUnitario || 0);
+      item.subtotal = itemTotal; // Actualizar subtotal del item
+      return sum + itemTotal;
+    }, 0);
+
+    // Calcular impuestos (19%)
+    const impuestos = subtotal * 0.19;
+    
+    // Total = subtotal + impuestos
+    const total = subtotal + impuestos;
+
+    // Almacenar en variables para mostrar en template
+    (this as any).subtotalTotal = subtotal;
+    (this as any).impuestosTotal = impuestos;
+    (this as any).totalFinal = total;
+  }
+
+  getSubtotal(): number {
+    return (this as any).subtotalTotal || 0;
+  }
+
+  getImpuestos(): number {
+    return (this as any).impuestosTotal || 0;
   }
 
   getTotal(): number {
-    return this.cotizacion.items.reduce((sum: number, item: ItemCotizacion) => sum + (item.subtotal || 0), 0);
+    return (this as any).totalFinal || 0;
   }
 
   guardar() {
@@ -178,6 +214,11 @@ export class EditarCotizacionComponent implements OnInit {
           }));
           
           this.cotizacion.items = itemsActualizados;
+          
+          // Recalcular y reflejar los totales del servidor
+          (this as any).subtotalTotal = response.data.subtotal;
+          (this as any).impuestosTotal = response.data.impuestos;
+          (this as any).totalFinal = response.data.total;
           
           // Si se cambió el estado, aplicarlo después
           if (this.nuevoEstado && this.nuevoEstado !== this.estadoActual) {
