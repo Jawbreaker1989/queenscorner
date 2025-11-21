@@ -3,6 +3,7 @@ package com.uptc.queenscorner.models.mappers;
 import com.uptc.queenscorner.models.dtos.requests.NegocioRequest;
 import com.uptc.queenscorner.models.dtos.responses.ClienteResponse;
 import com.uptc.queenscorner.models.dtos.responses.NegocioResponse;
+import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.NegocioEntity;
 import com.uptc.queenscorner.models.entities.CotizacionEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,9 @@ public class NegocioMapper {
 
     @Autowired
     private ClienteMapper clienteMapper;
+    
+    @Autowired
+    private CotizacionMapper cotizacionMapper;
 
     public NegocioResponse toResponse(NegocioEntity entity) {
         if (entity == null) {
@@ -57,9 +61,11 @@ public class NegocioMapper {
         response.setObservaciones(entity.getObservaciones());
         response.setResponsable(entity.getResponsable());
         
-        // Extraer cotización ID y cliente de la cotización
+        // Extraer cotización ID, cliente y COTIZACIÓN COMPLETA de la cotización
         if (entity.getCotizacion() != null) {
             response.setCotizacionId(entity.getCotizacion().getId());
+            // Mapear la cotización completa con sus items
+            response.setCotizacion(cotizacionMapper.toResponse(entity.getCotizacion()));
             if (entity.getCotizacion().getCliente() != null) {
                 ClienteResponse cliente = clienteMapper.toResponse(entity.getCotizacion().getCliente());
                 response.setCliente(cliente);

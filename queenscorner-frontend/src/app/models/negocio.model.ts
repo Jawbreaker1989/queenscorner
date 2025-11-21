@@ -27,6 +27,9 @@ export interface NegocioResponse {
   estado: EstadoNegocio;
   fechaCreacion: string;
   fechaActualizacion?: string;
+  
+  // ===== COTIZACIÓN COMPLETA CON ITEMS =====
+  cotizacion?: any; // Contiene items, subtotal, iva, total, etc.
 
   // ===== DATOS DESNORMALIZADOS DE COTIZACIÓN (READ-ONLY) =====
   codigoCotizacion?: string;

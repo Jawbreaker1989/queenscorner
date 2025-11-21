@@ -17,6 +17,9 @@ public class CotizacionEntity {
     @Column(unique = true, nullable = false)
     private String codigo;
 
+    @Column(name = "numero_cotizacion", unique = true, nullable = false)
+    private String numeroCotizacion;
+
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private ClienteEntity cliente;
@@ -57,6 +60,8 @@ public class CotizacionEntity {
     public void setId(Long id) { this.id = id; }
     public String getCodigo() { return codigo; }
     public void setCodigo(String codigo) { this.codigo = codigo; }
+    public String getNumeroCotizacion() { return numeroCotizacion; }
+    public void setNumeroCotizacion(String numeroCotizacion) { this.numeroCotizacion = numeroCotizacion; }
     public ClienteEntity getCliente() { return cliente; }
     public void setCliente(ClienteEntity cliente) { this.cliente = cliente; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }

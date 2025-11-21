@@ -1,6 +1,6 @@
 <div class="crear-factura-container">
   <div class="header">
-    <h1>Crear Nueva Factura</h1>
+    <h1>Emitir Factura</h1>
     <button (click)="cancelar()" class="btn-cancel">← Volver</button>
   </div>
 
@@ -28,7 +28,7 @@
   <form [formGroup]="form" (ngSubmit)="crearFactura()" class="form-container">
     <!-- SECCIÓN 1: DATOS BÁSICOS (NO EDITABLE si viene de queryParams) -->
     <div class="form-section" *ngIf="paso === 1 || !negocioSeleccionado">
-      <h2>Información de la Factura</h2>
+      <h2>Información de la Factura a Emitir</h2>
 
       <!-- Si NO hay negocio seleccionado, mostrar selector -->
       <div *ngIf="!negocioSeleccionado" class="form-row">
@@ -55,29 +55,44 @@
               <label>Negocio:</label>
               <p>{{ negocioSeleccionado.codigo }}</p>
             </div>
-            <div class="info-group">
+            <div class="info-group" *ngIf="negocioSeleccionado.cliente">
               <label>Cliente:</label>
-              <p>{{ negocioSeleccionado.cliente.nombre }}</p>
+              <p>{{ negocioSeleccionado.cliente?.nombre || 'N/A' }}</p>
             </div>
           </div>
-          <div class="info-row">
+          <div class="info-row" *ngIf="negocioSeleccionado.cliente">
             <div class="info-group">
               <label>Correo:</label>
-              <p>{{ negocioSeleccionado.cliente.email }}</p>
+              <p>{{ negocioSeleccionado.cliente?.email || 'N/A' }}</p>
             </div>
             <div class="info-group">
               <label>Teléfono:</label>
-              <p>{{ negocioSeleccionado.cliente.telefono }}</p>
+              <p>{{ negocioSeleccionado.cliente?.telefono || 'N/A' }}</p>
             </div>
           </div>
           <div class="info-row">
             <div class="info-group">
               <label>Cotización:</label>
-              <p>{{ cotizacion?.codigo || 'Sin cotización' }}</p>
+              <p>{{ cotizacion?.codigo || negocioSeleccionado.codigoCotizacion || 'Sin cotización' }}</p>
             </div>
             <div class="info-group">
-              <label>Estado:</label>
-              <p class="badge">{{ negocioSeleccionado.estado }}</p>
+              <label>Estado Cotización:</label>
+              <p class="badge">{{ cotizacion?.estado || negocioSeleccionado.estadoCotizacion || 'N/A' }}</p>
+            </div>
+          </div>
+          <!-- Mostrar totales desnormalizados si existen -->
+          <div class="info-row" *ngIf="cotizacion?.total || negocioSeleccionado.totalCotizacion">
+            <div class="info-group">
+              <label>Subtotal Cotización:</label>
+              <p>${{ cotizacion?.subtotal || negocioSeleccionado.subtotalCotizacion || 0 | number: '1.0-2' }}</p>
+            </div>
+            <div class="info-group">
+              <label>IVA (19%):</label>
+              <p>${{ cotizacion?.impuestos || negocioSeleccionado.impuestosCotizacion || 0 | number: '1.0-2' }}</p>
+            </div>
+            <div class="info-group">
+              <label>Total:</label>
+              <p><strong>${{ cotizacion?.total || negocioSeleccionado.totalCotizacion || 0 | number: '1.0-2' }}</strong></p>
             </div>
           </div>
         </div>
@@ -253,8 +268,8 @@
           type="submit"
           class="btn btn-primary"
           [disabled]="!form.valid || lineas.length === 0 || loading">
-          <span *ngIf="loading">Creando...</span>
-          <span *ngIf="!loading">✓ Crear Factura</span>
+          <span *ngIf="loading">Emitiendo...</span>
+          <span *ngIf="!loading">✓ Emitir Factura</span>
         </button>
       </div>
     </div>

@@ -45,11 +45,12 @@ export class CrearFacturaComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
+    // Los campos son opcionales hasta que se intente crear la factura
     this.form = this.fb.group({
       negocioId: [null, Validators.required],
-      cotizacionId: [null, Validators.required],
-      fechaVencimiento: ['', Validators.required],
-      medioPago: ['', Validators.required],
+      cotizacionId: [null],
+      fechaVencimiento: [''],
+      medioPago: [''],
       referenciaPago: [''],
       notas: [''],
       condicionesPago: ['']
@@ -104,7 +105,25 @@ export class CrearFacturaComponent implements OnInit {
     
     this.negocioSeleccionado = negocio;
     
-    if (negocio.cotizacionId) {
+    // Usar la cotización que viene en el negocio (ahora incluida en la respuesta)
+    if (negocio.cotizacion) {
+      this.cotizacion = negocio.cotizacion;
+      this.form.patchValue({ cotizacionId: this.cotizacion?.id });
+
+      // Auto-populate line items from cotización
+      if (this.cotizacion && this.cotizacion.items && this.cotizacion.items.length > 0) {
+        this.lineas = this.cotizacion.items.map((item: any) => ({
+          itemCotizacionId: item.id,
+          descripcion: item.descripcion,
+          cantidad: item.cantidad,
+          valorUnitario: item.precioUnitario
+        }));
+      } else {
+        // Si no hay items, inicializar con array vacío y permitir agregar manualmente
+        this.lineas = [];
+      }
+    } else if (negocio.cotizacionId) {
+      // Fallback: Si no viene la cotización completa, hacer la llamada separada
       this.cotizacionesService.obtenerPorId(negocio.cotizacionId).subscribe({
         next: (response: any) => {
           this.cotizacion = response.data;
@@ -112,12 +131,14 @@ export class CrearFacturaComponent implements OnInit {
 
           // Auto-populate line items from cotización
           if (this.cotizacion && this.cotizacion.items && this.cotizacion.items.length > 0) {
-            this.lineas = this.cotizacion.items.map((item: any, index: number) => ({
+            this.lineas = this.cotizacion.items.map((item: any) => ({
               itemCotizacionId: item.id,
               descripcion: item.descripcion,
               cantidad: item.cantidad,
               valorUnitario: item.precioUnitario
             }));
+          } else {
+            this.lineas = [];
           }
         },
         error: (err: any) => {
@@ -125,6 +146,10 @@ export class CrearFacturaComponent implements OnInit {
           console.error(err);
         }
       });
+    } else {
+      // Si el negocio no tiene cotización, inicializar vacío
+      this.cotizacion = null;
+      this.lineas = [];
     }
   }
 
@@ -158,8 +183,17 @@ export class CrearFacturaComponent implements OnInit {
   }
 
   crearFactura() {
-    if (!this.form.valid || this.lineas.length === 0) {
-      this.error = 'Completa todos los campos y agrega al menos una línea';
+    // Validar campos requeridos antes de crear
+    if (!this.form.get('fechaVencimiento')?.value) {
+      this.error = 'La fecha de vencimiento es requerida';
+      return;
+    }
+    if (!this.form.get('medioPago')?.value) {
+      this.error = 'Debe seleccionar un medio de pago';
+      return;
+    }
+    if (this.lineas.length === 0) {
+      this.error = 'Debe agregar al menos una línea de factura';
       return;
     }
 
@@ -181,7 +215,7 @@ export class CrearFacturaComponent implements OnInit {
       },
       error: (err: any) => {
         this.loading = false;
-        this.error = err.error?.message || 'Error al crear factura';
+        this.error = err.error?.message || 'Error al emitir factura';
         console.error(err);
       }
     });

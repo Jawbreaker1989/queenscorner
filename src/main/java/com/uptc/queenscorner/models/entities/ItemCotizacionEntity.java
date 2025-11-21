@@ -18,8 +18,13 @@ public class ItemCotizacionEntity {
     @Column(nullable = false)
     private String descripcion;
 
+    @Column(nullable = false)
     private Integer cantidad;
+    
+    @Column(name = "valor_unitario", nullable = false)
     private BigDecimal precioUnitario;
+    
+    @Column(nullable = false)
     private BigDecimal subtotal;
 
     @Column(name = "fecha_creacion")

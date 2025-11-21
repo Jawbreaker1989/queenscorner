@@ -1,5 +1,6 @@
 package com.uptc.queenscorner.services.impl;
 
+import com.uptc.queenscorner.exceptions.ResourceNotFoundException;
 import com.uptc.queenscorner.models.dtos.requests.CotizacionRequest;
 import com.uptc.queenscorner.models.dtos.responses.CotizacionResponse;
 import com.uptc.queenscorner.models.entities.ClienteEntity;
@@ -49,14 +50,14 @@ public class CotizacionServiceImpl implements ICotizacionService {
     @Cacheable(value = "cotizaciones", key = "#id")
     public CotizacionResponse findById(Long id) {
         CotizacionEntity cotizacion = cotizacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
         return cotizacionMapper.toResponse(cotizacion);
     }
 
     @Override
     public CotizacionResponse findByCodigo(String codigo) {
         CotizacionEntity cotizacion = cotizacionRepository.findByCodigo(codigo)
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
         return cotizacionMapper.toResponse(cotizacion);
     }
 
@@ -64,7 +65,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse create(CotizacionRequest request) {
         ClienteEntity cliente = clienteRepository.findById(request.getClienteId())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado"));
 
         // APLICAR DEFAULTS INTELIGENTES
         aplicarDefaultsInteligentes(request);
@@ -72,6 +73,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
         CotizacionEntity cotizacion = new CotizacionEntity();
         cotizacion.setCliente(cliente);
         cotizacion.setCodigo(generarCodigoCotizacion());
+        cotizacion.setNumeroCotizacion(generarNumeroCotizacion());
         cotizacionMapper.updateEntityFromRequest(request, cotizacion);
 
         calcularTotales(cotizacion, request);
@@ -131,6 +133,10 @@ public class CotizacionServiceImpl implements ICotizacionService {
         return "COT-" + System.currentTimeMillis();
     }
 
+    private String generarNumeroCotizacion() {
+        return "N-" + System.currentTimeMillis();
+    }
+
     @Override
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse update(Long id, CotizacionRequest request) {
@@ -154,7 +160,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
         
         // Recargar entidad con items frescos desde BD (con EAGER fetch)
         CotizacionEntity refreshed = cotizacionRepository.findById(updated.getId())
-                .orElseThrow(() -> new RuntimeException("Error al refrescar cotización"));
+                .orElseThrow(() -> new ResourceNotFoundException("Error al refrescar cotización"));
         
         return cotizacionMapper.toResponse(refreshed);
     }
@@ -172,7 +178,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
                 ItemCotizacionEntity itemExistente = itemsExistentes.stream()
                         .filter(i -> i.getId().equals(itemRequest.getId()))
                         .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Item no encontrado: " + itemRequest.getId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("Item no encontrado: " + itemRequest.getId()));
                 
                 itemExistente.setDescripcion(itemRequest.getDescripcion());
                 itemExistente.setCantidad(itemRequest.getCantidad());
@@ -199,7 +205,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse cambiarEstado(Long id, String estado) {
         CotizacionEntity cotizacion = cotizacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
 
         // VALIDAR estados permitidos: ENVIADA, APROBADA, RECHAZADA
         if (!estado.equals("ENVIADA") && !estado.equals("APROBADA") && !estado.equals("RECHAZADA")) {
@@ -215,7 +221,7 @@ public class CotizacionServiceImpl implements ICotizacionService {
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public void delete(Long id) {
         CotizacionEntity cotizacion = cotizacionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Cotización no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
         cotizacionRepository.delete(cotizacion);
     }
 }

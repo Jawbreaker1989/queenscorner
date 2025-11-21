@@ -9,6 +9,7 @@ public class NegocioResponse {
     private Long id;
     private String codigo;
     private Long cotizacionId;
+    private CotizacionResponse cotizacion; // NUEVA: Cotización completa con items
     private ClienteResponse cliente;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaActualizacion;
@@ -44,6 +45,9 @@ public class NegocioResponse {
     
     public Long getCotizacionId() { return cotizacionId; }
     public void setCotizacionId(Long cotizacionId) { this.cotizacionId = cotizacionId; }
+    
+    public CotizacionResponse getCotizacion() { return cotizacion; }
+    public void setCotizacion(CotizacionResponse cotizacion) { this.cotizacion = cotizacion; }
     
     public ClienteResponse getCliente() { return cliente; }
     public void setCliente(ClienteResponse cliente) { this.cliente = cliente; }
