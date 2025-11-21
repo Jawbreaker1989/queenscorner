@@ -116,9 +116,9 @@ public class CotizacionController {
             response.setMessage("Estado actualizado a ENVIADA y notificación en proceso (SMS/WhatsApp)");
         } 
         else if ("APROBADA".equals(request.getEstado())) {
-            // Generar PDF de aprobación
+            // Generar PDF de aprobación en hilo separado
             pdfAsyncService.generarPdfCotizacion(cotizacionEntity);
-            response.setMessage("Estado actualizado a APROBADA y PDF en generación (proceso asíncrono)");
+            response.setMessage("Estado actualizado a APROBADA y PDF en generación (proceso asincrónico)");
         }
         else if ("RECHAZADA".equals(request.getEstado())) {
             response.setMessage("Estado actualizado a RECHAZADA");

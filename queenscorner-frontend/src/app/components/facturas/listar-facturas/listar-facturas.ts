@@ -127,7 +127,7 @@ export class ListarFacturasComponent implements OnInit {
   }
 
   descargarPdf(factura: Factura) {
-    if (!factura.rutaPdf) {
+    if (!factura.rutaPdf && !factura.pathPdf) {
       alert('PDF aún no disponible');
       return;
     }
@@ -147,6 +147,21 @@ export class ListarFacturasComponent implements OnInit {
         alert('Error al descargar PDF');
       }
     });
+  }
+
+  generarPdf(factura: Factura) {
+    if (confirm(`¿Generar PDF para la factura ${factura.numeroFactura}?`)) {
+      this.facturaService.generarPdf(factura.id).subscribe({
+        next: () => {
+          alert('PDF generado correctamente');
+          this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
+        },
+        error: (error: any) => {
+          console.error('Error al generar PDF', error);
+          alert('Error al generar PDF: ' + (error?.error?.message || 'Error desconocido'));
+        }
+      });
+    }
   }
 
   volver() {

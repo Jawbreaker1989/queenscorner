@@ -42,4 +42,8 @@ export class FacturaService {
   descargarPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${id}/pdf`, { responseType: 'blob' });
   }
+
+  generarPdf(id: number): Observable<ApiResponse<Factura>> {
+    return this.http.post<ApiResponse<Factura>>(`${this.apiUrl}/${id}/generar-pdf`, {});
+  }
 }

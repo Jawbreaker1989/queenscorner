@@ -47,6 +47,16 @@ export interface Factura {
       direccion?: string;
     };
   };
+  // Campos del FacturaResponse del backend
+  fechaCreacion?: Date;
+  fechaEnvio?: Date;
+  subtotal?: number;
+  iva?: number;
+  total?: number;
+  observaciones?: string;
+  usuarioCreacion?: string;
+  usuarioEnvio?: string;
+  pathPdf?: string;
 }
 
 export interface LineaFactura {

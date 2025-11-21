@@ -38,9 +38,7 @@
         <thead>
           <tr>
             <th>Factura</th>
-            <th>Negocio</th>
             <th>Cliente</th>
-            <th>Subtotal</th>
             <th>Total</th>
             <th>Estado</th>
             <th>Fecha</th>
@@ -49,17 +47,15 @@
         </thead>
         <tbody>
           <tr *ngFor="let factura of facturas" class="fila" (dblclick)="verDetalle(factura.id)">
-            <td class="codigo">{{ factura.numeroFactura }}</td>
-            <td class="negocio">{{ factura.nombreNegocio || '-' }}</td>
-            <td class="cliente">{{ factura.nombreCliente }}</td>
-            <td class="monto">${{ factura.subtotalItems | number: '1.2-2' }}</td>
-            <td class="monto-total" [style.font-weight]="'600'">${{ factura.totalAPagar | number: '1.2-2' }}</td>
+            <td class="codigo">{{ factura.numeroFactura || 'S/N' }}</td>
+            <td class="cliente">{{ factura.negocio?.cliente?.nombre || factura.nombreCliente || 'Sin Cliente' }}</td>
+            <td class="monto-total" [style.font-weight]="'600'">${{ (factura.total || factura.totalAPagar || 0) | number: '1.2-2' }}</td>
             <td class="estado">
-              <span [ngClass]="getEstadoColor(factura.estado)" class="badge">
-                {{ factura.estado }}
+              <span [ngClass]="getEstadoColor(factura.estado || 'ENVIADA')" class="badge">
+                {{ factura.estado || 'ENVIADA' }}
               </span>
             </td>
-            <td class="fecha">{{ factura.fechaEmision | date: 'dd/MM/yy' }}</td>
+            <td class="fecha">{{ (factura.fechaCreacion || factura.fechaEmision) | date: 'dd/MM/yy' }}</td>
             <td class="acciones">
               <button class="btn-accion btn-detalle" (click)="verDetalle(factura.id)" title="Ver detalles">
                 👁️
@@ -67,11 +63,11 @@
               <button *ngIf="factura.estado === 'EN_REVISION'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
                 📤
               </button>
-              <button *ngIf="factura.rutaPdf" class="btn-accion btn-descargar" (click)="descargarPdf(factura)" title="Descargar PDF">
-                📥
+              <button *ngIf="!factura.pathPdf && !factura.rutaPdf" class="btn-accion btn-generar" (click)="generarPdf(factura)" title="Generar PDF">
+                🖨️
               </button>
-              <button class="btn-accion btn-eliminar" (click)="anularFactura(factura.id, factura.numeroFactura)" title="Anular">
-                ❌
+              <button *ngIf="factura.pathPdf || factura.rutaPdf" class="btn-accion btn-descargar" (click)="descargarPdf(factura)" title="Descargar PDF">
+                📥
               </button>
             </td>
           </tr>

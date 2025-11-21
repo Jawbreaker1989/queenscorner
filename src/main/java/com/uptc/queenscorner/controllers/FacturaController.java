@@ -89,4 +89,12 @@ public class FacturaController {
         FacturaResponse response = facturaService.obtenerResumen(id);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/{id}/generar-pdf")
+    @Operation(summary = "Generar PDF de factura")
+    public ResponseEntity<FacturaResponse> generarPdf(
+            @PathVariable Long id) {
+        FacturaResponse response = facturaService.obtenerFactura(id);
+        return ResponseEntity.accepted().body(response);
+    }
 }
