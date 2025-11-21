@@ -12,6 +12,6 @@ ADD COLUMN observaciones_cotizacion TEXT,
 ADD COLUMN fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP;
 
 -- Crear índices para mejor performance en consultas
-CREATE INDEX IF NOT EXISTS idx_negocios_estado_cotizacion ON negocios(estado_cotizacion);
-CREATE INDEX IF NOT EXISTS idx_negocios_codigo_cotizacion ON negocios(codigo_cotizacion);
-CREATE INDEX IF NOT EXISTS idx_negocios_fecha_actualizacion ON negocios(fecha_actualizacion);
+CREATE INDEX idx_negocios_estado_cotizacion ON negocios(estado_cotizacion);
+CREATE INDEX idx_negocios_codigo_cotizacion ON negocios(codigo_cotizacion);
+CREATE INDEX idx_negocios_fecha_actualizacion ON negocios(fecha_actualizacion);
