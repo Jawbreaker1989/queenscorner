@@ -45,9 +45,10 @@ export class CrearFacturaComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    // Los campos son opcionales hasta que se intente crear la factura
+    // negocioId NO requiere validador porque se deshabilita después de seleccionar
+    // Validación de fechaVencimiento y medioPago se hace en crearFactura(), no en el form
     this.form = this.fb.group({
-      negocioId: [null, Validators.required],
+      negocioId: [null],
       cotizacionId: [null],
       fechaVencimiento: [''],
       medioPago: [''],

@@ -267,7 +267,7 @@
         <button 
           type="submit"
           class="btn btn-primary"
-          [disabled]="!form.valid || lineas.length === 0 || loading">
+          [disabled]="!negocioSeleccionado || lineas.length === 0 || loading">
           <span *ngIf="loading">Emitiendo...</span>
           <span *ngIf="!loading">✓ Emitir Factura</span>
         </button>
