@@ -98,8 +98,8 @@
         </div>
       </div>
 
-      <!-- Campos editables -->
-      <div class="form-row">
+      <!-- Campos editables - SIEMPRE VISIBLES EN PASO 1 -->
+      <div class="form-row" *ngIf="paso === 1">
         <div class="form-group">
           <label for="fechaVencimiento">Fecha de Vencimiento *</label>
           <input 
@@ -123,7 +123,7 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-row" *ngIf="paso === 1">
         <div class="form-group">
           <label for="referenciaPago">Referencia de Pago</label>
           <input 
@@ -134,7 +134,7 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-row" *ngIf="paso === 1">
         <div class="form-group full-width">
           <label for="notas">Notas</label>
           <textarea 
@@ -145,7 +145,7 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="form-row" *ngIf="paso === 1">
         <div class="form-group full-width">
           <label for="condicionesPago">Condiciones de Pago</label>
           <textarea 
@@ -157,11 +157,12 @@
       </div>
 
       <!-- Botón para continuar -->
-      <div class="form-actions" *ngIf="negocioSeleccionado">
+      <div class="form-actions" *ngIf="negocioSeleccionado && paso === 1">
         <button 
           type="button"
           (click)="paso = 2"
-          class="btn btn-primary">
+          class="btn btn-primary"
+          [disabled]="!form.get('fechaVencimiento')?.value || !form.get('medioPago')?.value">
           Continuar →
         </button>
       </div>

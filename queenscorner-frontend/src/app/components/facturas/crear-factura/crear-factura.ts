@@ -185,12 +185,19 @@ export class CrearFacturaComponent implements OnInit {
 
   crearFactura() {
     // Validar campos requeridos antes de crear
-    if (!this.form.get('fechaVencimiento')?.value) {
+    const fechaVencimiento = this.form.get('fechaVencimiento')?.value;
+    const medioPago = this.form.get('medioPago')?.value;
+    
+    if (!fechaVencimiento || fechaVencimiento.trim() === '') {
       this.error = 'La fecha de vencimiento es requerida';
       return;
     }
-    if (!this.form.get('medioPago')?.value) {
+    if (!medioPago || medioPago.trim() === '') {
       this.error = 'Debe seleccionar un medio de pago';
+      return;
+    }
+    if (!this.negocioSeleccionado) {
+      this.error = 'Debe seleccionar un negocio';
       return;
     }
     if (this.lineas.length === 0) {
@@ -202,7 +209,13 @@ export class CrearFacturaComponent implements OnInit {
     this.error = null;
 
     const request: CrearFacturaRequest = {
-      ...this.form.value,
+      negocioId: this.negocioSeleccionado.id,
+      cotizacionId: this.cotizacion?.id || this.negocioSeleccionado.cotizacionId,
+      fechaVencimiento: fechaVencimiento,
+      medioPago: medioPago,
+      referenciaPago: this.form.get('referenciaPago')?.value || '',
+      notas: this.form.get('notas')?.value || '',
+      condicionesPago: this.form.get('condicionesPago')?.value || '',
       lineas: this.lineas
     };
 
