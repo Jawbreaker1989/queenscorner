@@ -31,9 +31,6 @@ public class FacturaEntity {
     @Column(name = "fecha_emision", nullable = false)
     private LocalDateTime fechaEmision = LocalDateTime.now();
 
-    @Column(name = "fecha_vencimiento", nullable = false)
-    private java.time.LocalDate fechaVencimiento = java.time.LocalDate.now();
-
     @Column(name = "fecha_envio")
     private LocalDateTime fechaEnvio;
 
@@ -73,10 +70,6 @@ public class FacturaEntity {
     @Column(nullable = false)
     private EstadoFactura estado = EstadoFactura.EN_REVISION;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "medio_pago", nullable = false)
-    private MedioPago medioPago = MedioPago.EFECTIVO;
-
     @Column(columnDefinition = "TEXT")
     private String observaciones;
 
@@ -93,17 +86,11 @@ public class FacturaEntity {
         EN_REVISION, ENVIADA, PAGADA, ANULADA
     }
 
-    public enum MedioPago {
-        EFECTIVO, TRANSFERENCIA, CHEQUE, TARJETA, OTRO
-    }
-
     public FacturaEntity() {
         this.fechaCreacion = LocalDateTime.now();
         this.fechaEmision = LocalDateTime.now();
-        this.fechaVencimiento = java.time.LocalDate.now();
         this.codigo = "COD-" + System.currentTimeMillis();
         this.estado = EstadoFactura.EN_REVISION;
-        this.medioPago = MedioPago.EFECTIVO;
         this.subtotal = BigDecimal.ZERO;
         this.iva = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
@@ -186,9 +173,6 @@ public class FacturaEntity {
     public LocalDateTime getFechaEmision() { return fechaEmision; }
     public void setFechaEmision(LocalDateTime fechaEmision) { this.fechaEmision = fechaEmision; }
 
-    public java.time.LocalDate getFechaVencimiento() { return fechaVencimiento; }
-    public void setFechaVencimiento(java.time.LocalDate fechaVencimiento) { this.fechaVencimiento = fechaVencimiento; }
-
     public CotizacionEntity getCotizacion() { return cotizacion; }
     public void setCotizacion(CotizacionEntity cotizacion) { this.cotizacion = cotizacion; }
 
@@ -203,7 +187,4 @@ public class FacturaEntity {
 
     public BigDecimal getTotalAPagar() { return totalAPagar; }
     public void setTotalAPagar(BigDecimal totalAPagar) { this.totalAPagar = totalAPagar; }
-
-    public MedioPago getMedioPago() { return medioPago; }
-    public void setMedioPago(MedioPago medioPago) { this.medioPago = medioPago; }
 }

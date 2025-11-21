@@ -27,15 +27,7 @@ export class CrearFacturaComponent implements OnInit {
   cotizacion: CotizacionResponse | null = null;
   lineas: LineaFacturaRequest[] = [];
   
-  paso: number = 1; // 1: Datos básicos (NO editable), 2: Agregar items, 3: Confirmación
-
-  medioPagoOptions = [
-    { value: 'TRANSFERENCIA', label: 'Transferencia Bancaria' },
-    { value: 'EFECTIVO', label: 'Efectivo' },
-    { value: 'CHEQUE', label: 'Cheque' },
-    { value: 'TARJETA', label: 'Tarjeta de Crédito' },
-    { value: 'OTRO', label: 'Otro' }
-  ];
+  paso: number = 1; // 1: Datos básicos (NO editable), 2: Agregar items
 
   constructor(
     private fb: FormBuilder,
@@ -45,16 +37,9 @@ export class CrearFacturaComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
-    // negocioId NO requiere validador porque se deshabilita después de seleccionar
-    // Validación de fechaVencimiento y medioPago se hace en crearFactura(), no en el form
     this.form = this.fb.group({
       negocioId: [null],
-      cotizacionId: [null],
-      fechaVencimiento: [''],
-      medioPago: [''],
-      referenciaPago: [''],
-      notas: [''],
-      condicionesPago: ['']
+      cotizacionId: [null]
     });
   }
 
@@ -184,18 +169,7 @@ export class CrearFacturaComponent implements OnInit {
   }
 
   crearFactura() {
-    // Validar campos requeridos antes de crear
-    const fechaVencimiento = this.form.get('fechaVencimiento')?.value;
-    const medioPago = this.form.get('medioPago')?.value;
-    
-    if (!fechaVencimiento || fechaVencimiento.trim() === '') {
-      this.error = 'La fecha de vencimiento es requerida';
-      return;
-    }
-    if (!medioPago || medioPago.trim() === '') {
-      this.error = 'Debe seleccionar un medio de pago';
-      return;
-    }
+    // Validar datos esenciales
     if (!this.negocioSeleccionado) {
       this.error = 'Debe seleccionar un negocio';
       return;
@@ -211,11 +185,6 @@ export class CrearFacturaComponent implements OnInit {
     const request: CrearFacturaRequest = {
       negocioId: this.negocioSeleccionado.id,
       cotizacionId: this.cotizacion?.id || this.negocioSeleccionado.cotizacionId,
-      fechaVencimiento: fechaVencimiento,
-      medioPago: medioPago,
-      referenciaPago: this.form.get('referenciaPago')?.value || '',
-      notas: this.form.get('notas')?.value || '',
-      condicionesPago: this.form.get('condicionesPago')?.value || '',
       lineas: this.lineas
     };
 
@@ -237,10 +206,6 @@ export class CrearFacturaComponent implements OnInit {
 
   cancelar() {
     this.router.navigate(['/facturas']);
-  }
-
-  getMedioPagoLabel(value: string): string {
-    return this.medioPagoOptions.find(m => m.value === value)?.label || value;
   }
 }
 

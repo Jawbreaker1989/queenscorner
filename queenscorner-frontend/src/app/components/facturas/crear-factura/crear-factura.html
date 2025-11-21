@@ -98,71 +98,12 @@
         </div>
       </div>
 
-      <!-- Campos editables - SIEMPRE VISIBLES EN PASO 1 -->
-      <div class="form-row" *ngIf="paso === 1">
-        <div class="form-group">
-          <label for="fechaVencimiento">Fecha de Vencimiento *</label>
-          <input 
-            id="fechaVencimiento" 
-            type="date"
-            formControlName="fechaVencimiento"
-            required>
-        </div>
-
-        <div class="form-group">
-          <label for="medioPago">Medio de Pago *</label>
-          <select 
-            id="medioPago" 
-            formControlName="medioPago"
-            required>
-            <option value="">-- Selecciona medio de pago --</option>
-            <option *ngFor="let medio of medioPagoOptions" [value]="medio.value">
-              {{ medio.label }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="form-row" *ngIf="paso === 1">
-        <div class="form-group">
-          <label for="referenciaPago">Referencia de Pago</label>
-          <input 
-            id="referenciaPago" 
-            type="text"
-            formControlName="referenciaPago"
-            placeholder="Ej: Transferencia #123456">
-        </div>
-      </div>
-
-      <div class="form-row" *ngIf="paso === 1">
-        <div class="form-group full-width">
-          <label for="notas">Notas</label>
-          <textarea 
-            id="notas" 
-            formControlName="notas"
-            rows="3"
-            placeholder="Notas adicionales para la factura"></textarea>
-        </div>
-      </div>
-
-      <div class="form-row" *ngIf="paso === 1">
-        <div class="form-group full-width">
-          <label for="condicionesPago">Condiciones de Pago</label>
-          <textarea 
-            id="condicionesPago" 
-            formControlName="condicionesPago"
-            rows="3"
-            placeholder="Ej: Pago dentro de 30 días, 50% anticipo, etc."></textarea>
-        </div>
-      </div>
-
-      <!-- Botón para continuar -->
+      <!-- Botón para continuar a Paso 2 (items) -->
       <div class="form-actions" *ngIf="negocioSeleccionado && paso === 1">
         <button 
           type="button"
           (click)="paso = 2"
-          class="btn btn-primary"
-          [disabled]="!form.get('fechaVencimiento')?.value || !form.get('medioPago')?.value">
+          class="btn btn-primary">
           Continuar →
         </button>
       </div>

@@ -53,23 +53,29 @@ public class FacturaMapper {
         response.setId(entity.getId());
         response.setNumero(entity.getCodigo());
         response.setFechaCreacion(entity.getFechaCreacion());
-        response.setProyecto(entity.getDescripcionCotizacion());
-        response.setTotalCotizacion(entity.getTotalCotizacion());
-        response.setAnticipo(entity.getAnticipo());
+        response.setProyecto(entity.getDescripcion());
         
-        BigDecimal saldoPendiente = entity.getTotalCotizacion().subtract(entity.getAnticipo());
-        response.setSaldoPendiente(saldoPendiente);
-        
-        if (entity.getCotizacion() != null && entity.getCotizacion().getCliente() != null) {
-            ClienteEntity cliente = entity.getCotizacion().getCliente();
-            response.setCliente(new ClienteInfoResponse(
-                cliente.getId(),
-                cliente.getNombre(),
-                cliente.getDocumento(),
-                cliente.getEmail(),
-                cliente.getTelefono(),
-                cliente.getDireccion()
-            ));
+        // Obtener totales de la cotización si existe
+        if (entity.getCotizacion() != null) {
+            response.setTotalCotizacion(entity.getCotizacion().getTotal());
+            response.setAnticipo(entity.getAnticipo());
+            
+            if (entity.getCotizacion().getTotal() != null && entity.getAnticipo() != null) {
+                BigDecimal saldoPendiente = entity.getCotizacion().getTotal().subtract(entity.getAnticipo());
+                response.setSaldoPendiente(saldoPendiente);
+            }
+            
+            if (entity.getCotizacion().getCliente() != null) {
+                ClienteEntity cliente = entity.getCotizacion().getCliente();
+                response.setCliente(new ClienteInfoResponse(
+                    cliente.getId(),
+                    cliente.getNombre(),
+                    cliente.getDocumento(),
+                    cliente.getEmail(),
+                    cliente.getTelefono(),
+                    cliente.getDireccion()
+                ));
+            }
         }
         
         return response;

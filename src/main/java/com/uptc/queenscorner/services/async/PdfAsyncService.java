@@ -59,7 +59,7 @@ public class PdfAsyncService {
             contenido.append("CLIENTE Y NEGOCIO\n");
             contenido.append("-".repeat(80)).append("\n");
             contenido.append("Negocio: ").append(factura.getNegocio().getCodigo()).append("\n");
-            contenido.append("Descripcion: ").append(factura.getNegocio().getDescripcionCotizacion()).append("\n\n");
+            contenido.append("Descripcion: ").append(factura.getNegocio().getDescripcion()).append("\n\n");
             
             contenido.append("-".repeat(80)).append("\n");
             contenido.append("DETALLE DE LINEAS\n");

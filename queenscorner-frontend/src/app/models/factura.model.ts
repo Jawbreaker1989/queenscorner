@@ -43,11 +43,6 @@ export enum EstadoFactura {
 export interface CrearFacturaRequest {
   negocioId: number;
   cotizacionId: number;
-  fechaVencimiento: Date;
-  medioPago: string;
-  referenciaPago: string;
-  notas: string;
-  condicionesPago: string;
   lineas: LineaFacturaRequest[];
 }
 

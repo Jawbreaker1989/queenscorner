@@ -51,7 +51,6 @@ public class FacturaServiceImpl implements IFacturaService {
         factura.setNegocio(negocio);
         factura.setCotizacion(cotizacion);
         factura.setUsuarioCreacion(usuario);
-        factura.setObservaciones(request.getObservaciones());
         factura.setEstado(FacturaEntity.EstadoFactura.EN_REVISION);
         factura.setNumeroFactura("FAC-" + System.currentTimeMillis());
         
