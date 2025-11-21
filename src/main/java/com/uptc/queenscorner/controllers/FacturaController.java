@@ -4,6 +4,8 @@ import com.uptc.queenscorner.dtos.AgregarLineaRequest;
 import com.uptc.queenscorner.dtos.CrearFacturaRequest;
 import com.uptc.queenscorner.dtos.FacturaResponse;
 import com.uptc.queenscorner.services.IFacturaService;
+import com.uptc.queenscorner.services.async.PdfAsyncService;
+import com.uptc.queenscorner.repositories.IFacturaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,6 +24,12 @@ public class FacturaController {
 
     @Autowired
     private IFacturaService facturaService;
+
+    @Autowired
+    private PdfAsyncService pdfAsyncService;
+
+    @Autowired
+    private IFacturaRepository facturaRepository;
 
     @PostMapping
     @Operation(summary = "Crear nueva factura")
@@ -95,6 +103,11 @@ public class FacturaController {
     public ResponseEntity<FacturaResponse> generarPdf(
             @PathVariable Long id) {
         FacturaResponse response = facturaService.obtenerFactura(id);
+        // Obtener la entidad para pasar al servicio de PDF
+        var factura = facturaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Factura no encontrada"));
+        // Generar PDF en background
+        pdfAsyncService.generarPdfFacturaAsync(factura);
         return ResponseEntity.accepted().body(response);
     }
 }
