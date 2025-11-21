@@ -34,7 +34,7 @@ public class FacturaEntity {
     @Column(name = "fecha_envio")
     private LocalDateTime fechaEnvio;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "negocio_id", nullable = false)
     private NegocioEntity negocio;
 

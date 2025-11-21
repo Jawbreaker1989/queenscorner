@@ -16,7 +16,8 @@ public class FacturaMapper {
         response.setNumeroFactura(entity.getNumeroFactura());
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setFechaEnvio(entity.getFechaEnvio());
-        response.setEstado(entity.getEstado().toString());
+        // Estado es ahora String, no enum
+        response.setEstado(entity.getEstado() != null ? entity.getEstado() : "ENVIADA");
         response.setSubtotal(entity.getSubtotal());
         response.setIva(entity.getIva());
         response.setTotal(entity.getTotal());
@@ -26,9 +27,11 @@ public class FacturaMapper {
         response.setPathPdf(entity.getPathPdf());
         response.setNegocio(toNegocioInfo(entity.getNegocio()));
         
-        entity.getLineas().forEach(linea -> 
-            response.getLineas().add(toLineaResponse(linea))
-        );
+        if (entity.getLineas() != null) {
+            entity.getLineas().forEach(linea -> 
+                response.getLineas().add(toLineaResponse(linea))
+            );
+        }
         
         return response;
     }
@@ -57,16 +60,17 @@ public class FacturaMapper {
         
         // Obtener totales de la cotización si existe
         if (entity.getCotizacion() != null) {
-            response.setTotalCotizacion(entity.getCotizacion().getTotal());
+            CotizacionEntity cot = entity.getCotizacion();
+            response.setTotalCotizacion(cot.getTotal());
             response.setAnticipo(entity.getAnticipo());
             
-            if (entity.getCotizacion().getTotal() != null && entity.getAnticipo() != null) {
-                BigDecimal saldoPendiente = entity.getCotizacion().getTotal().subtract(entity.getAnticipo());
+            if (cot.getTotal() != null && entity.getAnticipo() != null) {
+                BigDecimal saldoPendiente = cot.getTotal().subtract(entity.getAnticipo());
                 response.setSaldoPendiente(saldoPendiente);
             }
             
-            if (entity.getCotizacion().getCliente() != null) {
-                ClienteEntity cliente = entity.getCotizacion().getCliente();
+            if (cot.getCliente() != null) {
+                ClienteEntity cliente = cot.getCliente();
                 response.setCliente(new ClienteInfoResponse(
                     cliente.getId(),
                     cliente.getNombre(),

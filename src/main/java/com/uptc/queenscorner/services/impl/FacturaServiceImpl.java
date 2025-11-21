@@ -136,7 +136,6 @@ public class FacturaServiceImpl implements IFacturaService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "factura", key = "#id")
     public FacturaResponse obtenerFactura(Long id) {
         FacturaEntity factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Factura no encontrada"));

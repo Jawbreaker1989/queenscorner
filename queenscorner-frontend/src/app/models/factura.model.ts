@@ -22,6 +22,31 @@ export interface Factura {
   notas: string;
   condicionesPago: string;
   lineas: LineaFactura[];
+  cliente?: {
+    id?: number;
+    nombre?: string;
+    documento?: string;
+    email?: string;
+    telefono?: string;
+    direccion?: string;
+  };
+  negocio?: {
+    id?: number;
+    numero?: string;
+    fechaCreacion?: Date;
+    proyecto?: string;
+    totalCotizacion?: number;
+    anticipo?: number;
+    saldoPendiente?: number;
+    cliente?: {
+      id?: number;
+      nombre?: string;
+      documento?: string;
+      email?: string;
+      telefono?: string;
+      direccion?: string;
+    };
+  };
 }
 
 export interface LineaFactura {
@@ -30,7 +55,7 @@ export interface LineaFactura {
   descripcion: string;
   cantidad: number;
   valorUnitario: number;
-  valorLinea: number;
+  total: number;
 }
 
 export enum EstadoFactura {

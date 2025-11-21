@@ -41,8 +41,15 @@ export class ListarFacturasComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.facturaService.listarFacturas().subscribe({
-      next: (response: ApiResponse<Factura[]>) => {
-        this.facturas = response.data || [];
+      next: (response: any) => {
+        // Si la respuesta es un arreglo, úsala; si tiene 'data', úsala; si no, vacío
+        if (Array.isArray(response)) {
+          this.facturas = response;
+        } else if (Array.isArray(response?.data)) {
+          this.facturas = response.data;
+        } else {
+          this.facturas = [];
+        }
         this.loading = false;
       },
       error: (error: any) => {

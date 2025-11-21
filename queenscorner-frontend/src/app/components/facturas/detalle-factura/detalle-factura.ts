@@ -33,8 +33,13 @@ export class DetalleFacturaComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.facturaService.obtenerFactura(id).subscribe({
-      next: (response: ApiResponse<Factura>) => {
-        this.factura = response.data;
+      next: (response: any) => {
+        // Si la respuesta es un objeto con 'data', úsala; si no, usa la respuesta directa
+        if (response && typeof response === 'object' && response.data) {
+          this.factura = response.data;
+        } else {
+          this.factura = response;
+        }
         this.loading = false;
       },
       error: (error: any) => {

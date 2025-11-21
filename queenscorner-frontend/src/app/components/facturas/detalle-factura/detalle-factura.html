@@ -32,14 +32,6 @@
             <span class="value codigo">{{ factura.numeroFactura }}</span>
           </div>
           <div class="info-row">
-            <span class="label">Fecha Emisión:</span>
-            <span class="value">{{ factura.fechaEmision | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Fecha Vencimiento:</span>
-            <span class="value">{{ factura.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="info-row">
             <span class="label">Estado:</span>
             <span [ngClass]="getEstadoColor(factura.estado)" class="badge">
               {{ factura.estado }}
@@ -50,36 +42,20 @@
         <div class="info-box">
           <h3>👤 Información Cliente</h3>
           <div class="info-row">
-            <span class="label">Razón Social:</span>
-            <span class="value">{{ factura.nombreCliente }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">RUT:</span>
-            <span class="value">{{ factura.rutCliente }}</span>
+            <span class="label">Nombre:</span>
+            <span class="value">{{ factura.negocio?.cliente?.nombre }}</span>
           </div>
           <div class="info-row">
             <span class="label">Email:</span>
-            <span class="value">{{ factura.emailCliente }}</span>
+            <span class="value">{{ factura.negocio?.cliente?.email || factura.emailCliente }}</span>
           </div>
           <div class="info-row">
             <span class="label">Teléfono:</span>
-            <span class="value">{{ factura.telefonoCliente }}</span>
+            <span class="value">{{ factura.negocio?.cliente?.telefono || factura.telefonoCliente }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Medio de Pago -->
-      <div class="info-box">
-        <h3>💳 Medio de Pago</h3>
-        <div class="info-row">
-          <span class="label">Tipo:</span>
-          <span class="value">{{ factura.medioPago }}</span>
-        </div>
-        <div *ngIf="factura.referenciaPago" class="info-row">
-          <span class="label">Referencia:</span>
-          <span class="value">{{ factura.referenciaPago }}</span>
-        </div>
-      </div>
 
       <!-- Líneas de Factura -->
       <div class="lineas-section">
@@ -101,7 +77,7 @@
                 <td class="descripcion">{{ linea.descripcion }}</td>
                 <td class="cantidad">{{ linea.cantidad }}</td>
                 <td class="monto">${{ linea.valorUnitario | number: '1.2-2' }}</td>
-                <td class="monto-total">${{ linea.valorLinea | number: '1.2-2' }}</td>
+                <td class="monto-total">${{ linea.total | number: '1.2-2' }}</td>
               </tr>
             </tbody>
           </table>

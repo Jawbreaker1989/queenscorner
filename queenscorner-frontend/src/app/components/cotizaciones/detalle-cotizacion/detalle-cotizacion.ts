@@ -246,10 +246,17 @@ export class DetalleCotizacionComponent implements OnInit {
         };
 
         this.negociosService.crearDesdeAprobada(this.cotizacion!.id, negocioRequest).subscribe({
-          next: (response) => {
+          next: (response: any) => {
             if (response.success) {
               Swal.fire('Éxito', 'Negocio creado exitosamente', 'success').then(() => {
-                this.router.navigate(['/negocios/detalle', response.data.id]);
+                // Handle both ApiResponse<Negocio> and direct NegocioResponse
+                const negocioId = response.data?.id || response.id;
+                if (negocioId) {
+                  this.router.navigate(['/negocios/detalle', negocioId]);
+                } else {
+                  Swal.fire('Error', 'No se pudo obtener el ID del negocio', 'error');
+                  this.loading = false;
+                }
               });
             } else {
               Swal.fire('Error', response.message || 'Error al crear negocio', 'error');

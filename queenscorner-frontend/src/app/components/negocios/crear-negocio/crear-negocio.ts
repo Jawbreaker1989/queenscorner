@@ -142,10 +142,18 @@ export class CrearNegocioComponent implements OnInit {
     }
 
     this.negociosService.crearDesdeAprobada(this.cotizacionId, this.negocio).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success) {
           Swal.fire('Éxito', 'Negocio creado exitosamente desde cotización aprobada', 'success').then(() => {
-            this.router.navigate(['/negocios/detalle', response.data.id]);
+            // Handle both ApiResponse<Negocio> and direct NegocioResponse
+            const negocioId = response.data?.id || response.id;
+            if (negocioId) {
+              this.router.navigate(['/negocios/detalle', negocioId]);
+            } else {
+              this.error = 'Error: No se pudo obtener el ID del negocio';
+              Swal.fire('Error', this.error, 'error');
+              this.loading = false;
+            }
           });
         } else {
           this.error = response.message || 'Error al crear negocio';

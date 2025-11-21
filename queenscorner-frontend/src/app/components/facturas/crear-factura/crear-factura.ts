@@ -192,9 +192,16 @@ export class CrearFacturaComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.success = true;
-        setTimeout(() => {
-          this.router.navigate(['/facturas/detalle', response.data.id]);
-        }, 1500);
+        // Handle both ApiResponse<Factura> and direct FacturaResponse
+        const facturaId = response.data?.id || response.id;
+        if (facturaId) {
+          setTimeout(() => {
+            this.router.navigate(['/facturas/detalle', facturaId]);
+          }, 1500);
+        } else {
+          this.error = 'Error: No se pudo obtener el ID de la factura';
+          console.error('Invalid response:', response);
+        }
       },
       error: (err: any) => {
         this.loading = false;
