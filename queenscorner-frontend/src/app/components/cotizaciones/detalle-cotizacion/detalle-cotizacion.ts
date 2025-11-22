@@ -190,11 +190,11 @@ export class DetalleCotizacionComponent implements OnInit {
   getMensajeEstado(estado: EstadoCotizacion): string {
     switch (estado) {
       case 'ENVIADA':
-        return '📱 Se enviará notificación al cliente por SMS/WhatsApp';
+        return 'EL CLIENTE HA SIDO NOTIFICADO';
       case 'APROBADA':
-        return '✅ Se generará un PDF de aprobación';
+        return 'LISTA PARA EJECUTAR NEGOCIO';
       case 'RECHAZADA':
-        return '❌ Se rechazará la cotización';
+        return 'EL CLIENTE NO ESTA DEACUERDO CON LO ESTIPULADO';
       default:
         return '';
     }
