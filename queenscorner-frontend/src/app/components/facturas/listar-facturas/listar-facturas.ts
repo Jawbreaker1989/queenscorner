@@ -164,36 +164,21 @@ export class ListarFacturasComponent implements OnInit {
 
   anularFactura(id: number, numeroFactura: string) {
     Swal.fire({
-      title: '¿Anular factura?',
-      text: `¿Deseas anular la factura ${numeroFactura}? Esta acción no se puede deshacer.`,
+      title: '¿Ocultar factura?',
+      text: `¿Deseas ocultar la factura ${numeroFactura} de la lista?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, anular',
+      confirmButtonText: 'Sí, ocultar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.facturaService.anularFactura(id).subscribe({
-          next: () => {
-            Swal.fire({
-              title: '¡Hecho!',
-              text: 'Factura anulada correctamente',
-              icon: 'success',
-              confirmButtonText: 'Continuar'
-            });
-            this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
-          },
-          error: (error: any) => {
-            console.error('Error al anular factura', error);
-            Swal.fire({
-              title: 'Error',
-              text: 'Error al anular factura: ' + (error?.error?.message || 'Error desconocido'),
-              icon: 'error',
-              confirmButtonText: 'Entendido'
-            });
-          }
-        });
+        // Simplemente eliminar de la lista visual
+        const index = this.facturas.findIndex(f => f.id === id);
+        if (index > -1) {
+          this.facturas.splice(index, 1);
+        }
       }
     });
   }

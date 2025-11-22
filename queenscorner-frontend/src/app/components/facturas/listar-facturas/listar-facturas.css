@@ -314,6 +314,17 @@
   cursor: not-allowed;
 }
 
+.btn-ocultar {
+  background-color: #f0e7d1;
+  color: #ff9800;
+}
+
+.btn-ocultar:hover {
+  background-color: #ff9800;
+  color: white;
+  transform: scale(1.05);
+}
+
 .btn-descargar {
   background-color: #d1f0e3;
   color: #27ae60;
