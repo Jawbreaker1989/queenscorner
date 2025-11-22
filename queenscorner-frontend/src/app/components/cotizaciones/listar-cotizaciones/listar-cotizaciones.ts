@@ -4,6 +4,7 @@ import { CotizacionesService } from '../../../services/cotizaciones';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotizacionResponse, EstadoCotizacion } from '../../../models/cotizacion.model';
+import { delay } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -85,33 +86,23 @@ export class ListarCotizacionesComponent implements OnInit {
 
   generarPdf(id: number) {
     const cot = this.cotizaciones.find(c => c.id === id);
-    if (!cot || cot.estado !== 'APROBADA') {
-      Swal.fire('No permitido', 'Solo se puede generar PDF para cotizaciones APROBADAS', 'warning');
-      return;
-    }
-
-    if (this.pdfGenerados[id]) {
-      Swal.fire('Ya existe', 'El PDF para esta cotización ya fue generado', 'info');
+    if (!cot || cot.estado !== 'APROBADA' || this.pdfGenerados[id] || this.pdfGenerando[id]) {
       return;
     }
 
     this.pdfGenerando[id] = true;
-    this.cotizacionesService.generarPdf(id).subscribe({
+    this.cotizacionesService.generarPdf(id).pipe(
+      delay(5000) // Simular 5 segundos de carga
+    ).subscribe({
       next: (response) => {
         if (response.success) {
-          // Marcar como generado en localStorage
           const pdfKey = `pdf_generado_${id}`;
           localStorage.setItem(pdfKey, 'true');
           this.pdfGenerados[id] = true;
-
-          Swal.fire('Éxito', 'PDF generado exitosamente', 'success');
-        } else {
-          Swal.fire('Error', response.message || 'Error al generar PDF', 'error');
         }
         this.pdfGenerando[id] = false;
       },
       error: () => {
-        Swal.fire('Error', 'Error al generar PDF', 'error');
         this.pdfGenerando[id] = false;
       }
     });

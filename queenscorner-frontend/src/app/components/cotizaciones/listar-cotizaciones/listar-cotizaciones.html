@@ -60,7 +60,10 @@
             <td class="acciones">
               <button class="btn-icon btn-info" (click)="ver(cot.id)" title="Ver">👁️</button>
               <button class="btn-icon btn-warning" (click)="editar(cot.id)" [disabled]="cot.estado !== 'BORRADOR' && cot.estado !== 'ENVIADA'" [title]="cot.estado !== 'BORRADOR' && cot.estado !== 'ENVIADA' ? 'Solo se puede editar en BORRADOR o ENVIADA' : 'Editar'">✏️</button>
-              <button class="btn-icon btn-pdf" (click)="generarPdf(cot.id)" [disabled]="pdfGenerando[cot.id] || pdfGenerados[cot.id] || cot.estado !== 'APROBADA'" [title]="pdfGenerados[cot.id] ? 'PDF ya generado' : cot.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">📄</button>
+              <div class="pdf-action-container">
+                <button class="btn-icon btn-pdf" (click)="generarPdf(cot.id)" [disabled]="pdfGenerando[cot.id] || pdfGenerados[cot.id] || cot.estado !== 'APROBADA'" [title]="pdfGenerados[cot.id] ? 'PDF ya generado' : cot.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">📄</button>
+                <span *ngIf="pdfGenerando[cot.id]" class="pdf-loading-spinner" title="Generando PDF..."></span>
+              </div>
               <button class="btn-icon btn-danger" (click)="eliminar(cot.id, cot.codigo)" title="Eliminar">🗑️</button>
             </td>
           </tr>

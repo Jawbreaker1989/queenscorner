@@ -29,6 +29,18 @@
 .header-actions {
   display: flex;
   gap: 10px;
+  align-items: center;
+}
+
+.pdf-loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #f3f3f3;
+  border-top: 2.5px solid #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin-pdf 0.8s linear infinite;
+  flex-shrink: 0;
 }
 
 .btn {
@@ -105,6 +117,11 @@
 }
 
 @keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-pdf {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }

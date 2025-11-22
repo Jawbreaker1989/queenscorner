@@ -11,6 +11,7 @@
       <button class="btn btn-pdf" (click)="generarPdf()" [disabled]="!cotizacion || cotizacion.estado !== 'APROBADA' || loading || pdfGenerando || pdfGenerado" [title]="pdfGenerado ? 'PDF ya generado' : pdfGenerando ? 'Generando PDF...' : cotizacion && cotizacion.estado !== 'APROBADA' ? 'Solo disponible para APROBADAS' : 'Generar PDF'">
         📄 Generar PDF
       </button>
+      <span *ngIf="pdfGenerando" class="pdf-loading-spinner" title="Generando PDF..."></span>
       <button class="btn btn-primary" (click)="editar()" [disabled]="!cotizacion || (cotizacion.estado !== 'BORRADOR' && cotizacion.estado !== 'ENVIADA') || loading" [title]="cotizacion && cotizacion.estado !== 'BORRADOR' && cotizacion.estado !== 'ENVIADA' ? 'Solo se puede editar en BORRADOR o ENVIADA' : 'Editar'">
         ✏️ Editar
       </button>

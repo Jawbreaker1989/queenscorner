@@ -218,12 +218,37 @@
 
 .tabla-cotizaciones .acciones {
   text-align: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
 }
+
+.pdf-action-container {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pdf-loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #558b2f;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin-pdf 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin-pdf {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 
 .acciones {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  align-items: center;
 }
 
 .btn-icon {

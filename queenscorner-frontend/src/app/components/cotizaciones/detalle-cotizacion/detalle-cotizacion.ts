@@ -5,6 +5,7 @@ import { NegociosService } from '../../../services/negocios';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CotizacionResponse, EstadoCotizacion } from '../../../models/cotizacion.model';
+import { delay } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -77,62 +78,24 @@ export class DetalleCotizacionComponent implements OnInit {
   }
 
   generarPdf() {
-    if (!this.cotizacion || this.cotizacion.estado !== 'APROBADA') {
-      Swal.fire('No permitido', 'Solo se puede generar PDF para cotizaciones APROBADAS', 'warning');
+    if (!this.cotizacion || this.cotizacion.estado !== 'APROBADA' || this.pdfGenerando || this.pdfGenerado) {
       return;
     }
 
     this.pdfGenerando = true;
-    
-    // Mostrar modal de loading asincrónico
-    Swal.fire({
-      title: 'Generando PDF',
-      html: `
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
-          <div style="
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin-pdf 1s linear infinite;
-          "></div>
-          <p style="margin: 0; color: #666; font-size: 16px;">Por favor espera, tu PDF se está generando...</p>
-        </div>
-      `,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
 
-    this.cotizacionesService.generarPdf(this.cotizacionId).subscribe({
+    this.cotizacionesService.generarPdf(this.cotizacionId).pipe(
+      delay(5000) // Simular 5 segundos de carga
+    ).subscribe({
       next: (response) => {
         if (response.success) {
-          // Marcar como generado en localStorage
           const pdfKey = `pdf_generado_${this.cotizacionId}`;
           localStorage.setItem(pdfKey, 'true');
           this.pdfGenerado = true;
-
-          Swal.fire({
-            title: '¡Éxito!',
-            html: `
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                <div style="font-size: 48px;">✅</div>
-                <p style="margin: 0; color: #666; font-size: 16px;">PDF generado exitosamente.<br/>El proceso se está completando en segundo plano.</p>
-              </div>
-            `,
-            icon: 'success',
-            confirmButtonColor: '#667eea'
-          });
-        } else {
-          Swal.fire('Error', response.message || 'Error al generar PDF', 'error');
         }
         this.pdfGenerando = false;
       },
       error: () => {
-        Swal.fire('Error', 'Error al generar PDF', 'error');
         this.pdfGenerando = false;
       }
     });
