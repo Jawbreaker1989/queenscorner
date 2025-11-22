@@ -8,6 +8,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Image;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.nio.file.Paths;
@@ -39,6 +40,17 @@ public class PdfAsyncService {
                 try (PdfWriter writer = new PdfWriter(rutaCompleta)) {
                     PdfDocument pdfDoc = new PdfDocument(writer);
                     Document doc = new Document(pdfDoc);
+                    
+                    // LOGO
+                    try {
+                        String logoPath = "src/main/resources/imagenes/logo.png";
+                        Image logo = new Image(com.itextpdf.io.image.ImageDataFactory.create(logoPath));
+                        logo.setWidth(80);
+                        logo.setHeight(80);
+                        doc.add(logo);
+                    } catch (Exception e) {
+                        System.out.println("⚠️ Logo no encontrado, continuando sin él");
+                    }
                     
                     // ENCABEZADO EMPRESA
                     doc.add(new Paragraph("QUEEN'S CORNER GALLERY"));
@@ -124,6 +136,17 @@ public class PdfAsyncService {
                 try (PdfWriter writer = new PdfWriter(rutaCompleta)) {
                     PdfDocument pdfDoc = new PdfDocument(writer);
                     Document doc = new Document(pdfDoc);
+                    
+                    // LOGO
+                    try {
+                        String logoPath = "src/main/resources/imagenes/logo.png";
+                        Image logo = new Image(com.itextpdf.io.image.ImageDataFactory.create(logoPath));
+                        logo.setWidth(80);
+                        logo.setHeight(80);
+                        doc.add(logo);
+                    } catch (Exception e) {
+                        System.out.println("⚠️ Logo no encontrado, continuando sin él");
+                    }
                     
                     // ENCABEZADO EMPRESA
                     doc.add(new Paragraph("QUEEN'S CORNER GALLERY"));
