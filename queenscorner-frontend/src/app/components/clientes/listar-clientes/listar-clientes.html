@@ -14,6 +14,16 @@
     </div>
   </div>
 
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      (input)="filtrarClientes()"
+      placeholder="Buscar por nombre, email, teléfono o ciudad..."
+    />
+  </div>
+
   <div class="mensajes">
     <div class="error" *ngIf="error">
       <span class="icon">⚠️</span>
@@ -36,7 +46,12 @@
       <button class="btn btn-primary" (click)="crear()">Crear primer cliente</button>
     </div>
 
-    <div *ngIf="!loading && clientes.length > 0" class="tabla-wrapper">
+    <div *ngIf="!loading && clientesFiltrados.length === 0 && clientes.length > 0" class="sin-datos">
+      <p>No se encontraron clientes que coincidan con tu búsqueda</p>
+      <p class="info-busqueda">Intenta con otros términos o <button class="btn-link" (click)="searchTerm = ''; filtrarClientes()">limpia la búsqueda</button></p>
+    </div>
+
+    <div *ngIf="!loading && clientesFiltrados.length > 0" class="tabla-wrapper">
       <table class="tabla-clientes">
         <thead>
           <tr>
@@ -49,7 +64,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let cliente of clientes" class="fila-cliente" (dblclick)="verDobleClick(cliente.id)">
+          <tr *ngFor="let cliente of clientesFiltrados" class="fila-cliente" (dblclick)="verDobleClick(cliente.id)">
             <td class="id">{{ cliente.id }}</td>
             <td class="nombre">{{ cliente.nombre }}</td>
             <td class="email">{{ cliente.email }}</td>

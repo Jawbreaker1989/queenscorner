@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Clientes } from '../../../services/clientes';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ClienteResponse } from '../../../models/cliente.model';
 import Swal from 'sweetalert2';
 
@@ -10,13 +11,15 @@ import Swal from 'sweetalert2';
   templateUrl: './listar-clientes.html',
   styleUrls: ['./listar-clientes.css'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class ListarClientesComponent implements OnInit {
   clientes: ClienteResponse[] = [];
+  clientesFiltrados: ClienteResponse[] = [];
   loading = true;
   error = '';
   mensajeExito = '';
+  searchTerm: string = '';
 
   constructor(
     private clientesService: Clientes,
@@ -36,6 +39,7 @@ export class ListarClientesComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.clientes = response.data || [];
+          this.filtrarClientes();
         } else {
           this.error = response.message || 'Error al cargar clientes';
         }
@@ -46,6 +50,21 @@ export class ListarClientesComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  filtrarClientes() {
+    if (!this.searchTerm.trim()) {
+      this.clientesFiltrados = [...this.clientes];
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase().trim();
+    this.clientesFiltrados = this.clientes.filter(cliente =>
+      cliente.nombre.toLowerCase().includes(term) ||
+      cliente.email.toLowerCase().includes(term) ||
+      cliente.telefono.toLowerCase().includes(term) ||
+      cliente.ciudad.toLowerCase().includes(term)
+    );
   }
 
   crear() {

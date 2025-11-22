@@ -37,6 +37,59 @@
   flex-wrap: wrap;
 }
 
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 2px solid #e1e5e9;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="%236c757d"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>') no-repeat right 10px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #34495e;
+  box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+}
+
+.search-input::placeholder {
+  color: #adb5bd;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+.btn-link:hover {
+  color: #2980b9;
+}
+
+.info-busqueda {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin: 0.5rem 0 0 0;
+}
+
 .btn {
   padding: 0.75rem 1.25rem;
   border: none;
@@ -284,6 +337,15 @@
   .header-actions .btn {
     flex: 1;
     text-align: center;
+  }
+
+  .search-container {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevent zoom on iOS */
   }
 
   .tabla-wrapper {
