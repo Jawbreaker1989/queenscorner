@@ -205,7 +205,7 @@ export class ListarFacturasComponent implements OnInit {
   }
 
   generarPdf(factura: Factura) {
-    if (this.pdfGenerados[factura.id] || this.pdfGenerando[factura.id]) {
+    if (this.pdfGenerando[factura.id]) {
       return;
     }
 

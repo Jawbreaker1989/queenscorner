@@ -79,7 +79,7 @@
                 📤
               </button>
               <div class="pdf-button-container">
-                <button class="btn-accion btn-generar" (click)="generarPdf(factura)" [disabled]="pdfGenerando[factura.id] || pdfGenerados[factura.id]" [title]="pdfGenerados[factura.id] ? 'PDF ya generado' : 'Generar PDF'">
+                <button class="btn-accion btn-generar" (click)="generarPdf(factura)" [disabled]="pdfGenerando[factura.id]" title="Generar PDF">
                   🖨️
                 </button>
                 <span *ngIf="pdfGenerando[factura.id]" class="pdf-loading-spinner" title="Generando PDF..."></span>
