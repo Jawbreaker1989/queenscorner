@@ -217,11 +217,18 @@ public class PdfAsyncService {
                     // TOTALES
                     doc.add(new Paragraph("───────────────────────────────────────────────────────"));
                     doc.add(new Paragraph("Subtotal: $" + factura.getSubtotal()));
+                    doc.add(new Paragraph("IVA (19%): $" + factura.getIva()));
+                    doc.add(new Paragraph("TOTAL A PAGAR: $" + factura.getTotal()));
                     if (factura.getAnticipo() != null && factura.getAnticipo().compareTo(java.math.BigDecimal.ZERO) > 0) {
                         doc.add(new Paragraph("Anticipo: $" + factura.getAnticipo()));
                     }
-                    doc.add(new Paragraph("IVA (19%): $" + factura.getIva()));
-                    doc.add(new Paragraph("TOTAL A PAGAR: $" + factura.getTotal()));
+                    
+                    // Calcular saldo pendiente
+                    java.math.BigDecimal saldoPendiente = factura.getTotal();
+                    if (factura.getAnticipo() != null) {
+                        saldoPendiente = saldoPendiente.subtract(factura.getAnticipo());
+                    }
+                    doc.add(new Paragraph("Saldo Pendiente: $" + saldoPendiente));
                     doc.add(new Paragraph("───────────────────────────────────────────────────────"));
                     doc.add(new Paragraph(""));
                     
