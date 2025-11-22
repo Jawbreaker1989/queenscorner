@@ -16,16 +16,18 @@ import Swal from 'sweetalert2';
 })
 export class ListarCotizacionesComponent implements OnInit {
   cotizaciones: CotizacionResponse[] = [];
+  cotizacionesFiltradas: CotizacionResponse[] = [];
   loading = false;
   error = '';
   mensajeExito = '';
   pdfGenerando: { [key: number]: boolean } = {};
   pdfGenerados: { [key: number]: boolean } = {};
+  searchTerm: string = '';
 
   constructor(
     private cotizacionesService: CotizacionesService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.cargarCotizaciones();
@@ -40,6 +42,7 @@ export class ListarCotizacionesComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.cotizaciones = response.data || [];
+          this.filtrarCotizaciones();
         } else {
           this.error = response.message || 'Error al cargar cotizaciones';
         }
@@ -50,6 +53,21 @@ export class ListarCotizacionesComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  filtrarCotizaciones() {
+    if (!this.searchTerm.trim()) {
+      this.cotizacionesFiltradas = [...this.cotizaciones];
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase().trim();
+    this.cotizacionesFiltradas = this.cotizaciones.filter(cotizacion =>
+      cotizacion.codigo.toLowerCase().includes(term) ||
+      cotizacion.cliente.nombre.toLowerCase().includes(term) ||
+      cotizacion.estado.toLowerCase().includes(term) ||
+      cotizacion.descripcion.toLowerCase().includes(term)
+    );
   }
 
   verificarPdfsGenerados() {
@@ -124,6 +142,7 @@ export class ListarCotizacionesComponent implements OnInit {
         const index = this.cotizaciones.findIndex(c => c.id === id);
         if (index > -1) {
           this.cotizaciones.splice(index, 1);
+          this.filtrarCotizaciones();
           this.mensajeExito = `Cotización ${codigo} ocultada exitosamente`;
           setTimeout(() => this.mensajeExito = '', 3000);
         }

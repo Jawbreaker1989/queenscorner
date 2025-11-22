@@ -14,6 +14,16 @@
     </div>
   </div>
 
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      (input)="filtrarCotizaciones()"
+      placeholder="Buscar por código, cliente, estado o descripción..."
+    />
+  </div>
+
   <div class="mensajes">
     <div class="error" *ngIf="error">
       <span class="icon">⚠️</span>
@@ -31,12 +41,17 @@
       <p>Cargando cotizaciones...</p>
     </div>
 
+    <div *ngIf="!loading && cotizacionesFiltradas.length === 0 && cotizaciones.length > 0" class="sin-datos">
+      <p>No se encontraron cotizaciones que coincidan con tu búsqueda</p>
+      <p class="info-busqueda">Intenta con otros términos o <button class="btn-link" (click)="searchTerm = ''; filtrarCotizaciones()">limpia la búsqueda</button></p>
+    </div>
+
     <div *ngIf="!loading && cotizaciones.length === 0" class="sin-datos">
       <p>No hay cotizaciones registradas</p>
       <button class="btn btn-primary" (click)="crear()">Crear primera cotización</button>
     </div>
 
-    <div *ngIf="!loading && cotizaciones.length > 0" class="tabla-wrapper">
+    <div *ngIf="!loading && cotizacionesFiltradas.length > 0" class="tabla-wrapper">
       <table class="tabla-cotizaciones">
         <thead>
           <tr>
@@ -49,7 +64,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let cot of cotizaciones" class="fila-cotizacion" (dblclick)="verDobleClick(cot.id)">
+          <tr *ngFor="let cot of cotizacionesFiltradas" class="fila-cotizacion" (dblclick)="verDobleClick(cot.id)">
             <td class="codigo">{{ cot.codigo }}</td>
             <td class="cliente">{{ cot.cliente.nombre }}</td>
             <td class="total">${{ cot.total | number: '1.2-2' }}</td>
