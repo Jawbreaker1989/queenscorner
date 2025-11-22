@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { Factura, ApiResponse } from '../../../models/factura.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-listar-facturas',
@@ -116,64 +117,149 @@ export class ListarFacturasComponent implements OnInit {
 
   emitirFactura(factura: Factura) {
     if (factura.estado !== 'EN_REVISION') {
-      alert('Solo se pueden enviar facturas en estado EN_REVISION');
+      Swal.fire({
+        title: 'No permitido',
+        text: 'Solo se pueden enviar facturas en estado EN_REVISION',
+        icon: 'warning',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
     
-    if (confirm(`¿Enviar factura ${factura.numeroFactura}?`)) {
-      this.facturaService.emitirFactura(factura.id).subscribe({
-        next: () => {
-          alert('Factura enviada correctamente');
-          this.cargarFacturas();
-        },
-        error: (error: any) => {
-          console.error('Error al enviar factura', error);
-          alert('Error al enviar factura: ' + (error?.error?.message || 'Error desconocido'));
-        }
-      });
-    }
+    Swal.fire({
+      title: '¿Emitir factura?',
+      text: `¿Deseas emitir la factura ${factura.numeroFactura}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, emitir',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.facturaService.emitirFactura(factura.id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: '¡Éxito!',
+              text: 'Factura emitida correctamente',
+              icon: 'success',
+              confirmButtonText: 'Continuar'
+            });
+            this.cargarFacturas();
+          },
+          error: (error: any) => {
+            console.error('Error al emitir factura', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al emitir factura: ' + (error?.error?.message || 'Error desconocido'),
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
+          }
+        });
+      }
+    });
   }
 
   anularFactura(id: number, numeroFactura: string) {
-    if (confirm(`¿Anular factura ${numeroFactura}?`)) {
-      this.facturaService.anularFactura(id).subscribe({
-        next: () => {
-          alert('Factura anulada correctamente');
-          this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
-        },
-        error: (error: any) => {
-          console.error('Error al anular factura', error);
-          alert('Error al anular factura: ' + (error?.error?.message || 'Error desconocido'));
-        }
-      });
-    }
+    Swal.fire({
+      title: '¿Anular factura?',
+      text: `¿Deseas anular la factura ${numeroFactura}? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.facturaService.anularFactura(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: '¡Hecho!',
+              text: 'Factura anulada correctamente',
+              icon: 'success',
+              confirmButtonText: 'Continuar'
+            });
+            this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
+          },
+          error: (error: any) => {
+            console.error('Error al anular factura', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al anular factura: ' + (error?.error?.message || 'Error desconocido'),
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
+          }
+        });
+      }
+    });
   }
 
   generarPdf(factura: Factura) {
     if (this.pdfGenerados[factura.id]) {
-      alert('El PDF para esta factura ya fue generado');
+      Swal.fire({
+        title: 'PDF ya generado',
+        text: 'El PDF para esta factura ya fue generado anteriormente',
+        icon: 'info',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
-    if (confirm(`¿Generar PDF para la factura ${factura.numeroFactura}?`)) {
-      this.pdfGenerando[factura.id] = true;
-      this.facturaService.generarPdf(factura.id).subscribe({
-        next: () => {
-          // Marcar como generado en localStorage
-          const pdfKey = `pdf_generado_factura_${factura.id}`;
-          localStorage.setItem(pdfKey, 'true');
-          this.pdfGenerados[factura.id] = true;
+    Swal.fire({
+      title: '¿Generar PDF?',
+      text: `¿Deseas generar el PDF para la factura ${factura.numeroFactura}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, generar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.pdfGenerando[factura.id] = true;
+        
+        Swal.fire({
+          title: 'Generando PDF...',
+          text: 'Por favor espera mientras generamos el documento',
+          icon: 'info',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
 
-          alert('PDF generado correctamente');
-          this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
-        },
-        error: (error: any) => {
-          console.error('Error al generar PDF', error);
-          alert('Error al generar PDF: ' + (error?.error?.message || 'Error desconocido'));
-          this.pdfGenerando[factura.id] = false;
-        }
-      });
-    }
+        this.facturaService.generarPdf(factura.id).subscribe({
+          next: () => {
+            // Marcar como generado en localStorage
+            const pdfKey = `pdf_generado_factura_${factura.id}`;
+            localStorage.setItem(pdfKey, 'true');
+            this.pdfGenerados[factura.id] = true;
+
+            Swal.fire({
+              title: '¡Éxito!',
+              text: 'PDF generado correctamente',
+              icon: 'success',
+              confirmButtonText: 'Continuar'
+            });
+            this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
+          },
+          error: (error: any) => {
+            console.error('Error al generar PDF', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'Error al generar PDF: ' + (error?.error?.message || 'Error desconocido'),
+              icon: 'error',
+              confirmButtonText: 'Entendido'
+            });
+            this.pdfGenerando[factura.id] = false;
+          }
+        });
+      }
+    });
   }
 
   volver() {
