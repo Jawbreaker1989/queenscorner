@@ -63,9 +63,12 @@
               <button *ngIf="factura.estado === 'EN_REVISION'" class="btn-accion btn-editar" (click)="emitirFactura(factura)" title="Emitir">
                 📤
               </button>
-              <button class="btn-accion btn-generar" (click)="generarPdf(factura)" [disabled]="pdfGenerando[factura.id] || pdfGenerados[factura.id]" [title]="pdfGenerados[factura.id] ? 'PDF ya generado' : 'Generar PDF'">
-                🖨️
-              </button>
+              <div class="pdf-button-container">
+                <button class="btn-accion btn-generar" (click)="generarPdf(factura)" [disabled]="pdfGenerando[factura.id] || pdfGenerados[factura.id]" [title]="pdfGenerados[factura.id] ? 'PDF ya generado' : 'Generar PDF'">
+                  🖨️
+                </button>
+                <span *ngIf="pdfGenerando[factura.id]" class="pdf-loading-spinner" title="Generando PDF..."></span>
+              </div>
             </td>
           </tr>
         </tbody>

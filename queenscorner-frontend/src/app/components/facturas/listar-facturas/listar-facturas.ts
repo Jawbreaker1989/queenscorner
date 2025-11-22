@@ -198,66 +198,24 @@ export class ListarFacturasComponent implements OnInit {
   }
 
   generarPdf(factura: Factura) {
-    if (this.pdfGenerados[factura.id]) {
-      Swal.fire({
-        title: 'PDF ya generado',
-        text: 'El PDF para esta factura ya fue generado anteriormente',
-        icon: 'info',
-        confirmButtonText: 'Entendido'
-      });
+    if (this.pdfGenerados[factura.id] || this.pdfGenerando[factura.id]) {
       return;
     }
 
-    Swal.fire({
-      title: '¿Generar PDF?',
-      text: `¿Deseas generar el PDF para la factura ${factura.numeroFactura}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, generar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.pdfGenerando[factura.id] = true;
-        
-        Swal.fire({
-          title: 'Generando PDF...',
-          text: 'Por favor espera mientras generamos el documento',
-          icon: 'info',
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
-        });
+    this.pdfGenerando[factura.id] = true;
 
-        this.facturaService.generarPdf(factura.id).subscribe({
-          next: () => {
-            // Marcar como generado en localStorage
-            const pdfKey = `pdf_generado_factura_${factura.id}`;
-            localStorage.setItem(pdfKey, 'true');
-            this.pdfGenerados[factura.id] = true;
-
-            Swal.fire({
-              title: '¡Éxito!',
-              text: 'PDF generado correctamente',
-              icon: 'success',
-              confirmButtonText: 'Continuar'
-            });
-            this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
-          },
-          error: (error: any) => {
-            console.error('Error al generar PDF', error);
-            Swal.fire({
-              title: 'Error',
-              text: 'Error al generar PDF: ' + (error?.error?.message || 'Error desconocido'),
-              icon: 'error',
-              confirmButtonText: 'Entendido'
-            });
-            this.pdfGenerando[factura.id] = false;
-          }
-        });
+    this.facturaService.generarPdf(factura.id).subscribe({
+      next: () => {
+        // Marcar como generado en localStorage
+        const pdfKey = `pdf_generado_factura_${factura.id}`;
+        localStorage.setItem(pdfKey, 'true');
+        this.pdfGenerados[factura.id] = true;
+        this.pdfGenerando[factura.id] = false;
+        this.negocioId ? this.cargarFacturasPorNegocio() : this.cargarFacturas();
+      },
+      error: (error: any) => {
+        console.error('Error al generar PDF', error);
+        this.pdfGenerando[factura.id] = false;
       }
     });
   }

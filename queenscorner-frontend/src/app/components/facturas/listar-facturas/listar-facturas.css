@@ -209,6 +209,28 @@
   gap: 6px;
   justify-content: center;
   white-space: nowrap;
+  align-items: center;
+}
+
+.pdf-button-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pdf-loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin-pdf 0.8s linear infinite;
+}
+
+@keyframes spin-pdf {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .btn-accion {
