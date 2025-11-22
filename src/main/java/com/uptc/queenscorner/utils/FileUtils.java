@@ -98,4 +98,4 @@ public class FileUtils {
         System.out.println("   📄 Cotizaciones: " + getRutaCotizaciones());
         System.out.println("   🧾 Facturas: " + getRutaFacturas());
     }
-} 
+}  

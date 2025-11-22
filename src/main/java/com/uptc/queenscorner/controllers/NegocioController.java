@@ -15,6 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar negocios (proyectos)
+ * Un negocio es la evolución de una cotización aprobada
+ * Contiene información del presupuesto, avance y estado del proyecto
+ * Estados válidos: EN_REVISION → FINALIZADO o CANCELADO
+ */
 @RestController
 @RequestMapping("/api/negocios")
 @Tag(name = "Negocios", description = "Gestión de negocios y proyectos")

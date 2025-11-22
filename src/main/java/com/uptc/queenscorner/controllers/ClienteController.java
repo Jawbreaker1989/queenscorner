@@ -13,6 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar clientes
+ * Proporciona endpoints CRUD para crear, leer, actualizar y eliminar clientes
+ * Todos los datos se retornan en formato JSON con estructura ApiResponse
+ */
 @RestController
 @RequestMapping("/api/clientes")
 @CrossOrigin(origins = {"http://localhost:4200", "http://localhost:3000"})
@@ -25,6 +30,11 @@ public class ClienteController {
         this.clienteService = clienteService;
     }
 
+    /**
+     * Obtiene todos los clientes activos
+     * Los resultados se recuperan desde caché para mejor rendimiento
+     * @return Lista de clientes con estado activo
+     */
     @GetMapping
     @Operation(summary = "Listar clientes activos", description = "Obtiene el listado de todos los clientes activos del sistema")
     @ApiResponses(value = {
@@ -40,6 +50,12 @@ public class ClienteController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene un cliente específico por su ID
+     * Si el cliente no existe o está inactivo, lanza excepción 404
+     * @param id Identificador único del cliente
+     * @return Datos completos del cliente encontrado
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener cliente por ID", description = "Recupera los detalles de un cliente específico")
     @ApiResponses(value = {
@@ -57,6 +73,13 @@ public class ClienteController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Crea un nuevo cliente en el sistema
+     * Valida que los datos sean válidos antes de guardar
+     * Los clientes se crean con estado activo por defecto
+     * @param request Objeto con nombre, documento, email, teléfono, dirección
+     * @return Cliente creado con ID asignado automáticamente
+     */
     @PostMapping
     @Operation(summary = "Crear nuevo cliente", description = "Crea un nuevo cliente en el sistema")
     @ApiResponses(value = {
@@ -73,6 +96,14 @@ public class ClienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Actualiza los datos de un cliente existente
+     * Solo actualiza los campos enviados en la solicitud
+     * Invalida la caché de clientes después de actualizar
+     * @param id ID del cliente a modificar
+     * @param request Nuevos datos del cliente
+     * @return Cliente actualizado con los cambios aplicados
+     */
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar cliente", description = "Actualiza los datos de un cliente existente")
     @ApiResponses(value = {
@@ -92,6 +123,12 @@ public class ClienteController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Elimina (desactiva) un cliente del sistema
+     * NOTA: Es una eliminación lógica - los datos permanecen en BD para auditoría
+     * El cliente se marca como inactivo y no aparecerá en listados normales
+     * @param id ID del cliente a eliminar
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar cliente", description = "Marca un cliente como inactivo (eliminación lógica)")
     @ApiResponses(value = {

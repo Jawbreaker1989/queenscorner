@@ -4,35 +4,73 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * DTO que retorna los datos completos de un negocio.
+ * 
+ * Se utiliza cuando se consulta un negocio para mostrar:
+ * - Información del cliente y la cotización original
+ * - Detalles del proyecto (fechas, presupuesto, estado)
+ * - Información denormalizada de la cotización para consultas rápidas
+ * - Saldo pendiente y montos pagados
+ * 
+ * Nota: Los campos con prefijo "Cotizacion" son denormalizados
+ * para evitar JOINs costosos en consultas frecuentes.
+ */
 public class NegocioResponse {
 
+    /** ID único del negocio */
     private Long id;
+    /** Código único del negocio (NEG-YYYYMMDD-XXXXX) */
     private String codigo;
+    /** ID de la cotización original que originó este negocio */
     private Long cotizacionId;
+    /** Información completa de la cotización (cuando se necesita completa) */
     private CotizacionResponse cotizacion; 
+    /** Información del cliente (datos resumidos) */
     private ClienteResponse cliente;
+    /** Fecha de creación del negocio */
     private LocalDateTime fechaCreacion;
+    /** Fecha de última actualización */
     private LocalDateTime fechaActualizacion;
 
+    /** CAMPOS DENORMALIZADOS DE LA COTIZACIÓN (para queries sin JOIN) */
+    /** Código de la cotización original */
     private String codigoCotizacion;
+    /** Estado de la cotización original */
     private String estadoCotizacion;
+    /** Fecha de creación de la cotización */
     private LocalDateTime fechaCotizacion;
+    /** Fecha de validez de la cotización */
     private LocalDate fechaValidezCotizacion;
+    /** Descripción de la cotización */
     private String descripcionCotizacion;
+    /** Subtotal de la cotización original */
     private BigDecimal subtotalCotizacion;
+    /** Impuestos de la cotización original */
     private BigDecimal impuestosCotizacion;
+    /** Total de la cotización original */
     private BigDecimal totalCotizacion;
+    /** Observaciones de la cotización original */
     private String observacionesCotizacion;
 
- 
+    /** INFORMACIÓN DEL NEGOCIO/PROYECTO */
+    /** Fecha de inicio del proyecto */
     private LocalDate fechaInicio;
+    /** Fecha estimada de finalización */
     private LocalDate fechaFinEstimada;
+    /** Estado del negocio (EN_REVISION, CANCELADO, FINALIZADO) */
     private String estado;
+    /** Presupuesto total asignado al proyecto */
     private BigDecimal presupuestoAsignado;
+    /** Anticipo pagado por el cliente */
     private BigDecimal anticipo;
+    /** Saldo aún pendiente por cobrar */
     private BigDecimal saldoPendiente; 
+    /** Responsable del proyecto */
     private String responsable;
+    /** Descripción adicional del proyecto */
     private String descripcion;
+    /** Observaciones sobre el proyecto */
     private String observaciones;
 
    

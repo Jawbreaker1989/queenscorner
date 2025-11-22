@@ -2,10 +2,23 @@ package com.uptc.queenscorner.models.dtos.requests;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO que representa una línea de detalle para agregar a una factura.
+ * 
+ * Cada línea contiene un servicio o producto específico con su:
+ * - Descripción
+ * - Cantidad
+ * - Valor unitario
+ * 
+ * El total de la línea se calcula: cantidad * valor unitario
+ */
 public class AgregarLineaRequest {
     
+    /** Descripción del servicio o producto facturado */
     private String descripcion;
+    /** Cantidad de unidades */
     private BigDecimal cantidad;
+    /** Precio unitario del servicio/producto */
     private BigDecimal valorUnitario;
     
     public AgregarLineaRequest() {}

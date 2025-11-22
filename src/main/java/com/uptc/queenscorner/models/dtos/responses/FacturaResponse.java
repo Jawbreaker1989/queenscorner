@@ -5,23 +5,49 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DTO que retorna los datos completos de una factura.
+ * 
+ * Se utiliza cuando se consulta una factura para mostrar:
+ * - Número y estado de la factura
+ * - Información del negocio asociado
+ * - Listado de líneas de detalle
+ * - Cálculos finales (subtotal, IVA, total, saldo pendiente)
+ * - Información de auditoría (usuario, fechas)
+ */
 public class FacturaResponse {
     
+    /** ID único de la factura */
     private Long id;
+    /** Número único de factura (FAC-AAAA-CCCCCC) */
     private String numeroFactura;
+    /** Fecha de creación del registro en BD */
     private LocalDateTime fechaCreacion;
+    /** Fecha en que fue enviada al cliente */
     private LocalDateTime fechaEnvio;
+    /** Estado de la factura (ENVIADA, EN_REVISION, PAGADA, etc.) */
     private String estado;
+    /** Subtotal de la factura (sin IVA) */
     private BigDecimal subtotal;
+    /** IVA calculado (19% del subtotal) */
     private BigDecimal iva;
+    /** Total final (subtotal + IVA) */
     private BigDecimal total;
+    /** Anticipo pagado por el cliente */
     private BigDecimal anticipo;
+    /** Saldo pendiente por cobrar (total - anticipo) */
     private BigDecimal saldoPendiente;
+    /** Observaciones sobre la factura */
     private String observaciones;
+    /** Usuario que creó la factura */
     private String usuarioCreacion;
+    /** Usuario que envió la factura */
     private String usuarioEnvio;
+    /** Ruta del PDF generado */
     private String pathPdf;
+    /** Información del negocio al que pertenece la factura */
     private NegocioInfoResponse negocio;
+    /** Lista de líneas de detalle de la factura */
     private List<LineaFacturaResponse> lineas = new ArrayList<>();
     
     public FacturaResponse() {}

@@ -17,6 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+/**
+ * Controlador REST para gestionar cotizaciones (presupuestos)
+ * Maneja creación, edición, cambio de estado y generación de PDF de cotizaciones
+ * Las cotizaciones son base para crear negocios y facturas
+ * Estados válidos: BORRADOR → ENVIADA → APROBADA o RECHAZADA
+ */
 @RestController
 @RequestMapping("/api/cotizaciones")
 @Tag(name = "Cotizaciones", description = "Gestión de cotizaciones y presupuestos")
@@ -31,6 +37,11 @@ public class CotizacionController {
     @Autowired
     private ICotizacionRepository cotizacionRepository;
 
+    /**
+     * Obtiene todas las cotizaciones
+     * Los resultados incluyen cliente, items y cálculos de totales
+     * @return Lista completa de cotizaciones del sistema
+     */
     @GetMapping
     @Operation(summary = "Listar todas las cotizaciones", description = "Obtiene el listado completo de cotizaciones del sistema")
     @ApiResponses(value = {
@@ -46,6 +57,11 @@ public class CotizacionController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene una cotización específica por su ID
+     * @param id Identificador único de la cotización
+     * @return Datos completos de la cotización con cliente e items
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener cotización por ID", description = "Recupera los detalles de una cotización específica")
     @ApiResponses(value = {

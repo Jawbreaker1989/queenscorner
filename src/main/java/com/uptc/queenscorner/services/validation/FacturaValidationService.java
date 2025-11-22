@@ -5,16 +5,19 @@ import com.uptc.queenscorner.models.entities.FacturaEntity;
 import org.springframework.stereotype.Service;
 
 /**
- * Servicio de validación centralizado para facturas.
- * Garantiza consistencia en las validaciones en todo el sistema.
+ * Servicio de validación centralizado para facturas
+ * Agrupa todas las reglas de validación para mantener consistencia
+ * Valida estados, datos mínimos y relaciones entre entidades
+ * Evita duplicar validaciones en múltiples servicios
  */
 @Service
 public class FacturaValidationService {
 
     /**
-     * Valida que un negocio pueda generar una factura
+     * Valida que un negocio sea apto para generar una factura
+     * Revisa: que exista, que no esté cancelado, que tenga cotización
      * @param negocio Negocio a validar
-     * @throws RuntimeException si el negocio no cumple los requisitos
+     * @throws RuntimeException si no cumple los requisitos
      */
     public void validarNegocioParaFactura(NegocioEntity negocio) {
         if (negocio == null) {
@@ -32,9 +35,10 @@ public class FacturaValidationService {
     }
 
     /**
-     * Valida que una factura pueda ser enviada
+     * Valida que una factura pueda ser enviada al cliente
+     * Revisa: que tenga líneas, que tenga negocio asociado, estado válido
      * @param factura Factura a validar
-     * @throws RuntimeException si la factura no cumple los requisitos
+     * @throws RuntimeException si no cumple los requisitos para envío
      */
     public void validarFacturaParaEnvio(FacturaEntity factura) {
         if (factura == null) {
@@ -52,8 +56,9 @@ public class FacturaValidationService {
 
     /**
      * Valida que una factura pueda recibir líneas adicionales
+     * Verifica que la factura exista y tenga estado válido
      * @param factura Factura a validar
-     * @throws RuntimeException si la factura no puede recibir líneas
+     * @throws RuntimeException si no puede recibir líneas
      */
     public void validarFacturaParaAgregarLinea(FacturaEntity factura) {
         if (factura == null) {
@@ -62,9 +67,10 @@ public class FacturaValidationService {
     }
 
     /**
-     * Valida que una factura tenga datos mínimos válidos
+     * Valida que una factura tenga todos los datos mínimos requeridos
+     * Revisa: número, negocio, estado, total válido
      * @param factura Factura a validar
-     * @throws RuntimeException si la factura no tiene datos válidos
+     * @throws RuntimeException si le faltan datos mínimos
      */
     public void validarDatosMinimosFactura(FacturaEntity factura) {
         if (factura.getNumeroFactura() == null || factura.getNumeroFactura().trim().isEmpty()) {

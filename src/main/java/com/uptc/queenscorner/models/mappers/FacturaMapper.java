@@ -8,9 +8,35 @@ import com.uptc.queenscorner.models.entities.*;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
+/**
+ * Mapper para convertir FacturaEntity y LineaFacturaEntity a DTOs de respuesta.
+ * 
+ * Responsabilidades:
+ * - Convertir FacturaEntity a FacturaResponse (toResponse)
+ * - Convertir LineaFacturaEntity a LineaFacturaResponse (toLineaResponse)
+ * - Convertir NegocioEntity a información resumida (toNegocioInfo)
+ * - Calcular saldo pendiente durante la conversión
+ * 
+ * Nota: No hay conversión de Request a Entity porque las facturas se crean
+ * a través de la lógica de negocio, no directamente desde DTOs.
+ */
 @Component
 public class FacturaMapper {
     
+    /**
+     * Convierte una FacturaEntity en FacturaResponse.
+     * 
+     * Incluye:
+     * - Información básica de la factura
+     * - Totales e IVA
+     * - Información de auditoría (usuario, fechas)
+     * - Información resumida del negocio
+     * - Todas las líneas de detalle
+     * - Cálculo de saldo pendiente
+     * 
+     * @param entity Entidad de factura
+     * @return DTO con todos los datos para enviar al cliente
+     */
     public FacturaResponse toResponse(FacturaEntity entity) {
         if (entity == null) return null;
         
@@ -31,6 +57,7 @@ public class FacturaMapper {
         response.setNegocio(toNegocioInfo(entity.getNegocio()));
         
         // Calcular saldo pendiente: total - anticipo
+        // Representa lo que aún debe pagar el cliente
         if (entity.getTotal() != null && entity.getAnticipo() != null) {
             BigDecimal saldoPendiente = entity.getTotal().subtract(entity.getAnticipo());
             response.setSaldoPendiente(saldoPendiente);
@@ -38,6 +65,7 @@ public class FacturaMapper {
             response.setSaldoPendiente(entity.getTotal());
         }
         
+        // Mapear todas las líneas de la factura
         if (entity.getLineas() != null) {
             entity.getLineas().forEach(linea -> 
                 response.getLineas().add(toLineaResponse(linea))
@@ -47,6 +75,14 @@ public class FacturaMapper {
         return response;
     }
     
+    /**
+     * Convierte una LineaFacturaEntity en LineaFacturaResponse.
+     * 
+     * Una línea representa un servicio/producto específico facturado.
+     * 
+     * @param entity Entidad de línea de factura
+     * @return DTO con los datos de la línea
+     */
     public LineaFacturaResponse toLineaResponse(LineaFacturaEntity entity) {
         if (entity == null) return null;
         
@@ -60,6 +96,20 @@ public class FacturaMapper {
         return response;
     }
     
+    /**
+     * Convierte una NegocioEntity en información resumida (NegocioInfoResponse).
+     * 
+     * Se utiliza cuando la información del negocio se embebe en la respuesta de factura.
+     * Solo incluye datos financieros y de identificación esenciales.
+     * 
+     * Información incluida:
+     * - ID, código, descripción, fecha
+     * - Totales: cotización, anticipo, saldo pendiente
+     * - Información resumida del cliente
+     * 
+     * @param entity Entidad de negocio
+     * @return DTO con información resumida, o null si entity es null
+     */
     public NegocioInfoResponse toNegocioInfo(NegocioEntity entity) {
         if (entity == null) return null;
         
@@ -69,17 +119,19 @@ public class FacturaMapper {
         response.setFechaCreacion(entity.getFechaCreacion());
         response.setProyecto(entity.getDescripcion());
         
-        // Obtener totales de la cotización si existe
+        // Obtener totales desde la cotización asociada
         if (entity.getCotizacion() != null) {
             CotizacionEntity cot = entity.getCotizacion();
             response.setTotalCotizacion(cot.getTotal());
             response.setAnticipo(entity.getAnticipo());
             
+            // Calcular saldo pendiente: total cotización - anticipo
             if (cot.getTotal() != null && entity.getAnticipo() != null) {
                 BigDecimal saldoPendiente = cot.getTotal().subtract(entity.getAnticipo());
                 response.setSaldoPendiente(saldoPendiente);
             }
             
+            // Incluir información resumida del cliente desde la cotización
             if (cot.getCliente() != null) {
                 ClienteEntity cliente = cot.getCliente();
                 response.setCliente(new ClienteInfoResponse(

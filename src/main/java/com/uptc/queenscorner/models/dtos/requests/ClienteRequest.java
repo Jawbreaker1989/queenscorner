@@ -1,10 +1,25 @@
 package com.uptc.queenscorner.models.dtos.requests;
 
+/**
+ * DTO para recibir información de un cliente desde el cliente web/móvil.
+ * 
+ * Se utiliza cuando:
+ * - Se crea un nuevo cliente
+ * - Se actualiza un cliente existente
+ * 
+ * Contiene solo los campos que el cliente puede proporcionar.
+ * Los campos de auditoría (id, fechaCreacion, activo) se generan en el servidor.
+ */
 public class ClienteRequest {
+    /** Nombre comercial o razón social del cliente */
     private String nombre;
+    /** Correo electrónico para contacto */
     private String email;
+    /** Teléfono de contacto del cliente */
     private String telefono;
+    /** Dirección física del cliente */
     private String direccion;
+    /** Ciudad/localidad del cliente */
     private String ciudad;
 
     public String getNombre() { return nombre; }

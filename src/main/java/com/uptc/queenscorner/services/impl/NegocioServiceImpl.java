@@ -29,6 +29,15 @@ public class NegocioServiceImpl implements INegocioService {
     @Autowired
     private NegocioMapper negocioMapper;
 
+    /**
+     * Obtiene todos los negocios del sistema.
+     * 
+     * Caché:
+     * - Clave: 'all' (estática para esta operación)
+     * - Se invalida en cualquier modificación
+     * 
+     * @return Lista de DTOs de todos los negocios
+     */
     @Override
     @Cacheable(value = "negocios", key = "'all'")
     public List<NegocioResponse> findAll() {
@@ -37,6 +46,13 @@ public class NegocioServiceImpl implements INegocioService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Busca un negocio por ID.
+     * 
+     * @param id Identificador del negocio
+     * @return DTO con datos del negocio incluyendo información denormalizada
+     * @throws RuntimeException si no existe
+     */
     @Override
     @Cacheable(value = "negocios", key = "#id")
     public NegocioResponse findById(Long id) {
@@ -45,6 +61,15 @@ public class NegocioServiceImpl implements INegocioService {
         return negocioMapper.toResponse(negocio);
     }
 
+    /**
+     * Busca un negocio por su código único.
+     * 
+     * Código formato: NEG-<timestamp>
+     * 
+     * @param codigo Código único del negocio
+     * @return DTO con datos del negocio
+     * @throws RuntimeException si no existe
+     */
     @Override
     public NegocioResponse findByCodigo(String codigo) {
         NegocioEntity negocio = negocioRepository.findByCodigo(codigo)
@@ -52,6 +77,24 @@ public class NegocioServiceImpl implements INegocioService {
         return negocioMapper.toResponse(negocio);
     }
 
+    /**
+     * Crea un negocio manualmente.
+     * 
+     * Uso: Crear negocio sin cotización aprobada (creación directa).
+     * Alternativa: crearDesdeAprobada() para flujo estándar.
+     * 
+     * Flujo:
+     * 1. Busca cotización asociada
+     * 2. Crea entidad Negocio con código generado
+     * 3. Desnormaliza campos desde cotización
+     * 4. Mapea datos adicionales del request
+     * 5. Actualiza fechaActualizacion
+     * 6. Persiste y retorna DTO
+     * 
+     * @param request DTO con datos del negocio (cotizacionId, descripción, anticipo, etc)
+     * @return DTO del negocio creado
+     * @throws RuntimeException si cotización no existe
+     */
     @Override
     @CacheEvict(value = "negocios", allEntries = true)
     public NegocioResponse create(NegocioRequest request) {
@@ -75,6 +118,29 @@ public class NegocioServiceImpl implements INegocioService {
         return negocioMapper.toResponse(saved);
     }
 
+    /**
+     * Crea un negocio a partir de una cotización APROBADA.
+     * 
+     * Este es el flujo principal del negocio:
+     * Cotización APROBADA → Crear Negocio → Facturar
+     * 
+     * Validaciones:
+     * - Cotización debe existir
+     * - Cotización debe estar en estado APROBADA
+     * - No debe existir un negocio previo para esta cotización (1-to-1)
+     * - Total de cotización debe ser > 0
+     * 
+     * Flujo:
+     * 1. Busca cotización
+     * 2. Valida todas las condiciones anteriores
+     * 3. Llama a create(request) con cotizacionId
+     * 4. create() desnormaliza datos automáticamente
+     * 
+     * @param cotizacionId ID de la cotización aprobada
+     * @param request DTO con datos adicionales del negocio
+     * @return DTO del negocio creado con datos desnormalizados
+     * @throws RuntimeException si cotización no existe, no está aprobada, o ya tiene negocio
+     */
     @Override
     @CacheEvict(value = "negocios", allEntries = true)
     public NegocioResponse crearDesdeAprobada(Long cotizacionId, NegocioRequest request) {
@@ -104,6 +170,20 @@ public class NegocioServiceImpl implements INegocioService {
         return "NEG-" + System.currentTimeMillis();
     }
 
+    /**
+     * Actualiza los datos de un negocio existente.
+     * 
+     * Flujo:
+     * 1. Busca negocio por ID
+     * 2. Mapea datos del request (campos opcionales)
+     * 3. Actualiza fechaActualizacion con timestamp actual
+     * 4. Persiste y retorna DTO actualizado
+     * 
+     * @param id ID del negocio a actualizar
+     * @param request DTO con nuevos datos (campos opcionales)
+     * @return DTO del negocio actualizado
+     * @throws RuntimeException si negocio no existe
+     */
     @Override
     @CacheEvict(value = "negocios", allEntries = true)
     public NegocioResponse update(Long id, NegocioRequest request) {
@@ -116,6 +196,26 @@ public class NegocioServiceImpl implements INegocioService {
         return negocioMapper.toResponse(updated);
     }
 
+    /**
+     * Cambia el estado de un negocio.
+     * 
+     * Estados válidos: EN_REVISION, FINALIZADO, CANCELADO
+     * 
+     * Transiciones permitidas:
+     * - EN_REVISION → FINALIZADO (proyecto completado)
+     * - EN_REVISION → CANCELADO (proyecto cancelado)
+     * - FINALIZADO y CANCELADO: NO pueden cambiar (estados terminales)
+     * 
+     * Validaciones:
+     * - Si está EN_REVISION: solo puede ir a FINALIZADO o CANCELADO
+     * - Si está FINALIZADO: lanza excepción (usar nuevo negocio)
+     * - Si está CANCELADO: lanza excepción (estado inmutable)
+     * 
+     * @param id ID del negocio
+     * @param estado Nuevo estado (EN_REVISION, FINALIZADO, CANCELADO)
+     * @return DTO con negocio actualizado
+     * @throws RuntimeException si negocio no existe o transición no válida
+     */
     @Override
     @CacheEvict(value = "negocios", allEntries = true)
     public NegocioResponse cambiarEstado(Long id, String estado) {
@@ -148,6 +248,19 @@ public class NegocioServiceImpl implements INegocioService {
         return negocioMapper.toResponse(updated);
     }
 
+    /**
+     * Obtiene negocios filtrados por estado específico.
+     * 
+     * Estados posibles: EN_REVISION, FINALIZADO, CANCELADO
+     * 
+     * Uso típico:
+     * - findByEstado("EN_REVISION"): Negocios en ejecución
+     * - findByEstado("FINALIZADO"): Negocios completados
+     * - findByEstado("CANCELADO"): Negocios cancelados
+     * 
+     * @param estado Estado a filtrar
+     * @return Lista de negocios con el estado especificado
+     */
     @Override
     public List<NegocioResponse> findByEstado(String estado) {
         return negocioRepository.findByEstado(NegocioEntity.EstadoNegocio.valueOf(estado)).stream()

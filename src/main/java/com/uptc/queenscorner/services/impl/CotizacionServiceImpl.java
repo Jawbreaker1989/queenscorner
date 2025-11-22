@@ -38,6 +38,17 @@ public class CotizacionServiceImpl implements ICotizacionService {
     @Autowired
     private ItemCotizacionMapper itemCotizacionMapper;
 
+    /**
+     * Obtiene todas las cotizaciones del sistema.
+     * 
+     * Incluye cotizaciones en cualquier estado (BORRADOR, ENVIADA, APROBADA, RECHAZADA).
+     * 
+     * Caché:
+     * - Clave: 'all' (estática para esta operación)
+     * - Se invalida en cualquier modificación
+     * 
+     * @return Lista de DTOs de todas las cotizaciones
+     */
     @Override
     @Cacheable(value = "cotizaciones", key = "'all'")
     public List<CotizacionResponse> findAll() {
@@ -54,6 +65,15 @@ public class CotizacionServiceImpl implements ICotizacionService {
         return cotizacionMapper.toResponse(cotizacion);
     }
 
+    /**
+     * Busca una cotización por su código único.
+     * 
+     * Código formato: COT-<timestamp>
+     * 
+     * @param codigo Código único de la cotización
+     * @return DTO con datos de la cotización
+     * @throws ResourceNotFoundException si no existe
+     */
     @Override
     public CotizacionResponse findByCodigo(String codigo) {
         CotizacionEntity cotizacion = cotizacionRepository.findByCodigo(codigo)
@@ -61,6 +81,32 @@ public class CotizacionServiceImpl implements ICotizacionService {
         return cotizacionMapper.toResponse(cotizacion);
     }
 
+    /**
+     * Crea una nueva cotización.
+     * 
+     * Flujo:
+     * 1. Busca cliente por ID (debe existir)
+     * 2. Aplica defaults inteligentes (descripción, validez, items)
+     * 3. Crea entidad con código generado
+     * 4. Mapea datos del request
+     * 5. Calcula totales: subtotal, IVA (19%), total
+     * 6. Guarda cotización
+     * 7. Crea y persiste items
+     * 8. Retorna DTO con datos completos
+     * 
+     * Defaults Inteligentes:
+     * - Si no hay descripción: usa "Servicio personalizado"
+     * - Si no hay fecha validez: +30 días desde hoy
+     * - Si no hay items: crea 1 item con descripción=descripción, cantidad=1, precio=100000
+     * 
+     * Validaciones:
+     * - Cliente debe existir
+     * - Total debe ser > 0 (si hay items con precios válidos)
+     * 
+     * @param request DTO con datos de cotización (clienteId, items, descripción, validez, etc)
+     * @return DTO con cotización creada incluyendo código y totales
+     * @throws ResourceNotFoundException si cliente no existe
+     */
     @Override
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse create(CotizacionRequest request) {
@@ -137,6 +183,39 @@ public class CotizacionServiceImpl implements ICotizacionService {
         return "N-" + System.currentTimeMillis();
     }
 
+    /**
+     * Actualiza una cotización existente.
+     * 
+     * Flujo Complejo (sincronización de items):
+     * 1. Busca cotización por ID
+     * 2. Mapea campos básicos del request
+     * 3. SINCRONIZA ITEMS:
+     *    - Items con ID: actualiza los existentes
+     *    - Items sin ID: crea nuevos
+     *    - Items no mencionados: se eliminan automáticamente (orphanRemoval)
+     * 4. Recalcula totales basados en items actualizados
+     * 5. Persiste cotización y items
+     * 6. Flush BD para sincronización
+     * 7. Recarga desde BD para garantizar items frescos
+     * 8. Retorna DTO
+     * 
+     * Sincronización de Items (paso 3):
+     * - Recorre items del request
+     * - Si tiene ID: busca en BD y actualiza campos
+     * - Si no tiene ID: crea nuevo ItemCotizacionEntity
+     * - Usa cotizacion.items.clear() + addAll() para activar orphanRemoval
+     * 
+     * Cálculos:
+     * - Subtotal: suma(cantidad * precioUnitario) de items
+     * - IVA: subtotal * 0.19
+     * - Total: subtotal + IVA
+     * 
+     * @param id ID de la cotización a actualizar
+     * @param request DTO con nuevos datos y items (items[].id indica si es nuevo o existente)
+     * @return DTO con cotización actualizada incluyendo items sincronizados y totales recalculados
+     * @throws RuntimeException si cotización no existe
+     * @throws ResourceNotFoundException si item mencionado en request no existe
+     */
     @Override
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse update(Long id, CotizacionRequest request) {
@@ -201,6 +280,24 @@ public class CotizacionServiceImpl implements ICotizacionService {
         cotizacion.getItems().addAll(itemsActualizados);
     }
 
+    /**
+     * Cambia el estado de una cotización.
+     * 
+     * Estados válidos:
+     * - ENVIADA: Cotización enviada al cliente para revisión
+     * - APROBADA: Cliente aprobó → puede crear Negocio
+     * - RECHAZADA: Cliente rechazó
+     * 
+     * Validaciones:
+     * - Solo acepta ENVIADA, APROBADA, RECHAZADA
+     * - No valida transiciones (se permiten todas las combinaciones)
+     * 
+     * @param id ID de la cotización
+     * @param estado Nuevo estado (ENVIADA, APROBADA, RECHAZADA)
+     * @return DTO con cotización actualizada
+     * @throws ResourceNotFoundException si cotización no existe
+     * @throws RuntimeException si estado no es válido
+     */
     @Override
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public CotizacionResponse cambiarEstado(Long id, String estado) {
@@ -217,6 +314,17 @@ public class CotizacionServiceImpl implements ICotizacionService {
         return cotizacionMapper.toResponse(updated);
     }
 
+    /**
+     * Elimina una cotización de forma física.
+     * 
+     * Estrategia: ELIMINACIÓN FÍSICA (a diferencia de clientes que usa lógica)
+     * - Elimina registros de BD completamente
+     * - Por tanto, solo se permite en cotizaciones BORRADOR
+     * - Limpia caché
+     * 
+     * @param id ID de la cotización a eliminar
+     * @throws ResourceNotFoundException si cotización no existe
+     */
     @Override
     @CacheEvict(value = "cotizaciones", allEntries = true)
     public void delete(Long id) {

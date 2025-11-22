@@ -23,6 +23,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
 
+/**
+ * Controlador REST para gestionar facturas (invoices)
+ * Maneja creación, líneas, envío y generación de PDF de facturas
+ * Las facturas se crean a partir de negocios finalizados
+ * Incluye cálculo automático de totales, IVA y saldo pendiente
+ */
 @RestController
 @RequestMapping("/api/facturas")
 @Tag(name = "Facturas", description = "Gestión de facturas del sistema")
@@ -37,6 +43,13 @@ public class FacturaController {
     @Autowired
     private IFacturaRepository facturaRepository;
 
+    /**
+     * Crea una nueva factura para un negocio
+     * Valida que el negocio exista y tenga cotización asociada
+     * @param request Datos de la factura (negocio, líneas, etc)
+     * @param principal Usuario autenticado que crea la factura
+     * @return Factura creada con número generado y totales calculados
+     */
     @PostMapping
     @Operation(summary = "Crear nueva factura")
     public ResponseEntity<FacturaResponse> crearFactura(
@@ -46,6 +59,14 @@ public class FacturaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Agrega una línea de producto/servicio a una factura
+     * Solo permite agregar si factura está en estado EN_REVISION
+     * Recalcula totales automáticamente
+     * @param id ID de la factura
+     * @param request Datos de la línea (descripción, cantidad, valor)
+     * @return Factura actualizada con la línea y totales recalculados
+     */
     @PostMapping("/{id}/lineas")
     @Operation(summary = "Agregar línea a factura")
     public ResponseEntity<FacturaResponse> agregarLinea(
@@ -55,6 +76,13 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Remueve una línea de la factura
+     * Recalcula totales e IVA automáticamente
+     * @param facturaId ID de la factura
+     * @param lineaId ID de la línea a remover
+     * @return Factura sin la línea y totales actualizados
+     */
     @DeleteMapping("/{facturaId}/lineas/{lineaId}")
     @Operation(summary = "Remover línea de factura")
     public ResponseEntity<FacturaResponse> removerLinea(
@@ -64,6 +92,14 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Envía/emite una factura al cliente
+     * Valida que tenga al menos una línea
+     * Cambia estado a ENVIADA y genera PDF asincronamente
+     * @param id ID de la factura
+     * @param principal Usuario que envía (para auditoría)
+     * @return Factura con estado ENVIADA
+     */
     @PostMapping("/{id}/enviar")
     @Operation(summary = "Enviar factura")
     public ResponseEntity<FacturaResponse> enviarFactura(
@@ -73,6 +109,11 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene una factura por su ID
+     * @param id ID de la factura
+     * @return Datos completos de la factura con líneas y cálculos
+     */
     @GetMapping("/{id}")
     @Operation(summary = "Obtener factura por ID")
     public ResponseEntity<FacturaResponse> obtenerFactura(
@@ -81,6 +122,11 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene todas las facturas del sistema
+     * Incluye facturas en todos los estados
+     * @return Lista completa de facturas
+     */
     @GetMapping
     @Operation(summary = "Listar todas las facturas")
     public ResponseEntity<List<FacturaResponse>> listarFacturas() {
@@ -88,6 +134,12 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene todas las facturas de un negocio específico
+     * Útil para seguimiento de facturas por proyecto
+     * @param negocioId ID del negocio
+     * @return Lista de facturas del negocio
+     */
     @GetMapping("/negocio/{negocioId}")
     @Operation(summary = "Listar facturas por negocio")
     public ResponseEntity<List<FacturaResponse>> listarPorNegocio(
@@ -96,6 +148,12 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene un resumen de la factura con cálculos totales
+     * Incluye: subtotal, IVA (19%), total, saldo pendiente
+     * @param id ID de la factura
+     * @return Factura con datos de resumen calculados
+     */
     @GetMapping("/{id}/resumen")
     @Operation(summary = "Obtener resumen de factura")
     public ResponseEntity<FacturaResponse> obtenerResumen(
@@ -104,6 +162,13 @@ public class FacturaController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Inicia generación asincrónica de PDF para la factura
+     * El PDF se genera en background sin bloquear la respuesta HTTP
+     * Se almacena en: queenscornerarchives/facturas/
+     * @param id ID de la factura
+     * @return Factura con indicador de generación en progreso
+     */
     @PostMapping("/{id}/generar-pdf")
     @Operation(summary = "Generar PDF de factura")
     public ResponseEntity<FacturaResponse> generarPdf(
@@ -117,6 +182,13 @@ public class FacturaController {
         return ResponseEntity.accepted().body(response);
     }
 
+    /**
+     * Descarga el PDF generado de una factura
+     * El PDF debe haber sido generado previamente
+     * @param id ID de la factura
+     * @return Archivo PDF para descargar
+     * @throws IOException si el archivo no existe o no puede leerse
+     */
     @GetMapping("/{id}/pdf")
     @Operation(summary = "Descargar PDF de factura")
     public ResponseEntity<byte[]> descargarPdf(

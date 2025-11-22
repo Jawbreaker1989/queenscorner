@@ -2,13 +2,27 @@ package com.uptc.queenscorner.models.dtos.responses;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO que retorna los datos de una línea de factura.
+ * 
+ * Se utiliza cuando se devuelven los detalles de una factura,
+ * incluyendo el listado de líneas con servicios/productos facturados.
+ * 
+ * Contiene número de línea, descripción, cantidad, valor unitario y total.
+ */
 public class LineaFacturaResponse {
     
+    /** ID único de la línea */
     private Long id;
+    /** Número secuencial de la línea en la factura */
     private Integer numeroLinea;
+    /** Descripción del servicio/producto facturado */
     private String descripcion;
+    /** Cantidad de unidades */
     private BigDecimal cantidad;
+    /** Precio unitario */
     private BigDecimal valorUnitario;
+    /** Total de la línea (cantidad * valorUnitario) */
     private BigDecimal total;
     
     public LineaFacturaResponse() {}

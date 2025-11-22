@@ -2,11 +2,24 @@ package com.uptc.queenscorner.models.dtos.responses;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO que retorna los datos de un item de cotización.
+ * 
+ * Se utiliza cuando se devuelven los detalles de una cotización,
+ * incluyendo el listado de items/servicios que la componen.
+ * 
+ * Contiene el ID, descripción, cantidad, precio unitario y subtotal calculado.
+ */
 public class ItemCotizacionResponse {
+    /** ID único del item */
     private Long id;
+    /** Descripción del servicio/producto */
     private String descripcion;
+    /** Cantidad de unidades */
     private Integer cantidad;
+    /** Precio unitario */
     private BigDecimal precioUnitario;
+    /** Subtotal calculado (cantidad * precioUnitario) */
     private BigDecimal subtotal;
 
     public Long getId() { return id; }

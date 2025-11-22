@@ -5,18 +5,39 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DTO que retorna los datos completos de una cotización.
+ * 
+ * Se utiliza cuando se consulta una cotización para mostrar:
+ * - Información del cliente
+ * - Detalles de la cotización (código, estado, fechas, etc.)
+ * - Listado de items/servicios incluidos
+ * - Cálculos finales (subtotal, impuestos, total)
+ */
 public class CotizacionResponse {
+    /** ID único de la cotización */
     private Long id;
+    /** Código único de la cotización (COT-YYYYMMDD-XXXXX) */
     private String codigo;
+    /** Información del cliente (datos resumidos) */
     private ClienteResponse cliente;
+    /** Fecha de creación de la cotización */
     private LocalDateTime fechaCreacion;
+    /** Fecha hasta la cual es válida la cotización */
     private LocalDate fechaValidez;
+    /** Estado actual (BORRADOR, ENVIADA, APROBADA, RECHAZADA) */
     private String estado;
+    /** Descripción general de la propuesta */
     private String descripcion;
+    /** Subtotal antes de impuestos */
     private BigDecimal subtotal;
+    /** Total de impuestos (IVA 19%) */
     private BigDecimal impuestos;
+    /** Total final (subtotal + impuestos) */
     private BigDecimal total;
+    /** Observaciones adicionales */
     private String observaciones;
+    /** Lista de items/servicios en la cotización */
     private List<ItemCotizacionResponse> items;
 
     public Long getId() { return id; }

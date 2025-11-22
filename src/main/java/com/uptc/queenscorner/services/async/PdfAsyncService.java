@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Servicio de generación de PDF asincrónico
+ * Genera PDFs de cotizaciones y facturas en hilos separados
+ * No bloquea la respuesta HTTP mientras se genera el PDF
+ * Los PDFs se guardan en directorios configurados en el servidor
+ */
 @Service
 public class PdfAsyncService {
     
@@ -23,8 +29,10 @@ public class PdfAsyncService {
     private static final DateTimeFormatter FECHA_FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     
     /**
-     * Genera PDF de cotización en hilo separado (asincrónico)
-     * Se ejecuta solo una vez cuando se aprueba
+     * Genera PDF de cotización en hilo separado
+     * Se ejecuta de forma asincrónica sin bloquear la respuesta HTTP
+     * El PDF se guarda en: queenscornerarchives/cotizaciones/
+     * @param cotizacion Entidad de cotización con datos a incluir en PDF
      */
     public void generarPdfCotizacion(CotizacionEntity cotizacion) {
         new Thread(() -> {
@@ -122,6 +130,14 @@ public class PdfAsyncService {
         }).start();
     }
 
+    /**
+     * Genera PDF de factura en hilo separado
+     * Se ejecuta de forma asincrónica sin bloquear la respuesta HTTP
+     * Incluye datos de: factura, cliente, negocio, líneas detalladas
+     * El PDF se guarda en: queenscornerarchives/facturas/
+     * La ruta se almacena en el objeto FacturaEntity para descargas posteriores
+     * @param factura Entidad de factura con datos a incluir en PDF
+     */
     public void generarPdfFacturaAsync(FacturaEntity factura) {
         new Thread(() -> {
             try {
@@ -235,6 +251,12 @@ public class PdfAsyncService {
         }).start();
     }
 
+    /**
+     * Genera PDF completo de factura (método alternativo)
+     * Llama internamente a generarPdfFacturaAsync
+     * Proporciona interfaz alternativa para conveniencia
+     * @param factura Entidad de factura
+     */
     public void generarPdfFacturaCompleto(FacturaEntity factura) {
         generarPdfFacturaAsync(factura);
     }
