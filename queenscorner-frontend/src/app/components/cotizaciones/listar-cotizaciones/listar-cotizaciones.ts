@@ -110,26 +110,23 @@ export class ListarCotizacionesComponent implements OnInit {
 
   eliminar(id: number, codigo: string) {
     Swal.fire({
-      title: '¿Eliminar cotización?',
-      text: `¿Estás seguro de que deseas eliminar la cotización ${codigo}?`,
+      title: '¿Ocultar cotización?',
+      text: `¿Deseas ocultar la cotización ${codigo} de la lista?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, ocultar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.cotizacionesService.eliminar(id).subscribe({
-          next: () => {
-            this.mensajeExito = `Cotización ${codigo} eliminada exitosamente`;
-            this.cargarCotizaciones();
-            setTimeout(() => this.mensajeExito = '', 3000);
-          },
-          error: () => {
-            this.error = 'Error al eliminar cotización';
-          }
-        });
+        // Simplemente eliminar de la lista visual
+        const index = this.cotizaciones.findIndex(c => c.id === id);
+        if (index > -1) {
+          this.cotizaciones.splice(index, 1);
+          this.mensajeExito = `Cotización ${codigo} ocultada exitosamente`;
+          setTimeout(() => this.mensajeExito = '', 3000);
+        }
       }
     });
   }
