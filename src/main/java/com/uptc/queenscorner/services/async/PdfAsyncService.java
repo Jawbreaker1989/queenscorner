@@ -40,8 +40,18 @@ public class PdfAsyncService {
                     PdfDocument pdfDoc = new PdfDocument(writer);
                     Document doc = new Document(pdfDoc);
                     
-                    doc.add(new Paragraph("========== COTIZACIÓN =========="));
+                    // ENCABEZADO EMPRESA
+                    doc.add(new Paragraph("QUEEN'S CORNER GALLERY"));
+                    doc.add(new Paragraph("Carrera 10 # 16 - 95, Sogamoso"));
+                    doc.add(new Paragraph("NIT: 56789056-6"));
+                    doc.add(new Paragraph("\"Diseño y confort a su servicio\""));
                     doc.add(new Paragraph(""));
+                    doc.add(new Paragraph("═══════════════════════════════════════════════════════"));
+                    doc.add(new Paragraph("COTIZACIÓN"));
+                    doc.add(new Paragraph("═══════════════════════════════════════════════════════"));
+                    doc.add(new Paragraph(""));
+                    
+                    // INFORMACIÓN COTIZACIÓN
                     doc.add(new Paragraph("Código: " + cotizacion.getCodigo()));
                     doc.add(new Paragraph("Número: " + cotizacion.getNumeroCotizacion()));
                     doc.add(new Paragraph("Fecha: " + cotizacion.getFechaCreacion().format(FECHA_FORMATO)));
@@ -49,7 +59,8 @@ public class PdfAsyncService {
                     doc.add(new Paragraph("Válida hasta: " + cotizacion.getFechaValidez()));
                     doc.add(new Paragraph(""));
                     
-                    doc.add(new Paragraph("--- CLIENTE ---"));
+                    // CLIENTE
+                    doc.add(new Paragraph("CLIENTE:"));
                     doc.add(new Paragraph("Nombre: " + cotizacion.getCliente().getNombre()));
                     doc.add(new Paragraph("Documento: " + cotizacion.getCliente().getDocumento()));
                     doc.add(new Paragraph("Email: " + cotizacion.getCliente().getEmail()));
@@ -57,27 +68,33 @@ public class PdfAsyncService {
                     doc.add(new Paragraph("Dirección: " + cotizacion.getCliente().getDireccion()));
                     doc.add(new Paragraph(""));
                     
-                    doc.add(new Paragraph("--- DESCRIPCIÓN ---"));
+                    // DESCRIPCIÓN
+                    doc.add(new Paragraph("DESCRIPCIÓN:"));
                     doc.add(new Paragraph(cotizacion.getDescripcion()));
                     doc.add(new Paragraph(""));
                     
-                    doc.add(new Paragraph("--- ITEMS ---"));
+                    // ITEMS
+                    doc.add(new Paragraph("ITEMS:"));
                     if (cotizacion.getItems() != null && !cotizacion.getItems().isEmpty()) {
-                        cotizacion.getItems().forEach(item -> {
-                            doc.add(new Paragraph("* " + item.getDescripcion() + " (Qty: " + item.getCantidad() 
-                                + ", Unit: $" + item.getPrecioUnitario() + ", Total: $" + item.getSubtotal() + ")"));
-                        });
+                        int num = 1;
+                        for (var item : cotizacion.getItems()) {
+                            doc.add(new Paragraph(num + ". " + item.getDescripcion()));
+                            doc.add(new Paragraph("   Cantidad: " + item.getCantidad() + " | Valor: $" + item.getPrecioUnitario() + " | Subtotal: $" + item.getSubtotal()));
+                            num++;
+                        }
                     }
                     doc.add(new Paragraph(""));
                     
-                    doc.add(new Paragraph("--- TOTALES ---"));
+                    // TOTALES
+                    doc.add(new Paragraph("───────────────────────────────────────────────────────"));
                     doc.add(new Paragraph("Subtotal: $" + cotizacion.getSubtotal()));
                     doc.add(new Paragraph("Impuestos (19%): $" + cotizacion.getImpuestos()));
                     doc.add(new Paragraph("TOTAL: $" + cotizacion.getTotal()));
+                    doc.add(new Paragraph("───────────────────────────────────────────────────────"));
+                    doc.add(new Paragraph(""));
                     
                     if (cotizacion.getObservaciones() != null && !cotizacion.getObservaciones().isEmpty()) {
-                        doc.add(new Paragraph(""));
-                        doc.add(new Paragraph("--- OBSERVACIONES ---"));
+                        doc.add(new Paragraph("OBSERVACIONES:"));
                         doc.add(new Paragraph(cotizacion.getObservaciones()));
                     }
                     
@@ -108,8 +125,18 @@ public class PdfAsyncService {
                     PdfDocument pdfDoc = new PdfDocument(writer);
                     Document doc = new Document(pdfDoc);
                     
-                    doc.add(new Paragraph("========== FACTURA DE VENTA =========="));
+                    // ENCABEZADO EMPRESA
+                    doc.add(new Paragraph("QUEEN'S CORNER GALLERY"));
+                    doc.add(new Paragraph("Carrera 10 # 16 - 95, Sogamoso"));
+                    doc.add(new Paragraph("NIT: 56789056-6"));
+                    doc.add(new Paragraph("\"Diseño y confort a su servicio\""));
                     doc.add(new Paragraph(""));
+                    doc.add(new Paragraph("═══════════════════════════════════════════════════════"));
+                    doc.add(new Paragraph("FACTURA DE VENTA"));
+                    doc.add(new Paragraph("═══════════════════════════════════════════════════════"));
+                    doc.add(new Paragraph(""));
+                    
+                    // INFORMACIÓN FACTURA
                     doc.add(new Paragraph("Número: " + factura.getNumeroFactura()));
                     doc.add(new Paragraph("Fecha Emisión: " + factura.getFechaCreacion().format(FECHA_FORMATO)));
                     if (factura.getFechaEnvio() != null) {
@@ -118,57 +145,53 @@ public class PdfAsyncService {
                     doc.add(new Paragraph("Estado: " + factura.getEstado()));
                     doc.add(new Paragraph(""));
                     
-                    // INFORMACIÓN DEL NEGOCIO Y CLIENTE
+                    // CLIENTE
+                    if (factura.getNegocio() != null && factura.getNegocio().getCotizacion() != null && 
+                        factura.getNegocio().getCotizacion().getCliente() != null) {
+                        doc.add(new Paragraph("CLIENTE:"));
+                        doc.add(new Paragraph("Nombre: " + factura.getNegocio().getCotizacion().getCliente().getNombre()));
+                        doc.add(new Paragraph("Documento: " + factura.getNegocio().getCotizacion().getCliente().getDocumento()));
+                        doc.add(new Paragraph("Email: " + factura.getNegocio().getCotizacion().getCliente().getEmail()));
+                        doc.add(new Paragraph("Teléfono: " + factura.getNegocio().getCotizacion().getCliente().getTelefono()));
+                        doc.add(new Paragraph("Dirección: " + factura.getNegocio().getCotizacion().getCliente().getDireccion()));
+                        doc.add(new Paragraph(""));
+                    }
+                    
+                    // NEGOCIO
                     if (factura.getNegocio() != null) {
-                        doc.add(new Paragraph("--- NEGOCIO ---"));
+                        doc.add(new Paragraph("NEGOCIO:"));
                         doc.add(new Paragraph("Código: " + factura.getNegocio().getCodigo()));
                         doc.add(new Paragraph("Descripción: " + factura.getNegocio().getDescripcion()));
                         doc.add(new Paragraph(""));
-                        
-                        // Obtener cliente de la cotización asociada al negocio
-                        if (factura.getNegocio().getCotizacion() != null && 
-                            factura.getNegocio().getCotizacion().getCliente() != null) {
-                            doc.add(new Paragraph("--- CLIENTE ---"));
-                            doc.add(new Paragraph("Nombre: " + factura.getNegocio().getCotizacion().getCliente().getNombre()));
-                            doc.add(new Paragraph("Documento: " + factura.getNegocio().getCotizacion().getCliente().getDocumento()));
-                            doc.add(new Paragraph("Email: " + factura.getNegocio().getCotizacion().getCliente().getEmail()));
-                            doc.add(new Paragraph("Teléfono: " + factura.getNegocio().getCotizacion().getCliente().getTelefono()));
-                            doc.add(new Paragraph("Dirección: " + factura.getNegocio().getCotizacion().getCliente().getDireccion()));
-                            doc.add(new Paragraph(""));
-                        }
                     }
                     
-                    // LÍNEAS DE FACTURA
-                    doc.add(new Paragraph("--- DETALLE DE LÍNEAS ---"));
+                    // DETALLE DE LÍNEAS
+                    doc.add(new Paragraph("DETALLE DE LÍNEAS:"));
                     if (factura.getLineas() != null && !factura.getLineas().isEmpty()) {
-                        factura.getLineas().forEach(linea -> {
-                            doc.add(new Paragraph("Línea " + linea.getNumeroLinea() + ": " + linea.getDescripcion()));
-                            doc.add(new Paragraph("  Cantidad: " + linea.getCantidad() 
-                                + ", Valor Unitario: $" + linea.getValorUnitario() 
-                                + ", Subtotal: $" + linea.getTotal()));
-                        });
+                        for (var linea : factura.getLineas()) {
+                            doc.add(new Paragraph(linea.getNumeroLinea() + ". " + linea.getDescripcion()));
+                            doc.add(new Paragraph("   Cantidad: " + linea.getCantidad() + " | Valor: $" + linea.getValorUnitario() + " | Subtotal: $" + linea.getTotal()));
+                        }
                     }
                     doc.add(new Paragraph(""));
                     
                     // TOTALES
-                    doc.add(new Paragraph("--- TOTALES FINANCIEROS ---"));
+                    doc.add(new Paragraph("───────────────────────────────────────────────────────"));
                     doc.add(new Paragraph("Subtotal: $" + factura.getSubtotal()));
                     if (factura.getAnticipo() != null && factura.getAnticipo().compareTo(java.math.BigDecimal.ZERO) > 0) {
                         doc.add(new Paragraph("Anticipo: $" + factura.getAnticipo()));
                     }
                     doc.add(new Paragraph("IVA (19%): $" + factura.getIva()));
                     doc.add(new Paragraph("TOTAL A PAGAR: $" + factura.getTotal()));
+                    doc.add(new Paragraph("───────────────────────────────────────────────────────"));
                     doc.add(new Paragraph(""));
                     
-                    // OBSERVACIONES
                     if (factura.getObservaciones() != null && !factura.getObservaciones().isEmpty()) {
-                        doc.add(new Paragraph("--- OBSERVACIONES ---"));
+                        doc.add(new Paragraph("OBSERVACIONES:"));
                         doc.add(new Paragraph(factura.getObservaciones()));
                         doc.add(new Paragraph(""));
                     }
                     
-                    // PIE DE FACTURA
-                    doc.add(new Paragraph("--- INFORMACIÓN DE EMISIÓN ---"));
                     doc.add(new Paragraph("Creado por: " + factura.getUsuarioCreacion()));
                     if (factura.getUsuarioEnvio() != null) {
                         doc.add(new Paragraph("Enviado por: " + factura.getUsuarioEnvio()));
