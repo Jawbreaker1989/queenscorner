@@ -14,6 +14,16 @@
     </div>
   </div>
 
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      (input)="filtrarFacturas()"
+      placeholder="Buscar por número de factura, cliente, negocio o estado..."
+    />
+  </div>
+
   <div class="contenido">
     <div *ngIf="loading" class="loading">
       <div class="spinner"></div>
@@ -25,6 +35,11 @@
       {{ error }}
     </div>
 
+    <div *ngIf="!loading && facturasFiltradas.length === 0 && facturas.length > 0" class="vacio">
+      <p>No se encontraron facturas que coincidan con tu búsqueda</p>
+      <p class="info-vacio">Intenta con otros términos o <button class="btn-link" (click)="searchTerm = ''; filtrarFacturas()">limpia la búsqueda</button></p>
+    </div>
+
     <div *ngIf="!loading && facturas.length === 0 && !error" class="vacio">
       <p>No hay facturas registradas</p>
       <p class="info-vacio">
@@ -33,7 +48,7 @@
       </p>
     </div>
 
-    <div *ngIf="!loading && facturas.length > 0" class="tabla-contenedor">
+    <div *ngIf="!loading && facturasFiltradas.length > 0" class="tabla-contenedor">
       <table class="tabla">
         <thead>
           <tr>
@@ -46,7 +61,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let factura of facturas" class="fila" (dblclick)="verDetalle(factura.id)">
+          <tr *ngFor="let factura of facturasFiltradas" class="fila" (dblclick)="verDetalle(factura.id)">
             <td class="codigo">{{ factura.numeroFactura || 'S/N' }}</td>
             <td class="cliente">{{ factura.negocio?.cliente?.nombre || factura.nombreCliente || 'Sin Cliente' }}</td>
             <td class="monto-total" [style.font-weight]="'600'">${{ (factura.total || factura.totalAPagar || 0) | number: '1.2-2' }}</td>

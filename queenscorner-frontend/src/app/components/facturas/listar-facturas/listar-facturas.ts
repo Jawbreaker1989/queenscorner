@@ -16,12 +16,14 @@ import Swal from 'sweetalert2';
 })
 export class ListarFacturasComponent implements OnInit {
   facturas: Factura[] = [];
+  facturasFiltradas: Factura[] = [];
   loading = true;
   error: string | null = null;
   negocioId: number | null = null;
   negocioNombre: string | null = null;
   pdfGenerando: { [key: number]: boolean } = {};
   pdfGenerados: { [key: number]: boolean } = {};
+  searchTerm: string = '';
 
   constructor(
     private facturaService: FacturaService,
@@ -56,6 +58,7 @@ export class ListarFacturasComponent implements OnInit {
         } else {
           this.facturas = [];
         }
+        this.filtrarFacturas();
         this.verificarPdfsGenerados();
         this.loading = false;
       },
@@ -74,6 +77,7 @@ export class ListarFacturasComponent implements OnInit {
     this.facturaService.listarPorNegocio(this.negocioId).subscribe({
       next: (response: ApiResponse<Factura[]>) => {
         this.facturas = response.data || [];
+        this.filtrarFacturas();
         this.verificarPdfsGenerados();
         this.loading = false;
       },
@@ -93,6 +97,22 @@ export class ListarFacturasComponent implements OnInit {
         this.pdfGenerados[factura.id] = true;
       }
     });
+  }
+
+  filtrarFacturas() {
+    if (!this.searchTerm.trim()) {
+      this.facturasFiltradas = [...this.facturas];
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase().trim();
+    this.facturasFiltradas = this.facturas.filter(factura =>
+      (factura.numeroFactura || '').toLowerCase().includes(term) ||
+      (factura.nombreCliente || '').toLowerCase().includes(term) ||
+      (factura.nombreNegocio || '').toLowerCase().includes(term) ||
+      (factura.negocio?.cliente?.nombre || '').toLowerCase().includes(term) ||
+      (factura.estado || '').toLowerCase().includes(term)
+    );
   }
 
   getEstadoColor(estado: string) {
@@ -178,6 +198,7 @@ export class ListarFacturasComponent implements OnInit {
         const index = this.facturas.findIndex(f => f.id === id);
         if (index > -1) {
           this.facturas.splice(index, 1);
+          this.filtrarFacturas();
         }
       }
     });
