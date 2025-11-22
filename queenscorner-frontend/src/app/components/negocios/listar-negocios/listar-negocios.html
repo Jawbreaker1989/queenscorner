@@ -5,6 +5,15 @@
       <p class="subtitle">Gestiona todos tus negocios desde cotizaciones aprobadas</p>
     </div>
     <div class="header-actions">
+      <div class="search-container">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="filtrarNegocios()"
+          placeholder="Buscar por código, cliente o cotización..."
+          class="search-input">
+        <span class="search-icon">🔍</span>
+      </div>
       <button class="btn btn-secondary" (click)="volver()">
         ← Volver
       </button>
@@ -22,12 +31,17 @@
       {{ error }}
     </div>
 
-    <div *ngIf="!loading && negocios.length === 0 && !error" class="vacio">
+    <div *ngIf="!loading && negociosFiltrados.length === 0 && !error && !searchTerm" class="vacio">
       <p>No hay negocios registrados</p>
       <p class="info-vacio">Los negocios se crean desde cotizaciones aprobadas</p>
     </div>
 
-    <div *ngIf="!loading && negocios.length > 0" class="tabla-contenedor">
+    <div *ngIf="!loading && negociosFiltrados.length === 0 && !error && searchTerm" class="vacio">
+      <p>No se encontraron negocios</p>
+      <p class="info-vacio">No hay resultados para "{{ searchTerm }}"</p>
+    </div>
+
+    <div *ngIf="!loading && negociosFiltrados.length > 0" class="tabla-contenedor">
       <table class="tabla">
         <thead>
           <tr>
@@ -42,7 +56,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let negocio of negocios" class="fila" (dblclick)="verDetalle(negocio.id)">
+          <tr *ngFor="let negocio of negociosFiltrados" class="fila" (dblclick)="verDetalle(negocio.id)">
             <td class="codigo">{{ negocio.codigo }}</td>
             <td class="cotizacion">
               <a href="#" (click)="$event.preventDefault()" title="Cotización de origen">

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NegociosService } from '../../../services/negocios';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { NegocioResponse, EstadoNegocio } from '../../../models/negocio.model';
 import Swal from 'sweetalert2';
 
@@ -10,12 +11,14 @@ import Swal from 'sweetalert2';
   templateUrl: './listar-negocios.html',
   styleUrls: ['./listar-negocios.css'],
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class ListarNegociosComponent implements OnInit {
   negocios: NegocioResponse[] = [];
+  negociosFiltrados: NegocioResponse[] = [];
   loading = true;
   error = '';
+  searchTerm = '';
 
   constructor(
     private negociosService: NegociosService,
@@ -34,6 +37,7 @@ export class ListarNegociosComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.negocios = response.data || [];
+          this.negociosFiltrados = [...this.negocios];
         } else {
           this.error = 'No se pudieron cargar los negocios';
         }
@@ -44,6 +48,20 @@ export class ListarNegociosComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  filtrarNegocios() {
+    if (!this.searchTerm.trim()) {
+      this.negociosFiltrados = [...this.negocios];
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase();
+    this.negociosFiltrados = this.negocios.filter(negocio =>
+      negocio.codigo.toLowerCase().includes(term) ||
+      negocio.cliente?.nombre.toLowerCase().includes(term) ||
+      negocio.codigoCotizacion?.toLowerCase().includes(term)
+    );
   }
 
   verDetalle(id: number) {
