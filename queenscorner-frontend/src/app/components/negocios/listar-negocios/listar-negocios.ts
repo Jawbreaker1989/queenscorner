@@ -56,25 +56,21 @@ export class ListarNegociosComponent implements OnInit {
 
   eliminar(id: number, codigo: string) {
     Swal.fire({
-      title: '¿Eliminar negocio?',
-      text: `¿Estás seguro de que deseas eliminar el negocio ${codigo}?`,
+      title: '¿Ocultar negocio?',
+      text: `¿Deseas ocultar el negocio ${codigo} de la lista?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc3545',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Eliminar',
+      confirmButtonText: 'Sí, ocultar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.negociosService.eliminar(id).subscribe({
-          next: () => {
-            Swal.fire('Eliminado', 'Negocio eliminado exitosamente', 'success');
-            this.cargarNegocios();
-          },
-          error: () => {
-            Swal.fire('Error', 'No se pudo eliminar el negocio', 'error');
-          }
-        });
+        // Simplemente eliminar de la lista visual
+        const index = this.negocios.findIndex(n => n.id === id);
+        if (index > -1) {
+          this.negocios.splice(index, 1);
+        }
       }
     });
   }
