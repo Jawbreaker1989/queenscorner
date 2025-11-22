@@ -68,6 +68,26 @@
   color: #adb5bd;
 }
 
+.btn-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  padding: 0;
+}
+
+.btn-link:hover {
+  color: #2980b9;
+}
+
+.info-busqueda {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin: 0.5rem 0 0 0;
+}
+
 .btn {
   padding: 10px 20px;
   border: none;

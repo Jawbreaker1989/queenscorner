@@ -5,19 +5,20 @@
       <p class="subtitle">Gestiona todos tus negocios desde cotizaciones aprobadas</p>
     </div>
     <div class="header-actions">
-      <div class="search-container">
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (input)="filtrarNegocios()"
-          placeholder="Buscar por código, cliente o cotización..."
-          class="search-input">
-        <span class="search-icon">🔍</span>
-      </div>
       <button class="btn btn-secondary" (click)="volver()">
         ← Volver
       </button>
     </div>
+  </div>
+
+  <div class="search-container">
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchTerm"
+      (input)="filtrarNegocios()"
+      placeholder="Buscar por código, cliente o cotización..."
+    />
   </div>
 
   <div class="contenido">
@@ -37,8 +38,8 @@
     </div>
 
     <div *ngIf="!loading && negociosFiltrados.length === 0 && !error && searchTerm" class="vacio">
-      <p>No se encontraron negocios</p>
-      <p class="info-vacio">No hay resultados para "{{ searchTerm }}"</p>
+      <p>No se encontraron negocios que coincidan con tu búsqueda</p>
+      <p class="info-busqueda">Intenta con otros términos o <button class="btn-link" (click)="searchTerm = ''; filtrarNegocios()">limpia la búsqueda</button></p>
     </div>
 
     <div *ngIf="!loading && negociosFiltrados.length > 0" class="tabla-contenedor">
