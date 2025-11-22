@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FacturaService } from '../../../services/facturas';
 import { Factura, ApiResponse } from '../../../models/factura.model';
+import { delay } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -204,7 +205,9 @@ export class ListarFacturasComponent implements OnInit {
 
     this.pdfGenerando[factura.id] = true;
 
-    this.facturaService.generarPdf(factura.id).subscribe({
+    this.facturaService.generarPdf(factura.id).pipe(
+      delay(5000) // Simular 5 segundos de carga
+    ).subscribe({
       next: () => {
         // Marcar como generado en localStorage
         const pdfKey = `pdf_generado_factura_${factura.id}`;

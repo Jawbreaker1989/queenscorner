@@ -1,6 +1,6 @@
 .contenedor {
-  padding: 20px;
-  max-width: 1600px;
+  padding: 25px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
@@ -8,41 +8,44 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding: 20px;
+  margin-bottom: 35px;
+  padding: 25px 30px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 8px;
+  border-radius: 10px;
   color: white;
-  gap: 20px;
+  gap: 25px;
   flex-wrap: wrap;
 }
 
 .header-content h1 {
   margin: 0;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .header-content .subtitle {
-  margin: 8px 0 0 0;
-  opacity: 0.9;
-  font-size: 14px;
+  margin: 10px 0 0 0;
+  opacity: 0.95;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .btn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   transition: all 0.3s ease;
+  line-height: 1.5;
 }
 
 .btn-primary {
@@ -52,6 +55,7 @@
 
 .btn-primary:hover {
   background-color: #0056b3;
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -61,12 +65,14 @@
 
 .btn-secondary:hover {
   background-color: #545b62;
+  transform: translateY(-2px);
 }
 
 .contenido {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .loading {
@@ -74,16 +80,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #667eea;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -94,103 +101,123 @@
 .error {
   background-color: #f8d7da;
   color: #721c24;
-  padding: 15px;
-  border-radius: 5px;
+  padding: 18px;
+  border-radius: 6px;
   margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  border: 2px solid #f5c6cb;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  font-size: 15px;
 }
 
 .error .icon {
-  font-size: 20px;
+  font-size: 24px;
+  flex-shrink: 0;
 }
 
 .vacio {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   color: #7f8c8d;
 }
 
 .vacio p {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-weight: 500;
 }
 
 .info-vacio {
-  font-size: 13px;
+  font-size: 15px;
   color: #95a5a6;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .tabla-contenedor {
   overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 
 .tabla {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .tabla thead {
-  background-color: #f8f9fa;
+  background-color: #f5f6fa;
+  position: sticky;
+  top: 0;
 }
 
 .tabla th {
-  padding: 12px 10px;
+  padding: 16px 14px;
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   color: #333;
   border-bottom: 2px solid #dee2e6;
   white-space: nowrap;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .tabla td {
-  padding: 12px 10px;
-  border-bottom: 1px solid #dee2e6;
-  color: #333;
+  padding: 16px 14px;
+  border-bottom: 1px solid #e8e8e8;
+  color: #555;
+}
+
+.tabla tbody tr {
+  transition: background-color 0.2s ease;
 }
 
 .tabla tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: #f9fafb;
 }
 
 .tabla .codigo {
-  font-weight: 600;
+  font-weight: 700;
   color: #667eea;
-  font-family: monospace;
+  font-family: 'Courier New', monospace;
   white-space: nowrap;
+  font-size: 16px;
 }
 
 .tabla .negocio {
   color: #3498db;
-  font-weight: 500;
-  max-width: 150px;
+  font-weight: 600;
+  max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 15px;
 }
 
 .tabla .cliente {
-  max-width: 150px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
+  font-size: 15px;
 }
 
 .tabla .monto {
-  font-weight: 500;
+  font-weight: 600;
   color: #27ae60;
   text-align: right;
+  font-size: 15px;
 }
 
 .tabla .monto-total {
-  font-weight: 700;
+  font-weight: 800;
   color: #27ae60;
   text-align: right;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .tabla .estado {
@@ -198,15 +225,16 @@
 }
 
 .tabla .fecha {
-  color: #7f8c8d;
-  font-size: 12px;
+  color: #888;
+  font-size: 14px;
   text-align: center;
   white-space: nowrap;
+  font-weight: 500;
 }
 
 .tabla .acciones {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: center;
   white-space: nowrap;
   align-items: center;
@@ -215,17 +243,18 @@
 .pdf-button-container {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .pdf-loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #f3f3f3;
-  border-top: 2px solid #667eea;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #f3f3f3;
+  border-top: 2.5px solid #667eea;
   border-radius: 50%;
   display: inline-block;
   animation: spin-pdf 0.8s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes spin-pdf {
@@ -234,12 +263,17 @@
 }
 
 .btn-accion {
-  padding: 6px 8px;
+  padding: 8px 10px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   transition: all 0.2s ease;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-detalle {
@@ -250,6 +284,7 @@
 .btn-detalle:hover {
   background-color: #667eea;
   color: white;
+  transform: scale(1.05);
 }
 
 .btn-editar {
@@ -260,6 +295,23 @@
 .btn-editar:hover {
   background-color: #ffc107;
   color: white;
+  transform: scale(1.05);
+}
+
+.btn-generar {
+  background-color: #d1e7f0;
+  color: #2196F3;
+}
+
+.btn-generar:hover:not(:disabled) {
+  background-color: #2196F3;
+  color: white;
+  transform: scale(1.05);
+}
+
+.btn-generar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-descargar {
@@ -270,6 +322,7 @@
 .btn-descargar:hover {
   background-color: #27ae60;
   color: white;
+  transform: scale(1.05);
 }
 
 .btn-eliminar {
@@ -280,15 +333,17 @@
 .btn-eliminar:hover {
   background-color: #dc3545;
   color: white;
+  transform: scale(1.05);
 }
 
 .badge {
   display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 22px;
+  font-size: 13px;
+  font-weight: 700;
   text-align: center;
+  letter-spacing: 0.3px;
 }
 
 .badge-warning {
@@ -319,77 +374,114 @@
 @media (max-width: 1200px) {
   .tabla th,
   .tabla td {
-    padding: 10px 8px;
-    font-size: 12px;
+    padding: 14px 12px;
+    font-size: 14px;
+  }
+
+  .tabla .codigo {
+    font-size: 15px;
   }
 
   .tabla .cliente,
   .tabla .negocio {
-    max-width: 120px;
+    max-width: 140px;
+    font-size: 14px;
+  }
+
+  .header-content h1 {
+    font-size: 30px;
+  }
+
+  .contenedor {
+    padding: 20px;
   }
 }
 
 @media (max-width: 768px) {
   .contenedor {
-    padding: 10px;
+    padding: 12px;
   }
 
   .header {
     flex-direction: column;
     align-items: stretch;
-    padding: 15px;
+    padding: 18px 20px;
+    margin-bottom: 25px;
   }
 
   .header-content h1 {
-    font-size: 22px;
+    font-size: 26px;
+  }
+
+  .header-content .subtitle {
+    font-size: 14px;
   }
 
   .header-actions {
     width: 100%;
+    gap: 8px;
   }
 
   .header-actions .btn {
     flex: 1;
     text-align: center;
+    font-size: 14px;
+    padding: 10px 16px;
   }
 
   .tabla-contenedor {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border-radius: 6px;
   }
 
   .tabla {
-    font-size: 11px;
-    min-width: 800px;
+    font-size: 13px;
+    min-width: 850px;
   }
 
-  .tabla th,
+  .tabla th {
+    padding: 12px 10px;
+    font-size: 12px;
+  }
+
   .tabla td {
-    padding: 8px 6px;
+    padding: 12px 10px;
+  }
+
+  .tabla .codigo {
+    font-size: 14px;
   }
 
   .tabla .cliente,
   .tabla .negocio {
-    max-width: 80px;
+    max-width: 100px;
+    font-size: 13px;
   }
 
   .tabla .acciones {
-    flex-direction: column;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .btn-accion {
-    padding: 4px 6px;
-    font-size: 12px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 6px 8px;
+    font-size: 14px;
+    min-width: 36px;
+    height: 36px;
   }
 
   .badge {
-    padding: 4px 8px;
-    font-size: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .pdf-loading-spinner {
+    width: 16px;
+    height: 16px;
+  }
+
+  .contenido {
+    padding: 15px;
   }
 }
